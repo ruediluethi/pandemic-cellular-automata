@@ -1,0 +1,30 @@
+{
+  "name": "gulp-and-browserify",
+  "version": "0.0.0",
+  "description": "Test",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "async": "^1.0.0",
+    "backbone": "^1.4.0",
+    "browserify": "^8.0.3",
+    "browsernizr": "^2.0.0",
+    "d3-browserify": "^3.4.12",
+    "gulp": "^3.8.10",
+    "gulp-connect": "^2.2.0",
+    "gulp-html2tpl": "^0.5.0",
+    "gulp-if": "^1.2.5",
+    "gulp-regex-replace": "^0.2.3",
+    "gulp-streamify": "0.0.5",
+    "gulp-uglify": "^1.0.2",
+    "jquery": "^3.4.1",
+    "jquery-ui": "^1.12.1",
+    "jquery-ui-dist": "^1.12.1",
+    "topojson": "^3.0.2",
+    "vinyl-source-stream": "^1.0.0"
+  }
+}
