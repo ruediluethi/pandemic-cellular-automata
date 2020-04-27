@@ -155,9 +155,10 @@ h3 {
     margin-bottom: 10px;
     color: #000000;
 }
-h3 span {
+h3 > span {
     border-bottom: 2px solid #000000;
 }
+
 /*
 body.mobile h3 {
     text-align: left;
@@ -205,6 +206,17 @@ span.not-stable {
     background: #fd9999;   
 }
 
+p.comment {
+    padding: 2px;
+    background: #fffdbb;   
+}
+p.quote {
+    padding: 2px;
+    background: #e2e2e2;
+    color: #696969; 
+}
+
+
 table td {
     vertical-align: middle;
     text-align: center;
@@ -224,6 +236,11 @@ table td.push-right {
     top: -10px;
     position: relative;
     line-height: 16px;
+}
+
+.citation {
+    font-size: 14px;
+    font-style: italic;
 }
 
 .formula {

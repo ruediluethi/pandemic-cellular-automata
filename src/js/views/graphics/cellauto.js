@@ -24,6 +24,7 @@ module.exports = Backbone.View.extend({
 	envWidth: 1,
 	envHeight: 1,
 
+	$svg: undef,
 	gCellGrid: undef,
 
 	diagramWidth: 100,
@@ -33,18 +34,17 @@ module.exports = Backbone.View.extend({
 
 	movement: undef,
 
-	sectorColors: ['#EEEEEE', window.GREEN, window.RED, window.YELLOW],
+	sectorColors: ['#EEEEEE', window.GREEN, window.RED, window.DARKRED, window.YELLOW],
 
 	alpha: 0.5, // infection probability
 	beta: 0.1,  // recover probability
+	gamma: 0.1, // outbreak probability
 
 	vPlot: undef,
 	compareCA: undef,
 
-	S0: 0,
-	I0: 0,
-	R0: 0,
 	S: [],
+	E: [],
 	I: [],
 	R: [],
 	P: [],
@@ -104,8 +104,8 @@ module.exports = Backbone.View.extend({
 		var self = this;
 
 		self.$el.html(templates[self.template]({ title: self.title }));
-		var $svg = self.$el.find('svg')[0];
-		var svg = d3.select($svg);
+		self.$svg = self.$el.find('svg');
+		var svg = d3.select(self.$svg[0]);
 
 		if (width != undef && height != undef){
 			self.diagramWidth = width;
@@ -114,6 +114,9 @@ module.exports = Backbone.View.extend({
 			self.diagramWidth = self.$el.find('.cellenv-container').width();
 			self.diagramHeight = self.diagramWidth;
 		}
+
+		//self.diagramWidth = 1024;
+		//self.diagramHeight = 1024;
 
 		svg.attr('width', self.diagramWidth);
 		svg.attr('height', self.diagramHeight);
@@ -209,6 +212,7 @@ module.exports = Backbone.View.extend({
 		self.gCellGrid.selectAll('g.cell').remove();
 
 		self.S = [];
+		self.E = [];
 		self.I = [];
 		self.R = [];
 		self.P = [];
@@ -248,18 +252,15 @@ module.exports = Backbone.View.extend({
 		return cells;
 	},
 
-	initIndividuals: function(S, I, R){
+	initIndividuals: function(S, E, I, R){
 		var self = this;
 
 		self.cellData = self.initEmptyCells();
 
-		self.S0 = S;
-		self.I0 = I;
-		self.R0 = R;
-
 		self.initIndividualType(S, 1);
-		self.initIndividualType(I, 2);
-		self.initIndividualType(R, 3);
+		self.initIndividualType(E, 2);
+		self.initIndividualType(I, 3);
+		self.initIndividualType(R, 4);
 
 		/*
 		if (S+I+R > 0){
@@ -268,13 +269,14 @@ module.exports = Backbone.View.extend({
 		*/
 
 		self.S.push(S);
+		self.E.push(E);
 		self.I.push(I);
 		self.R.push(R);
-		self.P.push(S+I+R);
+		self.P.push(S+E+I+R);
 		self.timeline.push(0);
 
 
-		if (self.compareCA != undef){ self.compareCA.initIndividuals(S,I,R); }
+		if (self.compareCA != undef){ self.compareCA.initIndividuals(S,E,I,R); }
 
 
 		if (self.showMovement || self.showCollision || self.showInfection){ 
@@ -391,7 +393,10 @@ module.exports = Backbone.View.extend({
 					if (self.showPlot){ self.updatePlot(); }
 					self.crntStep = 0;
 
-					self.move();
+					self.saveImg(function(){
+						self.move();
+					});
+					
 
 				}, self.showInfection ? self.pauseTime : 1);
 			}, self.showCollision ? self.pauseTime : 1);
@@ -434,26 +439,101 @@ module.exports = Backbone.View.extend({
 
 		var newCells = self.initEmptyCells();
 
+		// sick individuals don't move
+		for (var k = 0; k < self.cellData.length; k++){
+			var crntCell = self.cellData[k];
+			if (crntCell.n > 0){
+				for (var l = 0; l < 6; l++){
+					
+					if (crntCell.sectors[l] == 3 && !self.cells[k].dontRotate){
+
+						var crntNewCell = newCells[k];;
+						crntNewCell.sectors[l] = crntCell.sectors[l];
+						crntCell.sectors[l] = 0;
+						crntNewCell.n++;
+						newCells[k] = crntNewCell;
+					}
+				}
+			}
+		}
+
+
+		// move rest
 		for (var k = 0; k < self.cellData.length; k++){
 			var crntCell = self.cellData[k];
 			if (crntCell.n > 0){
 				for (var l = 0; l < 6; l++){
 					if (crntCell.sectors[l] > 0){
-						//var crntMvmnt = movementSteps[l];
-						//var iNext = (self.envHeight + crntCell.i + crntMvmnt[2])%self.envHeight;
-						//var jNext = (self.envWidth + crntCell.j + crntMvmnt[crntCell.i%2])%self.envWidth;
-						//var kNext = iNext*self.envWidth + jNext;
 
-						var kNext = self.moveOneStep(crntCell.i, crntCell.j, l);
+						var lNext = l;
+						var kNext = self.moveOneStep(crntCell.i, crntCell.j, lNext);
+						var nextCell = newCells[kNext];
+
+						// if space is occupied go to next
+						while(nextCell.sectors[lNext] != 0){
+
+							kNext = self.moveOneStep(nextCell.i, nextCell.j, lNext);
+							nextCell = newCells[kNext];
+
+							if (nextCell.closed){
+								lNext = (lNext+3)%6;
+
+								kNext = self.moveOneStep(nextCell.i, nextCell.j, lNext);
+								nextCell = newCells[kNext];
+							}
+						}
+
 
 						var crntNewCell = newCells[kNext];
-						crntNewCell.sectors[l] = crntCell.sectors[l];
+						crntNewCell.sectors[lNext] = crntCell.sectors[l];
 						crntNewCell.n++;
 						newCells[kNext] = crntNewCell;
 					}
 				}
 			}
 		}
+
+		/*
+		// sick individuals don't move
+		for (var k = 0; k < self.cellData.length; k++){
+			var crntCell = self.cellData[k];
+			if (crntCell.n > 0){
+				for (var l = 0; l < 6; l++){
+					
+					if (crntCell.sectors[l] == 3){
+
+						var iNext = l;
+						var kNext = k; // stay still
+						var nextCell = crntCell;
+
+						// if space is occupied
+						while (newCells[kNext].sectors[l] > 0){
+							// search for empty space inside the same cell
+							var spaceFound = false;
+							for (var i = 0; i < 6; i++){
+								if (newCells[kNext].sectors[i] == 0){
+									iNext = i;
+									spaceFound = true;
+									break;
+								}
+							}
+							if (spaceFound){
+								break;
+							}
+							// move forward
+							kNext = self.moveOneStep(nextCell.i, nextCell.j, l);
+							nextCell = self.cellData[kNext];
+						}
+						
+						var crntNewCell = newCells[kNext];
+						crntNewCell.sectors[iNext] = 3;
+						crntNewCell.n++;
+						newCells[kNext] = crntNewCell;
+					}
+				}
+			}
+		}
+		*/
 
 		self.cellData = newCells;
 
@@ -761,7 +841,15 @@ module.exports = Backbone.View.extend({
 		for (var k = 0; k < self.cellData.length; k++){
 			var crntCell = self.cellData[k];
 
-			if (crntCell.n > 1 /*&& crntCell.n < 4*/ && !self.cells[k].dontRotate){
+			var sickInside = false;
+			for (var l = 0; l < 6; l++){
+				if (crntCell.sectors[l] == 3){
+					sickInside = true;
+					break;
+				}
+			}
+
+			if (crntCell.n > 1 /*&& !self.cells[k].dontRotate*/ && !sickInside){
 				var direction = 1;
 				if (Math.random() > 0.5){
 					direction = -1;
@@ -787,12 +875,51 @@ module.exports = Backbone.View.extend({
 				if (crntCell.sectors[l] > 0){
 
 					var kNext = self.moveOneStep(crntCell.i, crntCell.j, l);
-
+					// if next cell is a wall
 					if (self.cells[kNext].closed){
-						if (crntCell.sectors[(l+3)%6] != 0){
+
+						var lNext = (l+3)%6;
+						var nextCell = crntCell;
+
+						var rndI = Math.floor(Math.random()*6);
+						for (var i = 0; i < 6; i++){
+
+							var s = (rndI+i)%6;
+
+							var iNext = self.moveOneStep(nextCell.i, nextCell.j, s);
+							if (nextCell.sectors[s] == 0 && !self.cells[iNext].closed){
+								lNext = s;
+								break;
+							}
+						}
+
+						//while (nextCell.sectors[lNext] != 0){
+						if (nextCell.sectors[lNext] != 0){
+
+							/*
+							var emptySpaceFound = false;
+							for (var i = 0; i < 6; i++){
+
+								var iNext = self.moveOneStep(nextCell.i, nextCell.j, i);
+								if (nextCell.sectors[i] == 0 && !self.cells[iNext].closed){
+									lNext = i;
+									emptySpaceFound = true;
+									break;
+								}
+
+							}
+							if (emptySpaceFound){
+								console.log('...');
+								break;
+							}
+
+							kNext = self.moveOneStep(nextCell.i, nextCell.j, lNext);
+							nextCell = self.cellData[kNext];
+							*/
+
 							console.log('###ERROR### possible loss of individuals!!!')
 						}
-						crntCell.sectors[(l+3)%6] = crntCell.sectors[l];
+						nextCell.sectors[lNext] = crntCell.sectors[l];
 						crntCell.sectors[l] = 0;
 					}
 				}
@@ -811,7 +938,7 @@ module.exports = Backbone.View.extend({
 			// count infected individuals inside the cell
 			var infectedCount = 0;
 			for (var l = 0; l < 6; l++){
-				if (crntCell.sectors[l] == 2){ // if infected
+				if (crntCell.sectors[l] == 2 || crntCell.sectors[l] == 3){ // if infected
 					infectedCount++;
 				}
 			}
@@ -833,11 +960,17 @@ module.exports = Backbone.View.extend({
 			// calc chance to recover after infection!!!
 			for (var l = 0; l < 6; l++){
 				if (crntCell.sectors[l] == 2){ // if infected
-					if (Math.random() < self.beta){ // chance to recover
+					if (Math.random() < self.gamma){ // chance for the outbreak of the illness
 						crntCell.sectors[l] = 3;
+					}
+
+				}else if (crntCell.sectors[l] == 3){ // if sick
+					if (Math.random() < self.beta){ // chance to recover
+						crntCell.sectors[l] = 4;
 					}
 				}
 			}
+
 
 			self.cellData[k] = crntCell;
 		}
@@ -848,28 +981,43 @@ module.exports = Backbone.View.extend({
 		var self = this;
 
 		var S = 0;
+		var E = 0;
 		var I = 0;
 		var R = 0;
 		for (var k = 0; k < self.cellData.length; k++){
 			var crntCell = self.cellData[k];
 			for (var l = 0; l < 6; l++){
 				if (crntCell.sectors[l] == 1){ S++; }
-				if (crntCell.sectors[l] == 2){ I++; }
-				if (crntCell.sectors[l] == 3){ R++; }
+				if (crntCell.sectors[l] == 2){ E++; }
+				if (crntCell.sectors[l] == 3){ I++; }
+				if (crntCell.sectors[l] == 4){ R++; }
 			}
 		}
 
+		
+		var P = S+E+I+R;
+
+		console.log(P);
+
+		// 33,9 Intensivbetten auf 100 000
+		var beds = 33.9 * P / 100000;
+
+		//console.log(I);
+		//console.log((I*0.01)+'/'+beds);
+
+
 		self.S.push(S);
+		self.E.push(I+E);
 		self.I.push(I);
 		self.R.push(R);
-		self.P.push(S+I+R);
+		self.P.push(P);
 		self.timeline.push(self.timeline.length);
 
 		if (self.compareCA != undef){ self.compareCA.updatePlot(); }
 
 		if (self.timeline.length > 1){
 			if (self.showPlot){
-				var plotData = [self.S, self.I, self.R, self.P];
+				var plotData = [self.S, self.E, self.R, self.P];
 				if (self.compareCA != undef){
 					//console.log(self.compareCA.I);
 					plotData = [self.S, self.I, self.R, self.P,
@@ -927,7 +1075,7 @@ module.exports = Backbone.View.extend({
 		        for (var l = 0; l  < 6; l++){
 		        	d.sectorPaths.push(g.append('path')
 						.attr('fill', '#EEEEEE')
-						.attr('stroke-width', 0)
+						.attr('stroke-width', 1)
 						.attr('d', pathDrawFunction([
 							center,
 							d.edges[l],
@@ -936,21 +1084,13 @@ module.exports = Backbone.View.extend({
 						])));
 		        }
 
+		        
 		        d.outline = g.append('path')
-					.attr('fill', 'transparent')
+					.attr('fill', '#777777')
+					.attr('fill-opacity', 0)
 					.attr('stroke', '#FFFFFF')
 					.attr('stroke-width', 1)
-					.attr('d', pathDrawFunction(d.edges));
-
-				d.outline
-					/*.on('mouseover', function(d, i){
-						var p = d3.select(this);
-						p.attr('fill', '#FFFFFF');
-					})
-					.on('mouseout', function(d, i){
-						var p = d3.select(this);
-						p.attr('fill', 'transparent');
-					})*/
+					.attr('d', pathDrawFunction(d.edges))
 					.on('click', function(d, i){
 						self.closeOneCell(k);
 					});
@@ -976,27 +1116,53 @@ module.exports = Backbone.View.extend({
 							.transition()
 							//.delay(function(){ return self.pauseTime/self.cells.length*k; })
 							.duration(animationDuration)
+							//.attr('stroke', self.sectorColors[crntCellData.sectors[l]])
 							.attr('fill', self.sectorColors[crntCellData.sectors[l]]);
 					}
 				}else{
 					for (var l = 0; l  < 6; l++){
-						d.sectorPaths[l].attr('fill', self.sectorColors[crntCellData.sectors[l]]);
+						d.sectorPaths[l]
+							.attr('stroke', self.sectorColors[crntCellData.sectors[l]])
+							.attr('fill', self.sectorColors[crntCellData.sectors[l]]);
 					}
 				}
 
+				
 				d.outline.attr('opacity', 1);
 				if (self.cells[k].closed){
-					d.outline.attr('fill', '#777777');
+					d.outline.attr('fill-opacity', 1)
 				}else if (self.cells[k].dontRotate){
-					//d.outline.attr('fill', '#777777');
-					//d.outline.attr('opacity', 0.2);
+					//d.outline.attr('fill-opacity', 0.5)
 				}else{
-					d.outline.attr('fill', 'transparent');
+					d.outline.attr('fill-opacity', 0)
 				}
 
 			});
 		}
 
+	},
+
+	saveImg: function(callback){
+		var self = this;
+
+		callback.call();
+		return;
+
+		var input = {
+			'id': self.timeline.length,
+			'svg': self.$svg.clone().wrap('<div>').parent().html()
+		};
+
+		$.ajax({
+			type: 'POST',
+			url: 'http://localhost/svg2png/convert.php',
+			data: input,
+			success: function(output){
+				console.log(output);
+
+				callback.call();
+			}
+		});
 	},
 
 	hide: function(){

@@ -7,25 +7,23 @@ module.exports = Backbone.View.extend({
 
 	className: 'scroll-ribbon',
 
-	paddingTop: 0,
 	screenHeight: 0,
-	navElementHeight: 20,
+	paddingTop: 20,
+	paddingBottom: 90,
+	anchorElements: [],
 
-	$navigation: undef,
-	navElements: [],
+	$footer: undef,
+	$footerAnchor: undef,
 
 	events: {
-		'click .scroll-nav-element': 'navClick'
+		'click .scroll-nav-element': 'navClick',
+		'mouseover .footer-anchor .scroll-element-content': 'showMenu',
+		'mouseout .footer-anchor .scroll-element-content': 'hideMenu',
+		'click .footer-anchor .scroll-element-content': 'clickMenu',
 	},
 
 	initialize: function(options) {
 		var self = this;
-
-		self.paddingTop = options.paddingTop;
-
-		if (options.navElementHeight != undef){
-			self.navElementHeight = options.navElementHeight;
-		}
 
 	},
 
@@ -39,27 +37,23 @@ module.exports = Backbone.View.extend({
         self.scrollHandler();
 	},
 
-	resize: function(height_){
+	resize: function(height){
 		var self = this;
 
-		self.screenHeight = height_;
+		self.screenHeight = height;
 
-		self.$el.find('.scroll-element').each(function(i){
-			if (i < 2){
-				$(this).css({
-					height: self.screenHeight
-				});
+		/*
+		self.$el.find('.scroll-element').css({
+			minHeight: self.screenHeight
+		});
+		*/
 
-			}else if(i >= self.$el.find('.scroll-element').length-1){
-				$(this).css({
-					height: self.screenHeight - 125
-				});
+		self.$el.find('.scroll-element.full-screen').css({
+			height: self.screenHeight
+		});
 
-			}else{
-				$(this).css({
-					paddingBottom: self.screenHeight*1.5
-				});
-			}
+		self.$el.find('.scroll-element.push-next').css({
+			paddingBottom: self.screenHeight
 		});
 
 		self.scrollHandler();
@@ -70,33 +64,20 @@ module.exports = Backbone.View.extend({
 
 		self.$el.html(templates[templateName]({ }));
 
-		self.$navigation = $('<div class="scroll-navigation"></div>');
+		self.$footer = self.$el.find('.footer');
+		self.$footerAnchor = self.$el.find('.scroll-element.footer-anchor');
+
+
+		self.anchorElements = [];
 		self.$el.find('.scroll-element').each(function(i){
+			self.anchorElements.push($(this));
 
-			var title = '';
-			var additionalClass = '';
-			if ($(this).find('h1').length > 0){
-				title = $(this).find('h1').html();
-				additionalClass = 'headline';
-
-			}else if ($(this).find('h2').length > 0){
-				title = $(this).find('h2').html();
-			}
-
-			var $nav = $('<div class="scroll-nav-element '+additionalClass+'">'+
-				'<div class="inside-scroll-nav-element">'+
-					title+
-				'</div>'+
-			'</div>');
-			$nav.data('anchor', $(this));
-			if (!$(this).hasClass('dont-navigate')){
-				self.$navigation.append($nav);
-			}
-
-			self.navElements.push($nav);
-
+			self.$footerAnchor.find('.scroll-col.'+$(this).data('anchor')).html(
+				$(this).find('.scroll-col').last().html()
+			);
 		});
-		self.$el.append(self.$navigation);
+
+		self.$footer.html(self.$footerAnchor.html());
 
 		return self;
 	},
@@ -106,111 +87,64 @@ module.exports = Backbone.View.extend({
 
  		var windowScrollTop = $(window).scrollTop() + self.screenHeight;
 
-		var currentIpos = 0;
-		var i = 0;
-		for (var n = 0; n < self.navElements.length; n++){
+		for (var n = 0; n < self.anchorElements.length; n++){
+			var $anchor = self.anchorElements[n];
+			var $col = self.$footer.find('.scroll-col.'+$anchor.data('anchor'));
 
-			$nav = self.navElements[n];
-			$anchor = $nav.data('anchor');
-
-			if (!$anchor.hasClass('dont-navigate')){
-				i++;
+			if ($(window).scrollTop() - self.paddingTop > $anchor.offset().top) {
+				$anchor.addClass('above');
+			}else{
+				$anchor.removeClass('above');
 			}
 
-			/*
-			$nav.css({
-				right: $(window).width() - $anchor.offset().left
-			});
-			*/
+			if (windowScrollTop - self.paddingBottom < $anchor.offset().top){
+			}else if (windowScrollTop - self.paddingBottom > $anchor.offset().top + $anchor.outerHeight() ){
+			}else{
+				self.trigger('onScroll', $anchor, windowScrollTop - self.paddingBottom - $anchor.offset().top);
+			}
 
-			$nav.data('top', self.paddingTop + (i-1)*self.navElementHeight);
-			$nav.data('bottom', self.screenHeight - (self.$navigation.find('.scroll-nav-element').length-currentIpos)*self.navElementHeight - (currentIpos-i)*self.navElementHeight -self.navElementHeight);
+			if (windowScrollTop - self.paddingBottom < $anchor.offset().top){
 
-			var fixedTop = self.screenHeight - (windowScrollTop - $anchor.offset().top);
+				if ($anchor.hasClass('on-screen')){
+					$anchor.removeClass('on-screen');
 
-
-			$nav.removeClass('in-the-middle');
-			$nav.removeClass('on-top');
-			$nav.removeClass('on-bottom');
-
-			if (windowScrollTop < $anchor.offset().top){
-
-				$nav.css({
-					top: $nav.data('bottom')
-				});
-				$nav.addClass('on-bottom');
-
-				$anchor.removeClass('on-screen');
-				if ($anchor.hasClass('in-the-middle')){
-					self.trigger('inTheMiddleLost', $anchor);
+					$col.removeClass('active');
+					self.slideMenuUp($col);
 				}
-				$anchor.removeClass('in-the-middle');
+
+				//$anchor.removeClass('above');
+				$anchor.addClass('below');
 
 			}else if (windowScrollTop > $anchor.offset().top + $anchor.outerHeight() ){
-				
-				$nav.css({
-					top: $nav.data('top')
-				});
-				$nav.addClass('on-top');
+			
+				if ($anchor.hasClass('on-screen')){
+					$anchor.removeClass('on-screen');
 
-				$anchor.removeClass('on-screen');
-				if ($anchor.hasClass('in-the-middle')){
-					self.trigger('inTheMiddleLost', $anchor);
+					$col.removeClass('active');
+					self.slideMenuUp($col);
 				}
-				$anchor.removeClass('in-the-middle');
+				//$anchor.addClass('above');
+				$anchor.removeClass('below');
 				
 			}else{
 
-				currentIpos = i;
-
-				if (fixedTop > $nav.data('bottom')){
-					$nav.css({
-						top: $nav.data('bottom')
-					});
-					$nav.addClass('on-bottom');
-
-					if ($anchor.hasClass('in-the-middle')){
-						self.trigger('inTheMiddleLost', $anchor);
-					}
-					$anchor.removeClass('in-the-middle');
-					
-				}else if (fixedTop < $nav.data('top')){
-					$nav.css({
-						top: $nav.data('top')
-					});
-					$nav.addClass('on-top');
-
-					if ($anchor.hasClass('in-the-middle')){
-						self.trigger('inTheMiddleLost', $anchor);
-					}
-					$anchor.removeClass('in-the-middle');
-
-				}else{
-					var topPos = self.screenHeight - (windowScrollTop - $anchor.offset().top);
-					$nav.css({
-						top: topPos
-					});
-
-					var normMiddlePos = (topPos - $nav.data('top'))/($nav.data('bottom') - $nav.data('top'));
-					self.trigger('onUpdateMiddlePos', $anchor, $nav, normMiddlePos);
-					//console.log($anchor.data('anchor')+': '+normMiddlePos);
-
-					$nav.addClass('in-the-middle');
-
-					if (!$anchor.hasClass('in-the-middle')){
-						self.trigger('inTheMiddleOfScrollAnchor', $anchor);
-					}
-					$anchor.addClass('in-the-middle');
-					
-				}
-
 				if (!$anchor.hasClass('on-screen')){
+					$anchor.addClass('on-screen');
 					self.trigger('onScrollAnchor', $anchor);
-				}
-				$anchor.addClass('on-screen');
-			}
 
+					
+					self.slideMenuDown($col);
+					$col.addClass('active');
+				}
+
+				
+				//$anchor.removeClass('above');
+				$anchor.removeClass('below');
+			}
 		}
+
+		self.$footer.attr('class', 'footer '+self.$footerAnchor.attr('class'));
+		self.$footer.removeClass('full-screen');
 	},
 
 	navClick: function(e){
@@ -220,25 +154,70 @@ module.exports = Backbone.View.extend({
 		self.scrollTo($nav.data('anchor'), $nav, function(){});
 	},
 
+	setNoMenuActive: function(menuClass){
+		var self = this;
+
+		self.$footer.find('.scroll-col').removeClass('active');
+	},
+	setMenuActive: function(menuClass){
+		var self = this;
+
+		var $col = self.$footer.find('.scroll-col.'+menuClass);
+		$col.find('.text-box').css({
+			height: 0
+		}).hide();
+		$col.addClass('active');
+	},
+
+	slideMenuUp: function($col){
+		if ($col.hasClass('active')){ return; }
+		var $menu = $col.find('.text-box');
+		$menu.stop().animate({
+			height: 0
+		}, 200, function(){
+			$menu.hide();
+		});
+	},
+	slideMenuDown: function($col){
+		if ($col.hasClass('active')){ return; }
+		var $menu = $col.find('.text-box');
+		$menu.stop().show().animate({
+			height: 200
+		}, 200);
+	},
+
+	showMenu: function(e){
+		var self = this;
+		self.slideMenuDown($(e.currentTarget).parent());
+	},
+	hideMenu: function(e){
+		var self = this;
+		self.slideMenuUp($(e.currentTarget).parent());
+	},
+	clickMenu: function(e){
+		var self = this;
+		self.scrollToKey($(e.currentTarget).data('scrollto'));
+	},
+
 	scrollToKey: function(key, callback){
 		var self = this;
 
-		for (var i = 0; i < self.navElements.length; i++){
-			var $anchor = self.navElements[i].data('anchor');
+		for (var i = 0; i < self.anchorElements.length; i++){
+			var $anchor = self.anchorElements[i];
 			if ($anchor.data('anchor') == key){
-		        self.scrollTo($anchor, self.navElements[i], callback);	
+		        self.scrollTo($anchor, callback);	
 				return;
 			}
 		}
 
-		callback.call();
+		//callback.call();
 	},
 
-	scrollTo: function($anchor, $nav, callback){
+	scrollTo: function($anchor, callback){
 		var self = this;
 
 		$('html, body').stop().animate({
-            scrollTop: $anchor.offset().top - $nav.data('top')
+            scrollTop: $anchor.offset().top - self.paddingBottom
 		}, 800).promise().then(callback);
 
 	}

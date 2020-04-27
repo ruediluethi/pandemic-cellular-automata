@@ -1,0 +1,480 @@
+body, html {
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.004);
+    text-rendering: optimizeLegibility !important;
+    -webkit-font-smoothing: antialiased !important;
+}
+
+#wrapper {
+	/*overflow: hidden;*/
+}
+
+#loading-overlay {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    background: url("../imgs/loading_back.png") repeat 0px 0px transparent;
+}
+
+#infographic {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    /*max-width: 900px;*/
+}
+
+.scroll-ribbon {
+	width: 100%;
+}
+
+.h-ribbon, .footer {
+	width: 100%;
+	background: #FFFFFF;
+	height: 70px;
+}
+.footer.below {
+	height: 90px;
+}
+.footer.above {
+	border-bottom: 1px solid #b7b7b7;
+}
+.black-ribbon {
+	width: 100%;
+	background: #555555;
+	color: #FFFFFF;
+	padding: 100px 0px;
+}
+.white-ribbon {
+	width: 100%;
+	padding: 20px 0px;
+}
+
+
+.scroll-element {
+	width: 100%;
+	float: left;
+	position: relative;
+}
+
+.scroll-element .inside-scroll-element,
+.footer .inside-scroll-element,
+.background .content {
+	margin: 0px auto;
+	width: 1024px;
+	position: relative;
+	clear: both;
+}
+.black-ribbon .inside-scroll-element,
+.white-ribbon .inside-scroll-element {
+	width: 600px;
+}
+
+.scroll-col {
+	width: 336px;
+	min-height: 10px;
+	float: left;
+	margin-right: 8px;
+	position: relative;
+}
+
+.scroll-col:last-child {
+	margin-right: 0px;
+}
+
+.scroll-col.two-cols {
+	width: 680px;
+}
+
+.scroll-element-content.gray {
+	background: #d6d6d6;
+	color: #555555;
+}
+
+.scroll-element .scroll-col > h2,
+.scroll-element .scroll-col > .scroll-element-content {
+	float: left;
+
+	padding: 8px;
+
+	background: #FFFFFF;
+	-webkit-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+	-moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+	box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+
+	margin-bottom: 8px;
+}
+
+
+
+.scroll-element .scroll-col > .scroll-element-content.gray {
+	background: #d6d6d6;
+
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+
+
+/* TYPO */
+body {
+    font-family: 'Merriweather', serif;
+    color: #000000;
+    font-size: 12px;
+    line-height: 18px;
+    background: #EEEEEE;
+    font-weight: 400;
+}
+
+strong {
+	font-weight: 700;
+}
+
+a {
+	color: #2fb9ea;
+	text-decoration: none;
+}
+
+h1 {
+	font-family: 'Merriweather', serif;
+    font-style: italic;
+    font-weight: bold;
+    font-size: 56px;
+    padding: 5px;
+    line-height: 56px;
+    color: #000000;
+    background: #FFFFFF;
+}
+
+h2 {
+    font-family: 'Merriweather', serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 36px;
+    line-height: 36px;
+    color: #000000;
+}
+.black-ribbon h2 {
+	color: #FFFFFF;
+	font-size: 24px;
+	line-height: 24px;
+	margin-bottom: 10px;
+	font-weight: 400;
+}
+
+h3 {
+	font-family: 'Merriweather', serif;
+    font-style: italic;
+    font-weight: 700;
+    text-decoration: underline;
+    margin-bottom: 5px;
+}
+
+p, ul, table {
+	margin-bottom: 20px;
+}
+p:last-child, ul:last-child, table:last-child {
+	margin-bottom: 0px;
+}
+.black-ribbon p {
+	font-size: 16px;
+	line-height: 24px;
+	font-style: italic;
+	margin-bottom: 10px;
+}
+
+ul li {
+    padding-left: 20px;
+}
+
+table {
+	margin-left: 20px;
+}
+
+ul li:before {
+    content: '\2022';
+    float: left;
+    margin-left: -0.7em;
+}
+
+.formula {
+    font-size: 14px;
+    line-height: 18px;
+    font-family: 'Roboto Condensed', sans-serif;
+    color: #000000;
+}
+
+sub, sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+    bottom: -0.25em;
+}
+sup {
+    top: -0.5em;
+}
+
+.section-label {
+	font-size: 24px;
+    line-height: 26px;
+    font-family: 'Roboto Condensed', sans-serif;
+    color: #000000;
+    font-weight: 300;
+}
+
+.scroll-element .scroll-col > .scroll-element-content.intro {
+	padding: 12px;
+}
+.scroll-element .scroll-col > .scroll-element-content.intro p {
+	font-style: italic;
+	font-size: 16px;
+	line-height: 24px;
+}
+
+
+.headline h1 {
+	float: left;
+	margin-bottom: 8px;
+}
+.headline h1:last-child {
+	margin-left: 70px;
+}
+
+.more {
+	text-align: center;
+	font-size: 12px;
+    line-height: 24px;
+    font-family: 'Roboto Condensed', sans-serif;
+    color: #000000;
+}
+
+
+/* MENU AND FOOTER */
+.hidden {
+	visibility: hidden;
+}
+
+.footer {
+	position: fixed;
+	left: 0px;
+	display: none;
+}
+.footer.above {
+	top: 0px;
+	display: block;
+}
+.footer.below {
+	bottom: 0px;
+	display: block;
+	background: none;
+}
+.footer-anchor.below {
+	visibility: hidden;
+}
+.footer.footer-anchor {
+	visibility: visible !important;
+}
+
+.section-label {
+	height: 70px;
+    vertical-align: middle;
+    display: table-cell;
+    text-align: center;
+}
+.logo-park {
+	position: absolute;
+	right: 0px;
+	top: 10px;
+}
+.logo-park img {
+	height: 45px;
+	margin-left: 40px;
+}
+
+
+.more {
+	position: absolute;
+	top: 135px;
+	left: 0px;
+	width: 100%;
+}
+
+.footer-anchor .section-label {
+	width: 320px;
+}
+
+
+.footer-anchor .section-label {
+	height: 74px;
+}
+.footer.above .section-label {
+	height: 52px;
+}
+
+.footer-anchor .text-box  {
+	margin-top: 10px;
+	display: none;
+	float: left;
+	height: 0px;
+	overflow: hidden;
+	position: relative;
+}
+.footer.above .text-box {
+	margin-top: 30px;
+}
+
+.footer-anchor .scroll-col {
+	height: 90px;
+}
+
+.footer-anchor .scroll-element-content {
+	position: absolute;
+	top: 0px;
+	margin-bottom: 0px !important;
+	width: 100%;
+	cursor: pointer;
+}
+.footer-anchor .scroll-element-content p {
+	padding: 0px 8px;
+}
+
+.footer.below .scroll-element-content {
+	bottom: 0px;
+	top: auto;
+}
+.footer.above .section-label {
+	text-align: left;
+	padding-left: 50px;
+}
+
+
+.footer-anchor .circle-wrapper {
+	position: absolute;
+	overflow: hidden;
+	left: 50%;
+	width: 116px;
+	height: 47px;
+	margin-left: -58px;
+	top: -47px;
+}
+.footer-anchor .circle-wrapper .circle {
+	width: 116px;
+	height: 116px;
+	background: #FFFFFF;
+
+	-webkit-border-radius: 100px;
+	-moz-border-radius: 100px;
+	border-radius: 100px;
+
+	-webkit-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+	-moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+	box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+}
+.footer.above .circle {
+	display: none;
+}
+
+.footer-anchor .line {
+	position: absolute;
+	width: 1px;
+	height: 69px;
+	top: 0px;
+	right: -4px;
+	background: #eeeeee;
+	display: none;
+}
+.footer.above .line {
+	display: block;
+}
+
+.footer-anchor .icon {
+	position: absolute;
+	width: 36px;
+	margin-left: -19px;
+	left: 50%;
+	top: -20px;
+}
+.footer-anchor .icon img {
+	width: 100%;
+}
+
+.footer.above .icon {
+	left: 10px;
+    top: 17px;
+	margin-left: 0px;
+}
+
+
+.scroll-element.footer.above .scroll-element-content {
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+.scroll-element.footer.above .scroll-element-content:hover {
+	-webkit-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+	-moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+	box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+}
+.scroll-element.footer.above .scroll-col.active .scroll-element-content:hover {
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+
+
+/* active menu */
+.footer.above .scroll-col.active .scroll-element-content {
+	background: #EEEEEE;
+	margin-top: 5px;
+	border-top: 1px solid #b7b7b7;
+	border-left: 1px solid #b7b7b7;
+	border-right: 1px solid #b7b7b7;
+	overflow: hidden;
+    height: 65px;
+}
+.footer.above .scroll-col.active .scroll-element-content .line {
+	top: -5px;
+}
+.footer.above .scroll-col.active .scroll-element-content .icon {
+	top: 12px;
+}
+.footer.above .scroll-col.active .scroll-element-content .section-label {
+	height: 44px;
+}
+
+
+/* BACKGROUND */
+
+.background {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	top: 0px;
+	left: 0px;
+}
+
+.background .fullscreen {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+}
+
+.dummy-cell-auto {
+	width: 100%;
+	height: 100%;
+	background: url("../imgs/cell-auto-back.png") repeat;
+}
+.dummy-cell-auto-scaled {
+	width: 100%;
+	height: 100%;
+	background: url("../imgs/cell-auto-back@2x.png") repeat;
+
+}
