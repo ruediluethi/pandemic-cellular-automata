@@ -102,7 +102,11 @@ module.exports = Backbone.View.extend({
 			if ($newContent == self.$crntContent[i]){
 				newInCrnt = true;
 			}else{
-				self.$crntContent[i].remove();
+				self.$crntContent[i].stop().animate({
+					opacity: 0
+				}, 300, function(){
+					$(this).remove();
+				});
 			}
 		}
 
@@ -114,7 +118,7 @@ module.exports = Backbone.View.extend({
 		self.$crntContent.push($newContent);
 
 		self.$el.find('.scroll-col.'+colPos).append($newContent);
-		$newContent.stop().css({
+		$newContent.stop().delay(500).css({
 			opacity: 0
 		}).animate({
 			opacity: 1

@@ -62,7 +62,21 @@ module.exports = Backbone.View.extend({
 	render: function(templateName){
 		var self = this;
 
+
 		self.$el.html(templates[templateName]({ }));
+		self.$el.find('.code').each(function(){
+			var html = $(this).html();
+			html = html.replace(/var/g,'<span class="highlight">var</span>');
+			html = html.replace(/if/g,'<span class="highlight">if</span>');
+			html = html.replace(/else/g,'<span class="highlight">else</span>');
+			html = html.replace(/while/g,'<span class="highlight">while</span>');
+			html = html.replace(/for/g,'<span class="highlight">for</span>');
+			html = html.replace(/end/g,'<span class="highlight">end</span>');
+			html = html.replace(/   /g,'<span class="quad"></span>');
+			$(this).html(html);
+		});
+
+
 
 		self.$footer = self.$el.find('.footer');
 		self.$footerAnchor = self.$el.find('.scroll-element.footer-anchor');
@@ -182,7 +196,7 @@ module.exports = Backbone.View.extend({
 		if ($col.hasClass('active')){ return; }
 		var $menu = $col.find('.text-box');
 		$menu.stop().show().animate({
-			height: 200
+			height: 230
 		}, 200);
 	},
 

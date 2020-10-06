@@ -15,7 +15,7 @@ var html2tpl = require('gulp-html2tpl');
 
 var env = process.env.ENV || 'dev';
 var devBase = 'http://localhost:9000/';
-var distBase = '/sir/';
+var distBase = '/cellauto/';
 
 gulp.task('html', function(){
 
@@ -51,8 +51,10 @@ gulp.task('css', function(){
 
 gulp.task('js', function(){
 
+    gulp.src('./src/add_js/**/*')
+        .pipe(gulp.dest('./builds/'+env+'/js'));
+
     // compile templates
-    
     var templates = gulp.src('src/templates/*.html')
         .pipe(html2tpl('templates.js'))
         .pipe(gulpif(env !== 'dev', streamify(uglify())))

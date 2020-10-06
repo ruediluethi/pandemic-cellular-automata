@@ -63,7 +63,7 @@ body, html {
 .footer .inside-scroll-element,
 .background .content {
 	margin: 0px auto;
-	width: 1024px;
+	width: 1008px;
 	position: relative;
 	clear: both;
 }
@@ -73,7 +73,7 @@ body, html {
 }
 
 .scroll-col {
-	width: 336px;
+	width: 330px;
 	min-height: 10px;
 	float: left;
 	margin-right: 8px;
@@ -132,9 +132,13 @@ strong {
 	font-weight: 700;
 }
 
+.small {
+	font-size: 10px;
+}
+
 a {
-	color: #2fb9ea;
-	text-decoration: none;
+	color: #1eb3cc;
+	text-decoration: underline;
 }
 
 h1 {
@@ -175,7 +179,7 @@ h3 {
 p, ul, table {
 	margin-bottom: 20px;
 }
-p:last-child, ul:last-child, table:last-child {
+p:last-child/*, ul:last-child, table:last-child*/ {
 	margin-bottom: 0px;
 }
 .black-ribbon p {
@@ -187,9 +191,10 @@ p:last-child, ul:last-child, table:last-child {
 
 ul li {
     padding-left: 20px;
+    margin-bottom: 10px;
 }
 
-table {
+table.formula {
 	margin-left: 20px;
 }
 
@@ -205,6 +210,42 @@ ul li:before {
     font-family: 'Roboto Condensed', sans-serif;
     color: #000000;
 }
+.gray .formula {
+	color: #555555;
+}
+.equals {
+	width: 20px;
+	text-align: center;
+}
+.right {
+	text-align: right;
+}
+
+p.formula {
+	padding: 0px 20px;
+	margin-bottom: 20px !important;
+}
+
+.code {
+	font-size: 13px;
+    line-height: 18px;
+    font-family: 'Roboto Mono', monospace;
+    color: #000000;
+}
+td.code {
+	padding-right: 20px;
+}
+.code .comment {
+	color: #bbbbbb;
+}
+.code .highlight {
+	color: #794ad6;
+}
+
+span.quad {
+    display: inline-block;
+    width: 15px;
+}
 
 sub, sup {
   font-size: 75%;
@@ -218,6 +259,10 @@ sub {
 }
 sup {
     top: -0.5em;
+}
+
+table.glossary td {
+	padding-bottom: 10px;
 }
 
 .section-label {
@@ -300,7 +345,7 @@ sup {
 
 .more {
 	position: absolute;
-	top: 135px;
+	top: 165px;
 	left: 0px;
 	width: 100%;
 }
@@ -358,14 +403,15 @@ sup {
 	position: absolute;
 	overflow: hidden;
 	left: 50%;
-	width: 116px;
-	height: 47px;
-	margin-left: -58px;
-	top: -47px;
+	width: 136px;
+    height: 57px;
+    margin-left: -68px;
+    top: -57px;
 }
 .footer-anchor .circle-wrapper .circle {
 	width: 116px;
 	height: 116px;
+	margin: 10px;
 	background: #FFFFFF;
 
 	-webkit-border-radius: 100px;
@@ -477,4 +523,15 @@ sup {
 	height: 100%;
 	background: url("../imgs/cell-auto-back@2x.png") repeat;
 
+}
+.simulation-back {
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+.simulation-back img {
+	position: absolute;
+	top: 0px;
+	left: 50%;
+	margin-left: -175px;
 }
