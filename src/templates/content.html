@@ -137,7 +137,9 @@
 						Eine hoch infektiöse Krankheit bedroht das Bundesland Baden-Württemberg! Als Maßnahme gegen die drohende Epidemie plant die Landesregierung das Abriegeln der Regierungsbezirke Tübingen, Freiburg, Karlsruhe oder Stuttgart durch einen Lockdown. Um die während des Lockdown verhängten Freiheitseinschränkungen für die Bevölkerung zu minimieren, wird das Szenario simuliert. Modellparameter sind die spezifischen Krankheitsparameter wie Basisreproduktionszahl, Inkubationszeit und Genesungszeit. Zusätzlich muss eine Ober- sowie Untergrenze für den Lockdown durch die Landesregierung bestimmt werden.
 					</p>
 					<p>
-						Hier ist deine Hilfe gefragt: Verstelle durch die Regler auf der linken Seite die Ober- sowie Untergrenze und starte die Simulation mit unterschiedlichen Werten. Durch die Diagramme wird ersichtlich wie viel Prozent der Bevölkerung mit der Krankheit infiziert wurden und ob das Maximum der vorhandenen Pflegestationen überschritten wurde. Ist es möglich die Kurve so weit abzuflachen, dass für alle schweren Verläufe der Krankheit jederzeit eine Pflegestation vorhanden ist?
+						Hier ist deine Hilfe gefragt: Verstelle durch die Regler auf der linken Seite die Ober- sowie Untergrenze für einen Lockdown und starte die Simulation mit unterschiedlichen Werten. Durch die Diagramme wird ersichtlich wie viel Prozent der Bevölkerung mit der Krankheit infiziert werden. Schaffst du es, die Kurven abzuflachen um eine Überbelegung der Krankenhäuser zu vermeiden?
+
+						<!-- und ob das Maximum der vorhandenen Pflegestationen überschritten wurde. Ist es möglich die Kurve so weit abzuflachen, dass für alle schweren Verläufe der Krankheit jederzeit eine Pflegestation vorhanden ist? -->
 					</p>
 				</div>
 			</div>
@@ -307,7 +309,7 @@
 						R<sub>0</sub> = &alpha; / &beta;
 					</p>
 					<p>
-						Damit kann das Model eindeutig durch die zwei Parameter Basisreproduktionszahl <span class="formula">R0</span> und mittlere Genesungsdauer <span class="formula">T<sub>&beta;</sub></span> bestimmt werden.
+						Damit kann das Model eindeutig durch die zwei Parameter Basisreproduktionszahl <span class="formula">R<sub>0</sub></span> und mittlere Genesungsdauer <span class="formula">T<sub>&beta;</sub></span> bestimmt werden.
 					</p>
 				</div>
 			</div>
@@ -423,7 +425,7 @@
 						1  &minus; (1 &minus; a)<sup>(E+I)/N</sup>
 					</p>
 					<p>
-						Die Ausbruchswahrscheinlichkeit <span class="formula">c</span> ist über den Kehrwert der Inkubationszeit definiert und darum gilt <span class="formula">c = &gamma;</span>. Dasselbe gilt für die Genesungswahrscheinlichkeit <span class="formula">b = &beta;</span>.
+						Die Ausbruchswahrscheinlichkeit <span class="formula">c</span> ist über den Kehrwert der Inkubationszeit definiert und darum gilt <span class="formula">c = &gamma;</span>. Dasselbe gilt für die Genesungs&shy;wahr&shy;schein&shy;lich&shy;keit <span class="formula">b = &beta;</span>.
 					</p>
 					<p>
 						Damit gilt für die Differenzengleichung mit Wahrscheinlichkeiten:
@@ -440,15 +442,15 @@
 							<td class="equals">=</td>
 							<td>E<sub>k</sub></td>
 							<td> + S<sub>k</sub>&#8729;(1  &minus; (1 &minus; a)<sup>(E+I)/N</sup>)</td>
-							<td> &minus; &gamma;&#8729;E<sub>k</sub></td>
+							<td> &minus; c&#8729;E<sub>k</sub></td>
 						</tr>
 						<tr>
 							<td>I<sub>k+1</sub></td>
 							<td class="equals">=</td>
 							<td>I<sub>k</sub></td>
 							<td></td>
-							<td> + &gamma;&#8729;E<sub>k</sub></td>
-							<td> &minus; &beta;&#8729;I<sub>k</sub></td>
+							<td> + c&#8729;E<sub>k</sub></td>
+							<td> &minus; b&#8729;I<sub>k</sub></td>
 						</tr>
 						<tr>
 							<td>R<sub>k+1</sub></td>
@@ -456,7 +458,7 @@
 							<td>R<sub>k</sub></td>
 							<td></td>
 							<td></td>
-							<td> + &beta;&#8729;I<sub>k</sub></td>
+							<td> + b&#8729;I<sub>k</sub></td>
 						</tr>
 					</table>
 				</div>
@@ -514,31 +516,31 @@
 						Bei zwei Würfen ist die Menge der Ereignisse mit einem Kopf im ersten Wurf wie folgt
 					</p>
 					<p class="formula">
-						A1 = { {1} &times; {0,1} } = { (1,0), (1,1) }
+						A<sub>1</sub> = { {1} &times; {0,1} } = { (1,0), (1,1) }
 					</p>
 					<p>
 						und für den zweiten Wurf gilt
 					</p>
 					<p class="formula">
-						A2 = { {0,1} &times; {1} } = { (0,1), (1,1) }
+						A<sub>2</sub> = { {0,1} &times; {1} } = { (0,1), (1,1) }
 					</p>
 					<p>
 						Für diese Ereignisse gilt nach Aufgabenbeschreibung
 					</p>
 					<p class="formula">
-						P(A1) = P(A2) = p
+						P(A<sub>1</sub>) = P(A<sub>2</sub>) = p
 					</p>
 					<p>
 						Die Menge mit zwei Köpfen hintereinander kann nun als Schnitt dieser beiden Mengen beschrieben werden
 					</p>
 					<p class="formula">
-						B = A1 &xcap; A2 = {(1,1)}
+						B = A<sub>1</sub> &xcap; A<sub>2</sub> = {(1,1)}
 					</p>
 					<p>
 						und da der erste Wurf <strong>unabhängig</strong> vom zweiten ist, gilt für die Wahrscheinlichkeit von <span class="formula">B</span>
 					</p>
 					<p class="formula">
-						P(B) = P(A1 &xcap; A2) = P(A1) &#8729; P(A2) = p2
+						P(B) = P(A<sub>1</sub> &xcap; A<sub>2</sub>) = P(A<sub>1</sub>) &#8729; P(A<sub>2</sub>) = p<sup>2</sup>
 					</p>
 				</div>
 			</div>

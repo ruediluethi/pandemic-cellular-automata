@@ -34,7 +34,7 @@ module.exports = Backbone.View.extend({
             self.scrollHandler();
         });
 
-        self.scrollHandler();
+        self.scrollHandler(true);
 	},
 
 	resize: function(height){
@@ -96,7 +96,7 @@ module.exports = Backbone.View.extend({
 		return self;
 	},
 
-	scrollHandler: function(){
+	scrollHandler: function(forceTrigger){
 		var self = this;
 
  		var windowScrollTop = $(window).scrollTop() + self.screenHeight;
@@ -151,6 +151,9 @@ module.exports = Backbone.View.extend({
 					$col.addClass('active');
 				}
 
+				if (forceTrigger){
+					self.trigger('onScrollAnchor', $anchor);
+				}
 				
 				//$anchor.removeClass('above');
 				$anchor.removeClass('below');

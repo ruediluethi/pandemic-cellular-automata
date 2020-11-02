@@ -18,7 +18,7 @@ module.exports = Backbone.View.extend({
 	width: 200,
 	height: 200,
 	padding: 1,
-	paddingTop: 20,
+	paddingTop: 0,
 	paddingBottom: 20,
 	diagramWidth: 0,
 	diagramHeight: 0,
@@ -26,13 +26,17 @@ module.exports = Backbone.View.extend({
 
 	colors: ['#444444'],
 	alpha: undef,
+	stroke: undef,
+	resetAt: 5,
 	minValue: -1,
 	maxValue: 1,
 	starT: 0,
 	endT: 50,
 	helpLinesCount: 5,
-	showHalfHalf: false,
 	yAxisLabel: 'Zeit',
+
+	ticks: 10,
+	tocks: 25,
 
 	gAxis: undef,
 	gGraphs: undef,
@@ -46,15 +50,13 @@ module.exports = Backbone.View.extend({
 			self.minValue = options.minValue;
 			self.maxValue = options.maxValue;
 			self.alpha = options.alpha;
+			self.stroke = options.stroke;
 			if (options.colors != undef){
 				self.colors = options.colors;
 			}
 			if (options.startT != undef && options.endT != undef){
 				self.starT = options.startT;
 				self.endT = options.endT;
-			}
-			if (options.showHalfHalf != undef){
-				self.showHalfHalf = options.showHalfHalf;
 			}
 			if (options.helpLinesCount != undef){
 				self.helpLinesCount = options.helpLinesCount;
@@ -64,6 +66,15 @@ module.exports = Backbone.View.extend({
 			}
 			if (options.yAxisLabel != undef){
 				self.yAxisLabel = options.yAxisLabel;
+			}
+			if (options.ticks != undef){
+				self.ticks = options.ticks;
+			}
+			if (options.tocks != undef){
+				self.tocks = options.tocks;
+			}
+			if (options.resetAt != undef){
+				self.resetAt = options.resetAt;
 			}
 		}
 	},
@@ -84,11 +95,11 @@ module.exports = Backbone.View.extend({
 		self.diagramWidth = self.width - 2*self.padding;
 		self.diagramHeight = self.height - self.paddingTop - self.paddingBottom;
 
-		self.gAxis = svg.append('g');
-		self.gAxis.attr('transform', 'translate('+self.padding+','+self.paddingTop+')');
-
 		self.gGraphs = svg.append('g');
 		self.gGraphs.attr('transform', 'translate('+self.padding+','+self.paddingTop+')');
+
+		self.gAxis = svg.append('g');
+		self.gAxis.attr('transform', 'translate('+self.padding+','+self.paddingTop+')');
 
 		self.gLabels = svg.append('g');
 		self.gLabels.attr('transform', 'translate('+self.padding+','+self.paddingTop+')');
@@ -98,19 +109,41 @@ module.exports = Backbone.View.extend({
 		self.gGraphs.selectAll('path').data(self.colors)
 			.enter()
 			.append('path')
-			.attr('fill', 'transparent')
-			.attr('stroke', function(d){
+			.attr('fill', function(d,i){
+				if (self.stroke != undef){
+					if (self.stroke[i]){
+						return 'transparent';
+					}else{
+						return d;
+					}
+				}else{
+					return d;
+				}
+			})
+			.attr('stroke', function(d,i){
 				return d;
 			})
-			.attr('stroke-width', self.width < 300 ? 2 : 3)
+			.attr('stroke-width', function(d,i){
+				if (self.stroke != undef){
+					if (self.stroke[i]){
+						return 2;
+					}else{
+						return 0;
+					}
+				}else{
+					return 0;
+				}
+			})
 			.attr('opacity', function(d,i){
 				if (self.alpha != undef){
 					return self.alpha[i];
+				}else{
+					return 1;
 				}
 			})
-			/*.style('stroke-dasharray', function(d,i){
+			.style('stroke-dasharray', function(d,i){
 				return ("3, 3");
-			});*/
+			});
 
 		return self;
 	},
@@ -148,9 +181,9 @@ module.exports = Backbone.View.extend({
 			.attr('x2', zeroXpos)
 			.attr('y2', self.diagramHeight)
 			.attr('stroke-width', 1)
-			.attr('stroke','#777777');
+			.attr('stroke','#000000');
 
-		for (var i = 0; i < self.helpLinesCount; i++){
+		for (var i = 1; i < self.helpLinesCount; i++){
 			var value = self.minValue + Math.abs(self.maxValue - self.minValue)*i/(self.helpLinesCount-1);
 
 			self.gAxis.append('line')
@@ -158,14 +191,15 @@ module.exports = Backbone.View.extend({
 				.attr('y1', self.valueToY(value))
 				.attr('x2', self.diagramWidth)
 				.attr('y2', self.valueToY(value))
+				.attr('opacity', 0.1)
 				.attr('stroke-width', 1)
-				.attr('stroke','#DDDDDD');			
+				.attr('stroke','#000000');			
 			self.gLabels.append('text')
 				.attr('class', 'small')
-				.attr('x', 0)
-				.attr('y', self.valueToY(value)-6)
+				.attr('x', 2)
+				.attr('y', self.valueToY(value)+11)
 				// .attr('text-anchor', 'end')
-				.text(Math.round(value*10)/10);
+				.text(self.maxValue <= 1 ? (self.maxValue < 10 ? Math.round(value*1000)/10 : Math.round(value*100)) + '%' : Math.round(value));
 		}
 
 		self.gAxis.append('line')
@@ -174,24 +208,9 @@ module.exports = Backbone.View.extend({
 			.attr('x2', self.diagramWidth)
 			.attr('y2', self.valueToY(0))
 			.attr('stroke-width', 1)
-			.attr('stroke','#777777');
+			.attr('stroke','#000000');
 
-		if (self.showHalfHalf){
-			self.gAxis.append('line')
-				.attr('x1', 0)
-				.attr('y1', self.valueToY(self.starT))
-				.attr('x2', self.diagramWidth)
-				.attr('y2', self.valueToY(self.endT))
-				.attr('stroke-width', 1)
-				.attr('stroke','#DDDDDD');
-			/*self.gAxis.append('line')
-				.attr('x1', self.diagramWidth)
-				.attr('y1', self.valueToY(self.starT))
-				.attr('x2', 0)
-				.attr('y2', self.valueToY(self.endT))
-				.attr('stroke-width', 1)
-				.attr('stroke','#DDDDDD');*/
-		}
+
 
 	},
 
@@ -202,14 +221,6 @@ module.exports = Backbone.View.extend({
 
 		var minTime = Math.round(time[0]);
 		var maxTime = Math.round(time[time.length-1]);
-
-		var ticks = 1;
-		var tocks = 10;
-
-		if (maxTime > 100){
-			ticks = 10;
-			tocks = 100;
-		}
 
 		var timeRange = Math.abs(minTime - maxTime);
 		var timeStep = self.diagramWidth/timeRange;
@@ -222,7 +233,7 @@ module.exports = Backbone.View.extend({
 			var lineSize = 2;
 			if(Math.abs(Math.round(t)-t) < 0.01){
 
-				if (Math.round(t)%tocks == 0){
+				if (Math.round(t)%self.tocks == 0){
 					lineSize = 3;
 					self.gLabels.append('text')
 						.attr('class', 'small timeline')
@@ -232,7 +243,7 @@ module.exports = Backbone.View.extend({
 						.text(Math.round(t));
 				}
 			
-				if (Math.round(t)%ticks == 0){
+				if (Math.round(t)%self.ticks == 0){
 					self.gAxis.append('line')
 						.attr('class', 'timeline')
 						.attr('x1', xPos)
@@ -240,7 +251,7 @@ module.exports = Backbone.View.extend({
 						.attr('x2', xPos)
 						.attr('y2', self.valueToY(0)+lineSize)
 						.attr('stroke-width', 1)
-						.attr('stroke','#777777');
+						.attr('stroke','#000000');
 				}
 			}	
 			
@@ -302,24 +313,55 @@ module.exports = Backbone.View.extend({
 		var timeStep = self.diagramWidth/timeRange;
 		// END HACK --> same code in renderTimeline...
 
-
+		var pathPointsBefore = [];
+		for (var t = 0; t < data[0].length; t++){
+			pathPointsBefore.push({
+				x: Math.round(timeStep*t) + zeroXpos,
+				y: self.diagramHeight
+			});
+		}
 		self.gGraphs.selectAll('path').each(function(d, i){
 			var path = d3.select(this);
 
-			var rawData = data[i];
-			var pathPoints = [];
-
-			for (var t = 0; t < rawData.length; t++){
-				if (rawData[t] != null && !isNaN(rawData[t]) && rawData[t] <= self.maxValue*2 && rawData[t] >= self.minValue*2){
-					pathPoints.push({
-						//x: self.diagramWidth/rawData.length * t,
+			//if (i == self.resetAt){
+			if ((i+1)%self.resetAt == 0){
+				pathPointsBefore = [];
+				for (var t = 0; t < data[0].length; t++){
+					pathPointsBefore.push({
 						x: Math.round(timeStep*t) + zeroXpos,
-						y: self.valueToY(rawData[t])
+						y: self.diagramHeight
 					});
 				}
 			}
 
-			path.attr('d', pathDrawFunction(pathPoints));
+			var rawData = data[i];
+
+			var pathPoints = [];
+			for (var t = 0; t < rawData.length; t++){
+				//if (rawData[t] != null && !isNaN(rawData[t]) && rawData[t] <= self.maxValue*2 && rawData[t] >= self.minValue*2){
+					pathPoints.push({
+						//x: self.diagramWidth/rawData.length * t,
+						x: Math.round(timeStep*t) + zeroXpos,
+						y: pathPointsBefore[t].y + (self.valueToY(rawData[t]) - self.diagramHeight)
+						//y: self.valueToY(rawData[t])
+					});
+				//}
+			}
+			//console.log(pathPoints);
+			var pointsToDraw = [];
+			for (var t = 0; t < pathPoints.length; t++){
+				pointsToDraw.push(pathPoints[t]);
+			}
+			if (self.stroke == undef || self.stroke[i] == 0){
+				for (var t = 0; t < pathPointsBefore.length; t++){
+					pointsToDraw.push(pathPointsBefore[pathPointsBefore.length - 1- t]);
+				}
+			}
+
+			//console.log(pointsToDraw);
+
+			path.attr('d', pathDrawFunction(pointsToDraw));
+			pathPointsBefore = pathPoints;
 		});
 
 		if (time != undef){

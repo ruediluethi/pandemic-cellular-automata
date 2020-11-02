@@ -3,13 +3,18 @@ clear;
 clc;
 
 
-P = 100000;
-N = 200*200;
+P = 2000;
+%N = 200*200;
+N = P*0.4;
 
-R0 = (2.4 + 3.3)/2
+%R0 = (2.4 + 3.3)/2
+R0 = 3;
 
-a = 1/5; % Inkubationszeit
-b = 1/3; % mittlere Zeit mit Symptomen
+%a = 1/5; % Inkubationszeit
+%b = 1/3; % mittlere Zeit mit Symptomen
+
+a = 1/2;
+b = 1/5;
 
 % R0 = k * r * D 
 % k is the number of contacts each infectious individual has per unit time
@@ -19,7 +24,12 @@ D = 1/a + 1/b;
 % r is the probability of transmission per contact between an infectious case and a susceptible person
 r = R0 / (k*D)
 
-acc = 0.1;
+acc = 0.2;
+
+%r = 0.2;
+%b = 0.3;
+%a = 0.4;
+
 a = a * acc;
 b = b * acc;
 r = r * acc;
@@ -47,7 +57,7 @@ I_uni(1) = I(1);
 R_uni(1) = R(1);
     
 for k = 1:K-1
-    disp(k);
+    %disp(k);
     
     for i = 1:1/dt
         k_ = (k-1)/dt+i;
@@ -131,13 +141,14 @@ PURPLE = sscanf('6c1eaf','%2x%2x%2x',[1 3])/255;
 
 area([1:K]*acc,S+E+I+R,'LineStyle','none', 'FaceColor',GREEN);
 area([1:K]*acc,E+I+R,  'LineStyle','none', 'FaceColor',YELLOW);
-area([1:K]*acc,E+I,    'LineStyle','none', 'FaceColor',DARKRED);
-area([1:K]*acc,E,      'LineStyle','none', 'FaceColor',RED);
+area([1:K]*acc,E+I,      'LineStyle','none', 'FaceColor',RED);
+area([1:K]*acc,I,    'LineStyle','none', 'FaceColor',DARKRED);
+
 
 plot([1:K]*acc,S_uni+E_uni+I_uni+R_uni, 'w:','LineWidth',1.5);
 plot([1:K]*acc,      E_uni+I_uni+R_uni, 'w:','LineWidth',1.5);
 plot([1:K]*acc,      E_uni+I_uni,       'w:','LineWidth',1.5);
-plot([1:K]*acc,      E_uni,             'w:','LineWidth',1.5);
+plot([1:K]*acc,      I_uni,             'w:','LineWidth',1.5);
 
 axis([0 K*acc 0 P+1]);
 

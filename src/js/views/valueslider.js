@@ -17,9 +17,9 @@ module.exports = Backbone.View.extend({
 	value: 1,
 	paramID: -1,
 
-	accuracy: 1000,
+	accuracy: 100,
 
-	reactionTime: 100,
+	reactionTime: 1000,
 	valueChangedTimeout: undef,
 
 	initialize: function(options) {
@@ -31,8 +31,10 @@ module.exports = Backbone.View.extend({
 			self.minValue = options.minValue;
 			self.maxValue = options.maxValue;
 
-			if (self.maxValue > 10000){
-				self.accuracy = 0.01;
+			if (self.maxValue > 100){
+				self.accuracy = 1;
+			}else if (self.maxValue > 1){
+				self.accuracy = 10;
 			}
 
 			if (options.color != undef){
@@ -65,9 +67,10 @@ module.exports = Backbone.View.extend({
 			containment: 'parent',
 			drag: function(e, ui) {
 
-				if (self.value != self.getValue()){
+				var newValue = self.getValue();
+				if (self.value != newValue){
 
-					self.value = self.getValue();
+					self.value = newValue;
 
 					self.$el.find('.v-slider-value').html(self.value);
 
@@ -87,7 +90,7 @@ module.exports = Backbone.View.extend({
 		var pos = self.$el.find('.v-slider-dot').position().left;
 
 		self.$el.find('.v-slider-bar').css({
-			width: pos
+			width: pos + self.$el.find('.v-slider-dot').width()/2
 		});
 
 		pos = pos/(self.$el.find('.v-slider-container').width()-self.$el.find('.v-slider-dot').width());

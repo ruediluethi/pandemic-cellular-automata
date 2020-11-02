@@ -53,6 +53,12 @@ window.mitternacht = function(a,b,c){
 }
 
 
+window.RED = '#e2005c';
+window.LIGHTRED = '#f2869f';
+window.YELLOW = '#fcd227';
+window.GREEN = '#55c48f';
+
+/*
 window.RED = '#f2869f';
 window.DARKRED = '#e2005c';
 window.BLUE = '#40a1dd';
@@ -63,6 +69,7 @@ window.YELLOW = '#fcd227';
 window.ORANGE = '#d87600';
 window.PURPLE = '#6c1eaf';
 window.CYAN = '#4be0d8';
+*/
 
 
 /*

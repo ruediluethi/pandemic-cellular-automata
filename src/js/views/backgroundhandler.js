@@ -94,6 +94,17 @@ module.exports = Backbone.View.extend({
 		
 	},
 
+	appendDiagram: function(colPos, vDiagram, dontRender){
+		var self = this;
+
+		self.appendContent(colPos, vDiagram.$el);
+
+		if (!dontRender){
+			vDiagram.render();
+		}
+
+	},
+
 	appendContent: function(colPos, $newContent){
 		var self = this;
 

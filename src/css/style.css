@@ -57,6 +57,18 @@ body, html {
 	width: 100%;
 	float: left;
 	position: relative;
+	pointer-events: none;
+}
+
+body.edit-content .scroll-element,
+.scroll-element.footer-anchor {
+	pointer-events: auto;
+}
+.scroll-element.footer-anchor.full-screen {
+	pointer-events: none;
+}
+.scroll-element.footer-anchor.full-screen.on-screen {
+	pointer-events: auto;
 }
 
 .scroll-element .inside-scroll-element,
@@ -79,6 +91,10 @@ body, html {
 	margin-right: 8px;
 	position: relative;
 }
+.content > .scroll-col {
+	background: rgba(238, 238, 238, 0.9);
+	padding: 5px;
+}
 
 .scroll-col:last-child {
 	margin-right: 0px;
@@ -89,7 +105,7 @@ body, html {
 }
 
 .scroll-element-content.gray {
-	background: #d6d6d6;
+	background: #e2e2e2;
 	color: #555555;
 }
 
@@ -133,7 +149,7 @@ strong {
 }
 
 .small {
-	font-size: 10px;
+	font-size: 12px;
 }
 
 a {
@@ -513,6 +529,17 @@ table.glossary td {
 	height: 100%;
 }
 
+.background .fullscreen .gamemap {
+	position: absolute;
+    left: 50%;
+    margin-left: -175px;
+    top: 55px;
+}
+
+.background .fullscreen .gamemap img {
+	display: none;
+}
+
 .dummy-cell-auto {
 	width: 100%;
 	height: 100%;
@@ -534,4 +561,149 @@ table.glossary td {
 	top: 0px;
 	left: 50%;
 	margin-left: -175px;
+}
+
+
+/******************* DIAGRAMS & SLIDERS **************************/
+
+.simplot, .areaplot {
+	margin-top: 80px;
+	font-family: 'Roboto Condensed', sans-serif;
+    font-size: 14px;
+    line-height: 18px;
+    text-align: left;
+}
+
+.simplot h4, .areaplot h4 {
+	font-size: 16px;
+    line-height: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.tabs-wrapper {
+	width: 100%;
+	float: left;
+	position: relative;
+}
+
+.tabs-header {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+.tabs-header .tab {
+	float: left;
+	font-weight: 700;
+	padding: 5px 8px;
+	height: 30px;
+	cursor: pointer;
+	border: 1px solid transparent;
+}
+.tabs-header .tab.active {
+	background: #FFFFFF;
+	border: 1px solid #d4d4d4;
+	border-bottom: 1px solid #FFFFFF;
+}
+
+.plot-container.tabs-content {
+	width: 100%;
+	float: left;
+	background: #FFFFFF;
+	border: 1px solid #d4d4d4;
+	padding: 5px;
+	margin-top: 29px;
+}
+
+/* SLIDER */
+
+.slider-label {
+	float: left;
+	width: 100%;
+	margin-top: 10px;
+}
+
+.v-slider {
+    float: left;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+
+.v-slider .v-slider-title {
+    width: 50%;
+    height: 20px;
+    display: block;
+    float: left;
+}
+
+.v-slider .v-slider-container {
+    width: 50%;
+    height: 20px;
+    display: block;
+    float: left;
+    position: relative;
+}
+
+.v-slider .v-slider-container .v-slider-back,
+.v-slider .v-slider-container .v-slider-bar {
+    height: 4px;
+    position: absolute;
+    top: 9px;
+    left: 0px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+}
+
+.v-slider .v-slider-container .v-slider-back {
+    background: #bbbbbb;
+    width: 100%;
+}
+
+.v-slider .v-slider-dot {
+    width: 40px;
+    height: 20px;
+    cursor: pointer;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+}
+
+.v-slider .v-slider-value {
+    width: 100%;
+    text-align: center;
+    padding: 3px 0px;
+    color: #FFFFFF;
+    height: 20px;
+    line-height: 1;
+}
+
+.plot-container {
+	margin-top: 7px;
+	float: left;
+	width: 100%;
+}
+
+.plot-container .plot-wrapper svg {
+	float: left;
+}
+
+.plot-container .legend {
+	float: left;
+	margin-bottom: 3px;
+	font-size: 12px;
+}
+
+.plot-container .legend .plot-legend {
+	float: left;
+	margin-right: 12px;
+}
+.plot-container .legend .plot-legend.last {
+	margin-right: 0px;
+}
+.plot-container .legend .plot-legend svg {
+	margin-right: 3px;
+    margin-top: 3px;
+    float: left;
 }

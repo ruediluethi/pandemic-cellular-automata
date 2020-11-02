@@ -6,69 +6,95 @@ Backbone.$ = $;
 module.exports = Backbone.View.extend({
 	className: 'hexmap',
 
+	sectorColors: ['#EEEEEE', window.GREEN, window.LIGHTRED, window.RED, window.YELLOW],
+
 	cellEdges: undef,
 	cells: undef,
+	cellPositions: undef,
+	cellAlphas: undef,
+
+	screenHeight: 0,
+	screenWidth: 0,
+	envHeight: 0,
+	envWidth: 0,
+
+	ri: 0,
+	ro: 0,
 
 	initialize: function(options) {
 		var self = this;
 
 	},
 
-	render: function(envWidth, envHeight, pxWidth, pxHeight){
+	resize: function(width, height){
 		var self = this;
+
+		self.screenWidth = width;
+		self.screenHeight = height;
+	},
+
+	setSize: function(N){
+		var self = this;
+
+		var ratio = self.screenWidth / (self.screenHeight * 2/Math.sqrt(3));
+
+		self.envHeight = Math.sqrt(N / ratio);
+		self.envWidth = ratio * self.envHeight;
+
+		//self.envWidth = Math.round(N);
+		//self.envHeight = Math.floor(self.envWidth * 1 / ratio);
+
+		self.envWidth = Math.round(self.envWidth);
+		self.envHeight = Math.round(self.envHeight);
+
+		return [self.envWidth, self.envHeight];
+	},
+
+	render: function(){
+		var self = this;
+
+		self.$el.html('');
+		paper.clear();
 
 		var $canvas = $('<canvas resize></canvas>');
 		$canvas.css({
-			width: pxWidth,
-			height: pxHeight
+			width: self.screenWidth,
+			height: self.screenHeight
 		});
 		self.$el.append($canvas);
 
-
-		var $loadBack = $('<div></div>');
-		var $loadBar = $('<div></div>');
-
-		$loadBack.css({
-			position: 'absolute',
-			left: 100,
-			top: 100,
-			width: 100,
-			height: 10,
-			color: '#FFFFFF'
-		});
-
-		self.$el.append($loadBack);
-
-
 		paper.setup($canvas[0]);
 
-		var envPadding = 0;		
-		//var ri = ((pxWidth-2*envPadding) / (envWidth+0.5) )/2;
-		var ri = ((pxHeight-2*envPadding) / (envHeight+0.5) )/2;
-		var ro = ri/Math.cos(30/180*Math.PI);
+		var envPadding = 0;	
+		self.ri = ( self.screenWidth / (self.envWidth-1) )/2;
+		self.ro = self.ri/Math.cos(30/180*Math.PI);
 
 		self.cellEdges = [];
 		self.cells = [];
+		self.cellPositions = [];
+		self.cellAlphas = [];
 
-		for (var i = 0; i < envHeight; i++){
-			for (var j = 0; j < envWidth; j++){
+		for (var i = 0; i < self.envHeight; i++){
+			for (var j = 0; j < self.envWidth; j++){
 
-				var leftOffset = ri;
+				var leftOffset = 0;
 		        if (i%2 == 1){
-		            leftOffset = 2*ri;
+		            leftOffset = self.ri;
 		        }
 
 		        var cellCenter = new paper.Point(
-		        	leftOffset + j*2*ri,
-	        		ri + i*Math.sqrt(3)*ri
+		        	leftOffset + j*2*self.ri,
+	        		self.ri + i*Math.sqrt(3)*self.ri
 	        	);
+	        	self.cellPositions.push(cellCenter);
+
 
 	        	edges = [];
 		        for (var l = 0; l  < 6; l++){
 		            var alpha = (l+0.5)/6*(2*Math.PI);
 		            edges.push([
-		            	Math.cos(alpha)*ro,
-		            	Math.sin(alpha)*ro
+		            	Math.cos(alpha)*self.ro,
+		            	Math.sin(alpha)*self.ro
 		            ]);
 		        }
 		        edges.push(edges[0]);
@@ -78,11 +104,11 @@ module.exports = Backbone.View.extend({
 					edges: edges
 				});
 
-		        
+
 		        var sectors = [];
 		        for (var l = 0; l  < 6; l++){
 			        var path = new paper.Path();
-			        path.fillColor = paper.Color.random();
+			        //path.fillColor = paper.Color.random();
 			        path.moveTo(cellCenter);
 			        path.lineTo(cellCenter.add(edges[l]));
 			        path.lineTo(cellCenter.add(edges[l+1]));
@@ -91,7 +117,16 @@ module.exports = Backbone.View.extend({
 				}
 
 				self.cells.push(sectors);
+				self.cellAlphas.push(1);
 				//console.log(self.cells.length);
+
+				var outline = new paper.Path();
+		        outline.strokeColor = '#FFFFFF';
+		        outline.strokeWidth = 2;
+		        outline.moveTo(cellCenter.add(edges[5]));
+		        for (var l = 0; l  < 6; l++){
+		        	outline.lineTo(cellCenter.add(edges[l]));
+		        }
 
 				
 			}
@@ -104,6 +139,7 @@ module.exports = Backbone.View.extend({
 		return self.$el;
 	},
 
+	/*
 	renderOneCell: function(){
 		var self = this;
 
@@ -136,8 +172,9 @@ module.exports = Backbone.View.extend({
 
 		}, 1);
 	},
+	*/
 
-	update: function(){
+	update: function(cellData){
 		var self = this;
 		if (self.cells == undef){ return; }
 
@@ -147,7 +184,8 @@ module.exports = Backbone.View.extend({
 			var sectors = self.cells[i];
 			for (var l = 0; l < sectors.length; l++){
 				var path = sectors[l];
-				path.fillColor = paper.Color.random();
+				path.fillColor = self.sectorColors[cellData[i].sectors[l]];
+				path.fillColor.alpha = self.cellAlphas[i];
 			}
 		}
 		paper.view.draw();
