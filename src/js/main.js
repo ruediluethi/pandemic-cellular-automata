@@ -93,8 +93,8 @@ window.CYAN = '#4be0d8';
 
 
 // app
-//var App = require('./app_SEIR');
-var App = require('./app_FEM');
+var App = require('./app_SEIR');
+//var App = require('./app_FEM');
 
 // dom ready
 $(document).ready(function(){

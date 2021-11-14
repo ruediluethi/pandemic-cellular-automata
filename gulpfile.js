@@ -16,8 +16,8 @@ var htmlToJs = require('gulp-html-to-js');
 
 var env = process.env.ENV || 'dev';
 
-//var devBase = 'http://localhost:9000/';
-var devBase = 'http://localhost:3000/'; // express server
+var devBase = 'http://localhost:9000/';
+//var devBase = 'http://localhost:3000/'; // express server
 
 //var distBase = '/cellauto/';
 
