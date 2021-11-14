@@ -13,3 +13,5 @@ nbproject/
 # Boilerplate
 node_modules/*
 builds/*
+
+src/js/libs/paperjs/*
