@@ -6,17 +6,21 @@ Backbone.$ = $;
 module.exports = Backbone.View.extend({
 	className: 'hexmap',
 
-	sectorColors: ['#EEEEEE', window.GREEN, window.LIGHTRED, window.RED, window.YELLOW],
+	sectorColors: ['#EEEEEE', window.GREEN, window.LIGHTRED, window.RED, window.YELLOW, window.DARKRED],
 
 	cellEdges: undef,
 	cells: undef,
 	cellPositions: undef,
 	cellAlphas: undef,
+	cellOutlines: undef,
+	cellWater: undef,
 
 	screenHeight: 0,
 	screenWidth: 0,
 	envHeight: 0,
 	envWidth: 0,
+
+	$canvas: undef,
 
 	ri: 0,
 	ro: 0,
@@ -56,14 +60,14 @@ module.exports = Backbone.View.extend({
 		self.$el.html('');
 		paper.clear();
 
-		var $canvas = $('<canvas resize></canvas>');
-		$canvas.css({
+		self.$canvas = $('<canvas resize></canvas>');
+		self.$canvas.css({
 			width: self.screenWidth,
 			height: self.screenHeight
 		});
-		self.$el.append($canvas);
+		self.$el.append(self.$canvas);
 
-		paper.setup($canvas[0]);
+		paper.setup(self.$canvas[0]);
 
 		var envPadding = 0;	
 		self.ri = ( self.screenWidth / (self.envWidth-1) )/2;
@@ -73,6 +77,8 @@ module.exports = Backbone.View.extend({
 		self.cells = [];
 		self.cellPositions = [];
 		self.cellAlphas = [];
+		self.cellOutlines = [];
+		self.cellWater = [];
 
 		for (var i = 0; i < self.envHeight; i++){
 			for (var j = 0; j < self.envWidth; j++){
@@ -122,13 +128,19 @@ module.exports = Backbone.View.extend({
 
 				var outline = new paper.Path();
 		        outline.strokeColor = '#FFFFFF';
-		        outline.strokeWidth = 2;
+		        
+		        //outline.strokeWidth = 2;
+		        outline.strokeWidth = 1;
+
+		        outline.fillColor = '#000000';
+		        outline.fillColor.alpha = 0;
 		        outline.moveTo(cellCenter.add(edges[5]));
 		        for (var l = 0; l  < 6; l++){
 		        	outline.lineTo(cellCenter.add(edges[l]));
 		        }
+		        self.cellOutlines.push(outline);
 
-				
+				self.cellWater.push(false);
 			}
 		}
 
@@ -174,18 +186,44 @@ module.exports = Backbone.View.extend({
 	},
 	*/
 
-	update: function(cellData){
+	update: function(cellData, cells){
 		var self = this;
 		if (self.cells == undef){ return; }
+		if (cellData == undef){ return; }
+
 
 		var tic = new Date();
 
 		for (var i = 0; i < self.cells.length; i++){
 			var sectors = self.cells[i];
+
 			for (var l = 0; l < sectors.length; l++){
 				var path = sectors[l];
+				if (cellData[i] == undef){ return; }
 				path.fillColor = self.sectorColors[cellData[i].sectors[l]];
 				path.fillColor.alpha = self.cellAlphas[i];
+			}
+
+			if (self.cellWater[i]){
+				self.cellOutlines[i].fillColor.alpha = 1;
+				self.cellOutlines[i].strokeColor = window.WATER;
+				self.cellOutlines[i].fillColor = window.WATER;
+
+			}else if (cells != undef && cells[i].closed){
+				self.cellOutlines[i].fillColor.alpha = 1;
+				self.cellOutlines[i].strokeColor = '#cccccc';
+				self.cellOutlines[i].fillColor = '#cccccc';
+
+			/*
+			}else if (cells[i].dontRotate){
+				self.cellOutlines[i].fillColor.alpha = 0.5;
+				self.cellOutlines[i].strokeColor = '#FF0000';
+				self.cellOutlines[i].fillColor = '#FF0000';
+			*/
+
+			}else{
+				self.cellOutlines[i].fillColor.alpha = 0;
+				self.cellOutlines[i].strokeColor = '#FFFFFF';
 			}
 		}
 		paper.view.draw();

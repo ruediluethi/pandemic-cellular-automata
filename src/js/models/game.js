@@ -14,6 +14,9 @@ module.exports = MCellAuto.extend({
 	areaLockdown: [],
 
 	moveProbabilityInLockdown: 0.01,
+	hospitalizeProbability: 0.07,
+
+	H: [],
 
 	simulate: function(){
 		var self = this;
@@ -23,10 +26,19 @@ module.exports = MCellAuto.extend({
 		var plots = self.get('plots');
 		var params = self.get('params');
 
-		var N = params[0].value; // amount of cells
-		self.alpha = params[2].value;
-		self.beta = params[3].value;
-		self.gamma = params[4].value;
+		//var N = params[0].value; // amount of cells
+		var N = 1200;
+		//self.alpha = params[0].value;
+
+		self.beta = 1/params[2].value;
+		self.gamma = 1/params[1].value;
+		self.alpha = params[0].value*self.beta;
+
+		// used for video export
+		// const slowDown = 0.5;
+		// self.alpha = self.alpha*slowDown;
+		// self.beta = self.beta*slowDown;
+		// self.gamma = self.gamma*slowDown;
 
 		console.log('a='+self.alpha+', b='+self.beta+', c='+self.gamma);
 
@@ -35,7 +47,12 @@ module.exports = MCellAuto.extend({
 		console.log(N+' --> '+envSize[0]+'*'+envSize[1]+' = '+envSize[0]*envSize[1]);
 
 		N = envSize[0]*envSize[1];
-		var P = Math.ceil(6*N*params[1].value); // population
+		//var density = params[1].value;
+		
+		//var density = 0.4;
+		var density = 0.5;
+
+		var P = Math.ceil(6*N*density); // population
 
 		if (P > 6*N){
 			console.log('###ERROR### population does not fit into cells!!!');
@@ -54,8 +71,10 @@ module.exports = MCellAuto.extend({
 		}
 		*/
 
+		self.H = [];
 		self.initEmptyEnv(envSize[0],envSize[1]);
 		var infectedAtStart = Math.ceil(P*0.001);
+		//infectedAtStart = 10;
 
 		console.log('infected at start '+infectedAtStart);
 
@@ -64,6 +83,7 @@ module.exports = MCellAuto.extend({
 		self.E.pop();
 		self.I.pop();
 		self.R.pop();
+		self.H.pop();
 		self.P.pop();
 		self.timeline.pop();
 
@@ -82,7 +102,8 @@ module.exports = MCellAuto.extend({
 					S: [],
 					E: [],
 					I: [],
-					R: []
+					R: [],
+					H: []
 				});
 
 				var area = self.areaSpaces[i];
@@ -124,8 +145,21 @@ module.exports = MCellAuto.extend({
 				self.areaBorders.push(border);
 			}
 
-			self.count();
+			/*
+			map.paintCity(300, 250, 'Stuttgart', 62, 'topleft');
+			map.paintCity(186, 210, 'Karlsruhe', 64, window.isMobile ? 'topleft' : 'topright');
+			map.paintCity(400, 337, 'Ulm', 30, window.isMobile ? 'topright' : 'bottomleft');
+			map.paintCity(105, 421, 'Freiburg', 58, 'topleft');
+			*/
 
+			map.paintCity(327, 261, 'Stuttgart', 62, 'topleft');
+			map.paintCity(220, 210, 'Karlsruhe', 64, window.isMobile ? 'topleft' : 'topright');
+			map.paintCity(435, 337, 'Ulm', 30, window.isMobile ? 'topright' : 'bottomleft');
+			map.paintCity(139, 421, 'Freiburg', 58, 'topleft');
+
+			
+
+			self.count();
 
 			self.start();
 		});
@@ -142,6 +176,7 @@ module.exports = MCellAuto.extend({
 		var E_tot = 0;
 		var I_tot = 0;
 		var R_tot = 0;
+		var H_tot = 0;
 
 		for (var i = 0; i < self.areaSpaces.length; i++){
 			var area = self.areaSpaces[i];
@@ -150,6 +185,7 @@ module.exports = MCellAuto.extend({
 			var E = 0;
 			var I = 0;
 			var R = 0;
+			var H = 0;
 			for (var j = 0; j < area.length; j++){
 				area[j].wallBricks = [];
 				var k = area[j].k;
@@ -159,9 +195,10 @@ module.exports = MCellAuto.extend({
 					if (crntCell.sectors[l] == 2){ E++; }
 					if (crntCell.sectors[l] == 3){ I++; }
 					if (crntCell.sectors[l] == 4){ R++; }
+					if (crntCell.sectors[l] == 5){ H++; }
 				}
 			}
-			var P = S+E+I+R;
+			var P = S+E+I+R+H;
 			//areaCount.S.push(S/P);
 			//areaCount.E.push(E/P);
 			//areaCount.I.push(I/P);
@@ -170,6 +207,7 @@ module.exports = MCellAuto.extend({
 			areaCount.E.push(E);
 			areaCount.I.push(I);
 			areaCount.R.push(R);
+			areaCount.H.push(H);
 			self.areaCount[i] = areaCount;
 
 			/*
@@ -190,19 +228,50 @@ module.exports = MCellAuto.extend({
 			E_tot = E_tot + E;
 			I_tot = I_tot + I;
 			R_tot = R_tot + R;
+			H_tot = H_tot + H;
 		}
 
-		var P_tot = S_tot+E_tot+I_tot+R_tot;
+		var P_tot = S_tot+E_tot+I_tot+R_tot+H_tot;
 
 		self.S.push(S_tot/P_tot);
 		self.E.push(E_tot/P_tot);
 		self.I.push(I_tot/P_tot);
 		self.R.push(R_tot/P_tot);
+		self.H.push(H_tot/P_tot);
 		self.P.push(P_tot/P_tot);
 		self.timeline.push(self.timeline.length);
 
 		self.set('time', self.timeline);
 		self.set('values', [self.I,self.E,self.R,self.S]);
+	},
+
+
+	calcAdditionsInfections: function(){
+		var self = this;
+
+		return;
+
+		// NOT USED !!!
+		for (var k = 0; k < self.cellData.length; k++){
+			var crntCell = self.cellData[k];
+
+			for (var l = 0; l < 6; l++){
+				if (crntCell.sectors[l] == 3){ // if sick
+
+					// chance to hospitalize
+					if (Math.random() < self.hospitalizeProbability){
+						crntCell.sectors[l] = 5;
+					}
+
+				}else if (crntCell.sectors[l] == 5){ // if hospitalized
+					if (Math.random() < self.beta/2){ // recover chance is bad
+						crntCell.sectors[l] = 4;
+					}
+				}
+			}
+
+			self.cellData[k] = crntCell;
+		}
 	},
 
 	openArea: function(areaId){
@@ -245,9 +314,21 @@ module.exports = MCellAuto.extend({
 
 		var closedCellData = self.cellData[kClose];
 		for (var l = 0; l < 6; l++){
+			var kNext = self.moveOneStep(closedCellData.i, closedCellData.j, l);
+			var nextCell = self.cells[kNext];
 
-			// stop neighbours from rotating
-			self.cells[kNext].dontRotate = false;
+			var stayClosed = false;
+			for (var k = 0; k < 6; k++){ 
+				var kNext = self.moveOneStep(nextCell.i, nextCell.j, k);
+				if (self.cells[kNext].closed){
+					stayClosed = true;
+					break;
+				}
+			}
+			if (!stayClosed){
+				// stop neighbours from rotating
+				nextCell.dontRotate = false;
+			}
 		}
 
 	},

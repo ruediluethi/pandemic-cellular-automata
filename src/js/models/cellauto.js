@@ -25,6 +25,8 @@ module.exports = MSim.extend({
 	beta: 0.1,  // recover probability
 	gamma: 0.1, // outbreak probability
 
+	fastForward: false,
+
 	S: [],
 	E: [],
 	I: [],
@@ -83,7 +85,6 @@ module.exports = MSim.extend({
 		);
 		*/
 
-
 		self.start();
 	},
 
@@ -100,9 +101,19 @@ module.exports = MSim.extend({
 
 	start: function(){
 		var self = this;
-		
+
+		self.trigger('simulationstart', self);
+
+		self.fastForward = false;		
 		self.paused = false;
 		self.move();
+	},
+
+	setAndSimulate: function(key, val){
+		var self = this;
+		self.set(key,val);
+		self.stop();
+		self.trigger('simulationdone', self);
 	},
 
 	initEmptyEnv: function(width, height){
@@ -231,36 +242,49 @@ module.exports = MSim.extend({
 
 		if (self.timeline.length > self.get('simulationDuration')){
 			self.trigger('simulationend', self);
+			self.trigger('simulationdone', self);
+			self.trigger('silentend', self, true);
 			return;
 		}
 
 		self.movement = setTimeout(function(){
 			self.moveCells();
-			self.trigger('moved', self);
+			if (!self.fastForward){
+				self.trigger('moved', self);
+			}
 			self.crntStep = 1;
 
 			self.movement = setTimeout(function(){
 				self.calcCollisions();
 				self.calcWalls();
-				self.trigger('collided', self)
+				if (!self.fastForward){
+					self.trigger('collided', self);
+				}
 				self.crntStep = 2;
 
 				self.movement = setTimeout(function(){
 					self.calcInfections();
-					self.trigger('infected', self);
+					if (!self.fastForward){
+						self.trigger('infected', self);
+					}
 					self.crntStep = 0;
 
 					self.count();
 
-					self.trigger('simulationend', self);
+					if (!self.fastForward){
+						self.trigger('simulationend', self);
+					}
+					self.trigger('silentend', self);
 
 					self.movement = setTimeout(function(){
+
 						self.move();
-					}, self.stepDelay);
+
+					}, self.fastForward ? 1 : self.stepDelay);
 					
-				}, self.infectDelay);
-			}, self.collideDelay);
-		}, self.moveDelay);
+				}, self.fastForward ? 1 : self.infectDelay);
+			}, self.fastForward ? 1 : self.collideDelay);
+		}, self.fastForward ? 1 : self.moveDelay);
 
 	},
 
@@ -279,7 +303,7 @@ module.exports = MSim.extend({
 
 						//console.log(self.cells[k].moveProbability);
 
-						if (crntCell.sectors[l] == 3 || Math.random() > self.cells[k].moveProbability){
+						if (crntCell.sectors[l] == 3 || crntCell.sectors[l] == 5 || Math.random() > self.cells[k].moveProbability){
 
 							var crntNewCell = newCells[k];
 							crntNewCell.sectors[l] = crntCell.sectors[l];
@@ -358,8 +382,9 @@ module.exports = MSim.extend({
 			var crntCell = self.cellData[k];
 
 			var sickInside = false;
+			
 			for (var l = 0; l < 6; l++){
-				if (crntCell.sectors[l] == 3){
+				if (crntCell.sectors[l] == 3 || crntCell.sectors[l] == 5){
 					sickInside = true;
 					break;
 				}
@@ -469,6 +494,14 @@ module.exports = MSim.extend({
 
 			self.cellData[k] = crntCell;
 		}
+
+		self.calcAdditionsInfections();
+	},
+
+	calcAdditionsInfections: function(){
+		var self = this;
+
+
 	},
 
 

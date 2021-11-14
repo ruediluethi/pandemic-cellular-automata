@@ -20,11 +20,17 @@ module.exports = Backbone.View.extend({
 		'mouseover .footer-anchor .scroll-element-content': 'showMenu',
 		'mouseout .footer-anchor .scroll-element-content': 'hideMenu',
 		'click .footer-anchor .scroll-element-content': 'clickMenu',
+		'click .footer-anchor .scroll-element-content .more': 'clickMore',
+		'click a.show-hidden-content': 'showHiddenContent'
 	},
 
 	initialize: function(options) {
 		var self = this;
 
+		if (window.isMobile){
+			self.paddingTop = -35;
+			self.paddingBottom = 32;
+		}
 	},
 
 	initScrollHandler: function(){
@@ -48,13 +54,15 @@ module.exports = Backbone.View.extend({
 		});
 		*/
 
-		self.$el.find('.scroll-element.full-screen').css({
-			height: self.screenHeight
-		});
+		if (!window.isMobile){
+			self.$el.find('.scroll-element.full-screen').css({
+				height: self.screenHeight
+			});
 
-		self.$el.find('.scroll-element.push-next').css({
-			paddingBottom: self.screenHeight
-		});
+			self.$el.find('.scroll-element.push-next').css({
+				paddingBottom: self.screenHeight
+			});
+		}
 
 		self.scrollHandler();
 	},
@@ -91,6 +99,21 @@ module.exports = Backbone.View.extend({
 			);
 		});
 
+		
+		self.$el.find('.copy-wrapper').each(function(i){
+			var $element = $(this).find('.scroll-element');
+
+			if (window.isMobile){
+				$element.addClass('hanged');
+				return;
+			}
+
+			var $clone = $element.clone();
+			$clone.addClass('hanged');
+			$(this).append($clone);
+			$element.addClass('hidden');
+		});
+
 		self.$footer.html(self.$footerAnchor.html());
 
 		return self;
@@ -122,8 +145,8 @@ module.exports = Backbone.View.extend({
 				if ($anchor.hasClass('on-screen')){
 					$anchor.removeClass('on-screen');
 
-					$col.removeClass('active');
-					self.slideMenuUp($col);
+					//$col.removeClass('active');
+					//self.slideMenuUp($col);
 				}
 
 				//$anchor.removeClass('above');
@@ -134,8 +157,8 @@ module.exports = Backbone.View.extend({
 				if ($anchor.hasClass('on-screen')){
 					$anchor.removeClass('on-screen');
 
-					$col.removeClass('active');
-					self.slideMenuUp($col);
+					//$col.removeClass('active');
+					//self.slideMenuUp($col);
 				}
 				//$anchor.addClass('above');
 				$anchor.removeClass('below');
@@ -147,8 +170,8 @@ module.exports = Backbone.View.extend({
 					self.trigger('onScrollAnchor', $anchor);
 
 					
-					self.slideMenuDown($col);
-					$col.addClass('active');
+					//self.slideMenuDown($col);
+					//$col.addClass('active');
 				}
 
 				if (forceTrigger){
@@ -199,12 +222,15 @@ module.exports = Backbone.View.extend({
 		if ($col.hasClass('active')){ return; }
 		var $menu = $col.find('.text-box');
 		$menu.stop().show().animate({
-			height: 230
+			height: 280
 		}, 200);
 	},
 
 	showMenu: function(e){
 		var self = this;
+		if (window.isMobile){
+			return;
+		}
 		self.slideMenuDown($(e.currentTarget).parent());
 	},
 	hideMenu: function(e){
@@ -213,7 +239,21 @@ module.exports = Backbone.View.extend({
 	},
 	clickMenu: function(e){
 		var self = this;
-		self.scrollToKey($(e.currentTarget).data('scrollto'));
+		if (window.isMobile){
+			self.scrollToKey($(e.currentTarget).data('scrollto'));
+			return;
+		}
+
+		if (window.IS_TOUCH_DEVICE){
+			return;
+		}else{
+			self.scrollToKey($(e.currentTarget).data('scrollto'));
+		}
+	},
+	clickMore: function(e){
+		var self = this;
+
+		self.scrollToKey($(e.currentTarget).parent().parent().data('scrollto'));
 	},
 
 	scrollToKey: function(key, callback){
@@ -237,6 +277,21 @@ module.exports = Backbone.View.extend({
             scrollTop: $anchor.offset().top - self.paddingBottom
 		}, 800).promise().then(callback);
 
-	}
+	},
+
+	showHiddenContent: function(e){
+		var self = this;
+
+        var $a = $(e.currentTarget);
+
+        if(e.preventDefault){
+            e.preventDefault();
+        }else{
+            e.returnValue = false;
+        }
+
+        $a.parent().find('.hidden-content').slideDown(500);
+        $a.hide();
+	},
 
 });

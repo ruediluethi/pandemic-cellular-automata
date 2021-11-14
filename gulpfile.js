@@ -10,12 +10,19 @@ var streamify = require('gulp-streamify');
 var connect = require('gulp-connect');
 //var sass = require('gulp-sass');
 var gulpif = require('gulp-if');
-var html2tpl = require('gulp-html2tpl');
 
+var html2tpl = require('./src/html2tpl/index.js');
+var htmlToJs = require('gulp-html-to-js');
 
 var env = process.env.ENV || 'dev';
-var devBase = 'http://localhost:9000/';
-var distBase = '/cellauto/';
+
+//var devBase = 'http://localhost:9000/';
+var devBase = 'http://localhost:3000/'; // express server
+
+//var distBase = '/cellauto/';
+
+//var distBase = '/cellauto-ulm/';
+//var distBase = '/truss/';
 
 gulp.task('html', function(){
 
@@ -55,14 +62,15 @@ gulp.task('js', function(){
         .pipe(gulp.dest('./builds/'+env+'/js'));
 
     // compile templates
-    var templates = gulp.src('src/templates/*.html')
+    gulp.src('src/templates/*.html')
         .pipe(html2tpl('templates.js'))
+        //.pipe(htmlToJs({concat: 'templates.js'}))
         .pipe(gulpif(env !== 'dev', streamify(uglify())))
         .pipe(gulp.dest('builds/'+env+'/js'));
 
     
 
-    // compile custom code
+    // // compile custom code
     return browserify('./src/js/main', { debug: env === 'dev' })
         .bundle()
         .pipe(source('app.js'))
@@ -82,12 +90,12 @@ gulp.task('js', function(){
 gulp.task('watch', function(){
 
     // system
-    gulp.watch('*.html', ['html']);
-    gulp.watch('data/**/*', ['data']);
-    gulp.watch('imgs/**/*', ['imgs']);
-    gulp.watch('src/css/**/*.css', ['css']);
-    gulp.watch('src/js/**/*.js', ['js']);
-    gulp.watch('src/templates/**/*.html', ['js']);
+    gulp.watch('*.html', gulp.parallel( ['html'] ));
+    gulp.watch('data/**/*', gulp.parallel( ['data']));
+    gulp.watch('imgs/**/*', gulp.parallel( ['imgs']));
+    gulp.watch('src/css/**/*.css', gulp.parallel( ['css']));
+    gulp.watch('src/js/**/*.js', gulp.parallel( ['js']));
+    gulp.watch('src/templates/**/*.html', gulp.parallel( ['js']));
 
 });
 
@@ -101,6 +109,6 @@ gulp.task('connect', function(){
     });
 });
 
-gulp.task('default', ['html', 'data', 'imgs', 'css', 'js', 'watch', 'connect'], function(){
+gulp.task('default', gulp.parallel(['html', 'data', 'imgs', 'css', 'js', 'watch', 'connect']), function(){
 
 });

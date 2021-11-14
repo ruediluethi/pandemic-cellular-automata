@@ -7,26 +7,40 @@ var d3 = require('d3-browserify');
 
 var VValueSlider = require('../valueslider');
 var VPlot = require('../plot');
+var VArchivedPlot = require('../archivedplot');
 
 module.exports = Backbone.View.extend({
 
 	title: '',
+	caption: '',
 	simulation: undef,
 	plotColors: [],
 	plotAlphas: [],
 	plotFill: [],
 	plotMin: 0,
 	plotMax: 1,
+	plotResetAt: 5,
 	legend: [],
 	legendColors: [],
 
 	vSliders: [],
 	vPlot: undef,
-	reactionTime: 100,
+	reactionTime: 200,
+	heightScale: 0.5,
 
 	className: 'simplot',
 
 	template: 'simplot',
+	showControls: true,
+	crntSliderValues: [],
+	archivedPlots: [],
+
+	events: {
+		'click .button.play': 'playClick',
+		'click .button.stop': 'stopClick',
+		'click .button.forward': 'forwardClick',
+		'click .button.restart': 'restartClick'
+	},
 
 	initialize: function(options) {
 		var self = this;
@@ -52,7 +66,18 @@ module.exports = Backbone.View.extend({
 		}else{
 			self.legendColors = self.plotColors;
 		}
-		
+		if (options.showControls != undef){
+			self.showControls = options.showControls;
+		}
+		if (options.caption != undef){
+			self.caption = options.caption;
+		}
+		if (options.heightScale != undef){
+			self.heightScale = options.heightScale;
+		}
+		if (options.resetAt != undef){
+			self.plotResetAt = options.resetAt;
+		}
 
 		// init param sliders
 		self.vSliders = [];
@@ -82,12 +107,29 @@ module.exports = Backbone.View.extend({
 			stroke: self.plotStrokes,
 			minValue: self.plotMin,
 			maxValue: self.plotMax,
-			heightScale: 0.5,
+			heightScale: self.heightScale,
 			ticks: options.ticks,
-			tocks: options.tocks
+			tocks: options.tocks,
+			resetAt: self.plotResetAt
 		});
 		self.listenTo(self.simulation, 'simulationend', function(){
 			self.vPlot.update(self.simulation.get('values'), self.simulation.get('time'));
+			self.vPlot.$el.show();
+		});
+
+		self.listenTo(self.simulation, 'simulationstart', function(){
+			self.crntSliderValues = [];
+			for (var i = 0; i < self.vSliders.length; i++){
+				self.crntSliderValues.push(self.vSliders[i].getValue());
+			}
+
+			self.$el.find('.controls .forward').removeClass('disabled');
+			self.togglePlayButton(false);
+		});
+
+		self.listenTo(self.simulation, 'simulationdone', function(){
+			self.$el.find('.loading-overlay').fadeOut(500);
+			self.togglePlayButton(true, true);
 		});
 
 	},
@@ -97,15 +139,18 @@ module.exports = Backbone.View.extend({
 		var self = this;
 
 		self.$el.html(templates[self.template]({
-			title: self.title
+			title: self.title,
+			caption: self.caption,
+			showControls: self.showControls
 		}));
+		var spinner = new Spinner(window.opts).spin(self.$el.find('.loading-overlay')[0]);
 
 		// render params
 		var params = self.simulation.get('params');
 		for (var i = 0; i < self.vSliders.length; i++){
 			var vSlider = self.vSliders[i];
 			self.$el.find('.parameters .sliders').append(vSlider.render().$el);
-			vSlider.setValue(params[i].value);
+			vSlider.setValue(params[i].value, false);
 		}
 
 		// render legend
@@ -143,8 +188,103 @@ module.exports = Backbone.View.extend({
 		self.$el.find('.plot-container').append(self.vPlot.$el);
 		self.vPlot.render();
 
+		self.delegateEvents();
+
 		// do simulation at the end
 		self.simulation.simulate();
+	},
+
+
+	togglePlayButton: function(play, disabled){
+		var self = this;
+
+		var $btnPlay = self.$el.find('.controls .button.start-stop');
+
+		$btnPlay.removeClass('stop');
+		$btnPlay.removeClass('play');
+		$btnPlay.removeClass('disabled');
+
+		if (play){
+			$btnPlay.addClass('play');
+			$btnPlay.find('.label').html('Play');
+			if (disabled){
+				$btnPlay.addClass('disabled');
+				self.$el.find('.controls .forward').addClass('disabled');
+			}
+		}else{
+			$btnPlay.addClass('stop');
+			$btnPlay.find('.label').html('Stop');
+		}
+
+	},
+
+	playClick: function(e){
+		var self = this;
+
+		var $btnPlay = self.$el.find('.controls .button.start-stop');
+		if ($btnPlay.hasClass('disabled')){
+			return;
+		}
+
+		self.simulation.start();
+	},
+
+	stopClick: function(e){
+		var self = this;
+		self.simulation.stop();
+		self.togglePlayButton(true);
+	},
+
+	restartClick: function(e){
+		var self = this;
+
+		var newArchive = new VArchivedPlot({
+			vSimPlot: self,
+			sliderValues: self.crntSliderValues,
+			t: self.vPlot.t-1,
+			max: self.vPlot.max[0]/self.vPlot.maxValue*100
+		});
+
+		newArchive.setElement(self.vPlot.$el.clone());
+
+
+		self.vPlot.$el.before(newArchive.$el);
+
+
+		self.vPlot.$el.hide();
+
+
+		newArchive.minimize(function(){
+			self.simulation.simulate();
+		});
+
+		self.archivedPlots.push(newArchive);
+
+	},
+
+	closeAllArchives: function(){
+		var self = this;
+
+		for (var i = 0; i < self.archivedPlots.length; i++){
+			self.archivedPlots[i].close();
+		}
+	},
+
+
+	forwardClick: function(e){
+		var self = this;
+		var $btnForward = self.$el.find('.controls .button.forward');
+		if ($btnForward.hasClass('disabled')){
+			return;
+		}
+
+		self.simulation.start();
+		self.simulation.fastForward = true;
+
+		self.togglePlayButton(true,true);
+
+		self.$el.find('.loading-overlay').fadeIn(500);
 	}
+
 
 });

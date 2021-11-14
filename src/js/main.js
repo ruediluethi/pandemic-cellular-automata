@@ -55,36 +55,56 @@ window.mitternacht = function(a,b,c){
 
 window.RED = '#e2005c';
 window.LIGHTRED = '#f2869f';
+window.DARKRED = '#a51851';
 window.YELLOW = '#fcd227';
+
 window.GREEN = '#55c48f';
 
+
+window.BLACK = '#555555';
+window.GRAY = '#999999';
+
+window.ORANGE = '#c15510';
+window.BLUE = '#653fa7';
+
+window.WATER = '#46a5ce';
+
+// THU colors
 /*
-window.RED = '#f2869f';
+window.GREEN = '#447fc3';
+window.RED = '#e30038';
+window.LIGHTRED = '#f1849b';
+
+window.WATER = '#011d66';
+*/
+
+
+/*
 window.DARKRED = '#e2005c';
-window.BLUE = '#40a1dd';
-window.GREEN = '#55c48f';
-window.BLACK = '#444444';
-window.GRAY = '#DDDDDD';
-window.YELLOW = '#fcd227';
-window.ORANGE = '#d87600';
+
+
+
+window.CYAN = '#4be0d8';
 window.PURPLE = '#6c1eaf';
+window.ORANGE = '#d87600';
+
 window.CYAN = '#4be0d8';
 */
 
 
-/*
-//window.RED = '#a32638';
-window.RED = '#d4233d';
-window.GREEN = '#56aa1c';
-window.YELLOW = '#dfac07';
-window.PURPLE = '#7a99ac';
-*/
-
 // app
-var App = require('./app');
+//var App = require('./app_SEIR');
+var App = require('./app_FEM');
 
 // dom ready
 $(document).ready(function(){
+
+    try {  
+        document.createEvent("TouchEvent");  
+        window.IS_TOUCH_DEVICE = true;
+    } catch (e) {
+        window.IS_TOUCH_DEVICE = false;
+    }  
 
     var resize = function(){
         window.isMobile = false;
@@ -116,5 +136,6 @@ $(document).ready(function(){
         el: $('#wrapper')
     });
 
-    window.app.initRouter();
+    window.app.initRouter(false);
+    window.app.showRoot();
 });

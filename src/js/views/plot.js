@@ -10,6 +10,7 @@ var pathDrawFunction = d3.svg.line()
     .y(function(d){ return d.y; })
     .interpolate('linear');
 
+
 module.exports = Backbone.View.extend({
 
 	className: 'plot',
@@ -41,6 +42,12 @@ module.exports = Backbone.View.extend({
 	gAxis: undef,
 	gGraphs: undef,
 	gLabels: undef,
+
+	percentOnly: true,
+
+	t: 0,
+	avg: [],
+	max: [],
 
 	initialize: function(options) {
 		var self = this;
@@ -88,6 +95,10 @@ module.exports = Backbone.View.extend({
 
 		self.width = self.$el.width();
 		self.height = self.width*self.heightScale;
+
+		self.$el.css({
+			height: self.height
+		});
 
 		svg.attr('width', self.width);
 		svg.attr('height', self.height);
@@ -141,9 +152,10 @@ module.exports = Backbone.View.extend({
 					return 1;
 				}
 			})
-			.style('stroke-dasharray', function(d,i){
-				return ("3, 3");
-			});
+			// TODO
+			//.style('stroke-dasharray', function(d,i){
+			//	return ("3, 3");
+			//});
 
 		return self;
 	},
@@ -199,7 +211,12 @@ module.exports = Backbone.View.extend({
 				.attr('x', 2)
 				.attr('y', self.valueToY(value)+11)
 				// .attr('text-anchor', 'end')
-				.text(self.maxValue <= 1 ? (self.maxValue < 10 ? Math.round(value*1000)/10 : Math.round(value*100)) + '%' : Math.round(value));
+				//.text(self.maxValue <= 1 ? (self.maxValue < 10 ? self.maxValue : Math.round(value*100)) + '%' : Math.round(value));
+				.text(self.percentOnly ? (
+					(self.maxValue < 1 ? (
+						self.maxValue < 0.1 ? Math.round(value*100*100)/100 : Math.round(value*100)
+					) : Math.round(value/self.maxValue*100)) + '%'
+				) : Math.round(value*100) + '%') ;
 		}
 
 		self.gAxis.append('line')
@@ -259,7 +276,7 @@ module.exports = Backbone.View.extend({
 
 		self.gLabels.append('text')
 			.attr('class', 'small timeline')
-			.attr('x', self.diagramWidth)
+			.attr('x', self.diagramWidth-5)
 			.attr('y', self.valueToY(0)-7)
 			.attr('text-anchor', 'end')
 			.text(self.yAxisLabel);
@@ -312,6 +329,25 @@ module.exports = Backbone.View.extend({
 		var timeRange = Math.abs(minTime - maxTime);
 		var timeStep = self.diagramWidth/timeRange;
 		// END HACK --> same code in renderTimeline...
+
+		// save cycles amount, average and max values 
+		self.t = time.length;
+		self.avg = [];
+		self.max = [];
+		for (var i = 0; i < data.length; i++){
+			var avg = 0;
+			var max = 0;
+			for (var t = 0; t < self.t; t++){
+				avg = avg + data[i][t];
+				if (data[i][t] > max){
+					max = data[i][t];
+				}
+			}
+			avg = avg/time.length;
+			self.avg[i] = avg;
+			self.max[i] = max;
+		}
+
 
 		var pathPointsBefore = [];
 		for (var t = 0; t < data[0].length; t++){

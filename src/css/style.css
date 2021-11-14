@@ -4,17 +4,31 @@ body, html {
     -webkit-font-smoothing: antialiased !important;
 }
 
-#wrapper {
-	/*overflow: hidden;*/
+.mobile-only {
+	display: none;
+}
+body.mobile .mobile-only {
+	display: block;
+}
+body.mobile .desktop-only {
+	display: none;
 }
 
-#loading-overlay {
+body.mobile #wrapper {
+	overflow: hidden;
+}
+
+.loading-overlay {
     position: fixed;
     top: 0px;
     left: 0px;
     width: 100%;
     height: 100%;
-    background: url("../imgs/loading_back.png") repeat 0px 0px transparent;
+    /*background: url("../imgs/loading_back.png") repeat 0px 0px transparent;*/
+    background: rgba(238, 238, 238, 0.9);
+}
+.simplot .loading-overlay {
+	position: absolute;
 }
 
 #infographic {
@@ -34,6 +48,11 @@ body, html {
 	width: 100%;
 	background: #FFFFFF;
 	height: 70px;
+	float: left;
+}
+body.mobile .h-ribbon {
+	height: 100px;
+	position: relative;
 }
 .footer.below {
 	height: 90px;
@@ -46,12 +65,21 @@ body, html {
 	background: #555555;
 	color: #FFFFFF;
 	padding: 100px 0px;
+	float: left;
 }
 .white-ribbon {
 	width: 100%;
 	padding: 20px 0px;
+	background: #FFFFFF;
+	float: left;
 }
 
+
+.copy-wrapper {
+	width: 100%;
+	float: left;
+	position: relative;
+}
 
 .scroll-element {
 	width: 100%;
@@ -59,8 +87,38 @@ body, html {
 	position: relative;
 	pointer-events: none;
 }
+.scroll-element.do-events,
+.scroll-element-content.do-events {
+	pointer-events: auto;
+}
+
+.hidden-content {
+	display: none;
+}
+
+.copy-wrapper .scroll-element.hanged {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+.copy-wrapper .scroll-element.hanged.fixed {
+	position: fixed;
+	top: -20px;
+}
+body.mobile .copy-wrapper .scroll-element.hanged {
+	position: relative;
+	background: #EEEEEE;
+	margin-bottom: 0px !important;
+}
+body.mobile .copy-wrapper .scroll-element.hanged.computer-science-anchor {
+	margin-bottom: 120px !important;
+}
+body.mobile .copy-wrapper .scroll-element.hanged.engineering-anchor {
+	margin-top: 150px;
+}
 
 body.edit-content .scroll-element,
+body.mobile .scroll-element,
 .scroll-element.footer-anchor {
 	pointer-events: auto;
 }
@@ -69,6 +127,9 @@ body.edit-content .scroll-element,
 }
 .scroll-element.footer-anchor.full-screen.on-screen {
 	pointer-events: auto;
+}
+body.mobile .scroll-element.push-next {
+	padding-top: 50px;
 }
 
 .scroll-element .inside-scroll-element,
@@ -84,6 +145,16 @@ body.edit-content .scroll-element,
 	width: 600px;
 }
 
+body.medium .scroll-element .inside-scroll-element,
+body.medium .footer .inside-scroll-element,
+body.medium .background .content {
+	width: 100%;
+}
+
+body.mobile .black-ribbon .inside-scroll-element {
+	padding: 12px;
+}
+
 .scroll-col {
 	width: 330px;
 	min-height: 10px;
@@ -95,6 +166,10 @@ body.edit-content .scroll-element,
 	background: rgba(238, 238, 238, 0.9);
 	padding: 5px;
 }
+body.medium .scroll-col {
+	width: 100%;
+	margin-right: 0px;
+}
 
 .scroll-col:last-child {
 	margin-right: 0px;
@@ -103,6 +178,21 @@ body.edit-content .scroll-element,
 .scroll-col.two-cols {
 	width: 680px;
 }
+.scroll-col.three-cols {
+	width: 100%;
+}
+
+.hanged .scroll-col {
+	margin-top: 300px;
+}
+body.mobile .hanged .scroll-col {
+	margin-top: 0px;
+}
+/*
+body.mobile .hanged .scroll-col.with-content {
+	margin-top: 150px;
+}
+*/
 
 .scroll-element-content.gray {
 	background: #e2e2e2;
@@ -122,7 +212,25 @@ body.edit-content .scroll-element,
 
 	margin-bottom: 8px;
 }
+body.mobile .scroll-element .scroll-col > .scroll-element-content {
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
 
+	margin-bottom: 100px;
+
+	padding: 12px;
+}
+body.mobile .scroll-element .scroll-col > .scroll-element-content.no-margin {
+	margin-bottom: 0px;
+}
+
+.scroll-element.hanged .scroll-col > .scroll-element-content {
+	background: transparent;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
 
 
 .scroll-element .scroll-col > .scroll-element-content.gray {
@@ -132,6 +240,7 @@ body.edit-content .scroll-element,
 	-moz-box-shadow: none;
 	box-shadow: none;
 }
+
 
 
 /* TYPO */
@@ -167,6 +276,11 @@ h1 {
     color: #000000;
     background: #FFFFFF;
 }
+body.mobile h1 {
+	font-size: 26px;
+	line-height: 26px;
+	padding: 2px 8px;
+}
 
 h2 {
     font-family: 'Merriweather', serif;
@@ -182,6 +296,10 @@ h2 {
 	line-height: 24px;
 	margin-bottom: 10px;
 	font-weight: 400;
+}
+body.mobile h2 {
+	font-size: 26px;
+	line-height: 32px;
 }
 
 h3 {
@@ -288,6 +406,13 @@ table.glossary td {
     color: #000000;
     font-weight: 300;
 }
+body.mobile .section-label{
+	font-size: 18px;
+    display: block;
+    height: auto;
+    width: 100%;
+    padding: 20px 0px 10px 0px;
+}
 
 .scroll-element .scroll-col > .scroll-element-content.intro {
 	padding: 12px;
@@ -297,14 +422,41 @@ table.glossary td {
 	font-size: 16px;
 	line-height: 24px;
 }
-
+body.mobile .scroll-element .scroll-col > .scroll-element-content.intro p {
+	font-size: 14px;
+	line-height: 20px;
+}
+body.mobile .scroll-element .scroll-col > .scroll-element-content.intro {
+	margin-bottom: 300px;
+}
 
 .headline h1 {
 	float: left;
 	margin-bottom: 8px;
 }
-.headline h1:last-child {
-	margin-left: 70px;
+body.mobile .headline h1 {
+	margin-bottom: 4px;
+}
+.headline.cse-is {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+/*
+body.mobile .headline.cse-is {
+	width: 100%;
+}
+*/
+.headline.cse-is h1 {
+	margin-top: 150px;
+} 
+
+body.mobile .headline.cse-is h1 {
+	margin-top: -130px;
+}
+
+.scroll-element.footer-anchor.full-screen.above .headline {
+	visibility: hidden;
 }
 
 .more {
@@ -314,11 +466,17 @@ table.glossary td {
     font-family: 'Roboto Condensed', sans-serif;
     color: #000000;
 }
+.hanged .more {
+	display: none;
+}
 
 
 /* MENU AND FOOTER */
 .hidden {
 	visibility: hidden;
+}
+body.mobile .scroll-element.hidden {
+	display: none;
 }
 
 .footer {
@@ -348,6 +506,12 @@ table.glossary td {
     display: table-cell;
     text-align: center;
 }
+body.mobile .h-ribbon .section-label {
+	width: 100%;
+	display: block;
+	padding: 10px 0px;
+	height: auto;
+}
 .logo-park {
 	position: absolute;
 	right: 0px;
@@ -358,15 +522,41 @@ table.glossary td {
 	margin-left: 40px;
 }
 
+body.mobile .logo-park {
+	width: 230px;
+    right: auto;
+    left: 50%;
+    top: 51px;
+    margin-left: -118px;
+}
+body.mobile .logo-park img {
+	margin-left: 10px;
+	height: 30px;
+}
+
+.logo-park-footer img {
+	height: 60px;
+}
+.logo-park-footer img:first-child {
+	margin-right: 50px;
+}
+body.medium .logo-park-footer img:first-child {
+	margin-left: 20px;
+}
+body.mobile .logo-park-footer img {
+	height: 30px;
+}
+
 
 .more {
 	position: absolute;
-	top: 165px;
+	top: 210px;
 	left: 0px;
 	width: 100%;
 }
 
-.footer-anchor .section-label {
+.footer-anchor .section-label,
+.hanged .section-label {
 	width: 320px;
 }
 
@@ -376,6 +566,12 @@ table.glossary td {
 }
 .footer.above .section-label {
 	height: 52px;
+}
+body.mobile .footer-anchor .section-label {
+	overflow: hidden;
+    display: block;
+    height: 20px;
+    visibility: hidden;
 }
 
 .footer-anchor .text-box  {
@@ -393,6 +589,9 @@ table.glossary td {
 .footer-anchor .scroll-col {
 	height: 90px;
 }
+body.medium .footer-anchor .scroll-col {
+	width: 33.333%;
+}
 
 .footer-anchor .scroll-element-content {
 	position: absolute;
@@ -408,6 +607,13 @@ table.glossary td {
 .footer.below .scroll-element-content {
 	bottom: 0px;
 	top: auto;
+}
+body.mobile .footer.below .scroll-element-content {
+	width: 100%;
+	height: 30px;
+	-webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
 }
 .footer.above .section-label {
 	text-align: left;
@@ -453,16 +659,19 @@ table.glossary td {
 }
 .footer.above .line {
 	display: block;
+	z-index: 1;
 }
 
-.footer-anchor .icon {
+.footer-anchor .icon,
+.hanged .icon {
 	position: absolute;
 	width: 36px;
 	margin-left: -19px;
 	left: 50%;
 	top: -20px;
 }
-.footer-anchor .icon img {
+.footer-anchor .icon img,
+.hanged .icon img {
 	width: 100%;
 }
 
@@ -470,6 +679,10 @@ table.glossary td {
 	left: 10px;
     top: 17px;
 	margin-left: 0px;
+}
+body.mobile .footer.above .icon {
+	left: 50%;
+	margin-left: -19px;
 }
 
 
@@ -483,7 +696,8 @@ table.glossary td {
 	-moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
 	box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
 }
-.scroll-element.footer.above .scroll-col.active .scroll-element-content:hover {
+.scroll-element.footer.above .scroll-col.active .scroll-element-content:hover,
+body.mobile .scroll-element.footer.above .scroll-element-content:hover {
 	-webkit-box-shadow: none;
 	-moz-box-shadow: none;
 	box-shadow: none;
@@ -527,13 +741,23 @@ table.glossary td {
 	left: 0px;
 	width: 100%;
 	height: 100%;
+	text-align: center;
+}
+
+.background .fullscreen img {
+	height: 100%;
+	width: auto;
 }
 
 .background .fullscreen .gamemap {
 	position: absolute;
     left: 50%;
     margin-left: -175px;
-    top: 55px;
+    /*top: 55px;*/
+}
+body.mobile .background .fullscreen .gamemap {
+	margin-left: 0px;
+	left: 0px;
 }
 
 .background .fullscreen .gamemap img {
@@ -567,11 +791,33 @@ table.glossary td {
 /******************* DIAGRAMS & SLIDERS **************************/
 
 .simplot, .areaplot {
-	margin-top: 80px;
 	font-family: 'Roboto Condensed', sans-serif;
     font-size: 14px;
     line-height: 18px;
     text-align: left;
+}
+.simplot {
+	margin-top: 80px;
+	position: relative;
+	float: left;
+	width: 100%;
+}
+body.mobile .simplot {
+	margin-top: 0px;
+	margin-bottom: 100px;
+	padding: 12px;
+	background: rgba(238, 238, 238, 0.9);
+}
+body.mobile .areaplot .simplot {
+	margin-bottom: 0px;
+}
+body.mobile .areaplot {
+	float: left;
+	margin-bottom: 250px;
+}
+
+.simplot .loading-overlay {
+	display: none;
 }
 
 .simplot h4, .areaplot h4 {
@@ -585,6 +831,9 @@ table.glossary td {
 	width: 100%;
 	float: left;
 	position: relative;
+}
+body.mobile .tabs-wrapper {
+	background: rgba(238, 238, 238, 0.9);
 }
 
 .tabs-header {
@@ -614,6 +863,9 @@ table.glossary td {
 	padding: 5px;
 	margin-top: 29px;
 }
+body.mobile .plot-container.tabs-content {
+	padding: 10px;
+}
 
 /* SLIDER */
 
@@ -626,7 +878,7 @@ table.glossary td {
 .v-slider {
     float: left;
     width: 100%;
-    margin-bottom: 5px;
+    margin-bottom: 2px;
 }
 
 
@@ -689,10 +941,14 @@ table.glossary td {
 	float: left;
 }
 
-.plot-container .legend {
+.plot-container .legend,
+.simplot .caption {
 	float: left;
 	margin-bottom: 3px;
 	font-size: 12px;
+}
+.simplot .caption {
+	margin-top: 10px;
 }
 
 .plot-container .legend .plot-legend {
@@ -706,4 +962,122 @@ table.glossary td {
 	margin-right: 3px;
     margin-top: 3px;
     float: left;
+}
+
+.plot {
+	width: 100%;
+	float: left;
+	overflow: hidden;
+	display: block;
+	position: relative;
+}
+
+.plot .summary {
+	position: absolute;
+	font-size: 12px;
+	width: 100%;
+	padding-right: 5px;
+}
+
+.plot .summary a {
+	cursor: pointer;
+}
+
+.plot .summary a.hide {
+	display: none;
+}
+.plot.open .summary .statistics {
+	display: none;
+}
+.plot.open .summary,
+.plot.open .summary a {
+	color: #FFFFFF;
+}
+.plot.open .summary a.show {
+	display: none;
+}
+.plot.open .summary a.hide {
+	display: inline-block;
+}
+
+
+
+.plot.archived {
+	border-bottom: 1px solid #bbbbbb;
+	background: #cccccc;
+}
+
+.controls {
+	float: left;
+	margin-bottom: 5px;
+	width: 100%;
+}
+
+
+.button {
+	float: left;
+	cursor: pointer;
+
+	-webkit-border-radius: 27px;
+	-moz-border-radius: 27px;
+	border-radius: 27px;
+
+	margin-right: 10px;
+
+	height: 27px;
+	overflow: hidden;
+}
+.button:hover {
+	opacity: 0.8;
+}
+body.mobile .button {
+	margin-right: 5px;
+}
+
+.button.play {
+	background: #55c48f;
+}
+.button.stop {
+	background: #e2005c;
+}
+.button.forward {
+	background: #555555;
+}
+.button.restart {
+	background: #fcd227;
+	margin-right: 0px;
+}
+
+.button.disabled {
+	background: #cccccc;
+}
+.button.disabled:hover {
+	opacity: 1;
+}
+
+.button .label {
+	float: left;
+	padding: 4px 12px 0px 0px;
+	color: #FFFFFF;
+}
+
+.button .icon {
+	margin-left: 0px;
+	margin-top: -3px;
+	float: left;
+	width: 33px;
+	height: 33px;
+	background: url("../imgs/buttons@2x.png") repeat 0px 0px transparent;
+	background-size: 132px 33px;
+}
+
+
+.button.forward .icon {
+	background-position: -33px 0px;
+}
+.button.stop .icon {
+	background-position: -66px 0px;
+}
+.button.restart .icon {
+	background-position: -99px 0px;
 }

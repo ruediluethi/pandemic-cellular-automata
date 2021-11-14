@@ -14,17 +14,20 @@
     "browserify": "^16.5.1",
     "browsernizr": "^2.0.0",
     "d3-browserify": "^3.4.12",
-    "gulp": "3.9.1",
+    "gulp": "^4.0.2",
     "gulp-connect": "^5.7.0",
+    "gulp-html-to-js": "0.0.7",
     "gulp-html2tpl": "^0.5.0",
     "gulp-if": "^3.0.0",
     "gulp-regex-replace": "^0.2.3",
     "gulp-streamify": "^1.0.2",
-    "gulp-uglify": "^1.0.2",
+    "gulp-uglify": "^3.0.2",
     "jquery": "^3.4.1",
     "jquery-ui": "^1.12.1",
     "jquery-ui-dist": "^1.12.1",
+    "jquery-ui-touch-punch": "^0.2.3",
     "topojson": "^3.0.2",
+    "vinyl": "^2.2.1",
     "vinyl-source-stream": "^2.0.0"
   }
 }

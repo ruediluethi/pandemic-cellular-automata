@@ -6,3 +6,22 @@
 <div class="plot-container">
 	<div class="legend"></div>
 </div>
+<div class="caption"><%= caption %></div>
+<% if (showControls){ %>
+	<div class="controls">
+		<div class="button play start-stop">
+			<div class="icon"></div>
+			<div class="label">Play</div>
+		</div>
+		<div class="button forward">
+			<div class="icon"></div>
+			<div class="label">Schnellvorlauf</div>
+		</div>
+		<div class="button restart">
+			<div class="icon"></div>
+			<div class="label">Neustart</div>
+		</div>
+	</div>
+<% } %>
+
+<div class="loading-overlay"></div>

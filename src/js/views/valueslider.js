@@ -5,6 +5,7 @@ Backbone.$ = $;
 
 
 require('jquery-ui-dist/jquery-ui');
+require('jquery-ui-touch-punch');
 
 module.exports = Backbone.View.extend({
 
@@ -75,7 +76,7 @@ module.exports = Backbone.View.extend({
 					self.$el.find('.v-slider-value').html(self.value);
 
 					clearTimeout(self.valueChangedTimeout);
-
+					//console.log(self.reactionTime);
 					self.valueChangedTimeout = setTimeout(function(){
 						self.trigger('valueHasChanged', self);
 					}, self.reactionTime);
@@ -101,7 +102,7 @@ module.exports = Backbone.View.extend({
 	},
 
 
-	setValue: function(newValue){
+	setValue: function(newValue, pullTheTrigger){
 		var self = this;
 
 		self.value = newValue;
@@ -115,6 +116,10 @@ module.exports = Backbone.View.extend({
 		self.$el.find('.v-slider-bar').css({
 			width: Math.ceil(pos)+self.$el.find('.v-slider-dot').width()/2
 		});
+
+		if (pullTheTrigger){
+			self.trigger('valueHasChanged', self);
+		}
 	},
 
 	animateToValue: function(newValue){
