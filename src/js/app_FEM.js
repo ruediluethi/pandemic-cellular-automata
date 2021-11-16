@@ -14,6 +14,7 @@ var VRibbon = require('./views/scrollribbon');
 var VBackgroundHandler = require('./views/backgroundhandler');
 
 var MSim = require('./models/sim.js');
+var MFem = require('./models/fem.js');
 var VSimPlot = require('./views/graphics/simplot');
 
 module.exports = Backbone.View.extend({
@@ -24,6 +25,9 @@ module.exports = Backbone.View.extend({
 
 	vRibbon: undef,
 	vBackHandler: undef,
+
+	vSimValidation: undef,
+	vSimBridge: undef,
 
 	resizeTimeout: undef,
 
@@ -72,7 +76,9 @@ module.exports = Backbone.View.extend({
 		self.vRibbon = new VRibbon();
 		self.$el.append(self.vRibbon.render('content_FEM').$el);
 
-		self.initDiagrams();
+		self.initDiagrams(function(){
+			self.hideLoading();
+		});
 		self.resize();
 
 		var $footerBackground = $('<img src="imgs/cse_studenten.jpg">');
@@ -205,6 +211,7 @@ module.exports = Backbone.View.extend({
 
 			if (anchorId == 'LGS'){
 				self.vBackHandler.appendContent('center', $(''));
+				self.vBackHandler.appendDiagram('left', self.vSimValidation);
 				self.vRibbon.setMenuActive('mathematics');
 			}
 
@@ -258,14 +265,47 @@ module.exports = Backbone.View.extend({
 		self.render(true);
 		self.vRibbon.initScrollHandler();
 
-		self.hideLoading();
+		//self.hideLoading();
 
 	},
 
-	initDiagrams: function(){
+	initDiagrams: function(callback){
 		var self = this;
 
-		// SIR simulation
+		
+		var femValidation = new MFem();
+		femValidation.set('simulationDuration', 10);
+		femValidation.set('initValues', [0, 0]);
+		femValidation.set('params', [
+			{ value: 7.86, minValue: 1, maxValue: 10, label: 'Dichte Stahl in 10<sup>-6</sup>kg/mm<sup>2</sup>', color: window.BLACK },
+			{ value: 210, minValue: 1, maxValue: 300, label: 'E-Modul in kN/mm<sup>2</sup>', color: window.BLACK },
+			{ value: 100*100, minValue: 1, maxValue: 100*100, label: 'Querschnittsfläche mm<sup>2</sup>', color: window.BLACK },
+		]);
+
+		d3.csv('data/validation_beams.csv', function(error, beamData){
+			d3.csv('data/validation_nodes.csv', function(error, nodeData){
+				femValidation.set('beams', beamData);
+				femValidation.set('nodes', nodeData);
+				callback.call();
+			});
+		});
+
+		self.vSimValidation = new VSimPlot({
+			title: 'Validierung',
+			simulation: femValidation,
+			ticks: 5,
+			tocks: 10,
+			minValue: 0,
+			maxValue: 10000,
+			plotColors: [window.BLACK],
+			plotStrokes: [1],
+			plotAlphas:  [1],
+			legend: ['Stablänge'],
+			legendColors: [window.BLACK],
+			showControls: false,
+			resetAt: 1
+		});
+		
 		var simDummy = new MSim();
 		simDummy.set('simulationDuration', 1);
 		simDummy.set('initValues', [0, 0]);

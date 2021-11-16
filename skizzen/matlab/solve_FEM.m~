@@ -1,0 +1,89 @@
+function [u,F] = solve_FEM(nodes,beams)
+
+    amount_of_nodes = size(nodes,1);
+    amount_of_beams = size(beams,1);
+
+    FHG = 2; % Anzahl der Freiheitsgrade
+    n   = amount_of_nodes * FHG;
+    K   = zeros(n,n);
+
+    % loop through nodes
+    filter_list = 1:n;
+    F = zeros(n,1);
+    node_pos = zeros(n,1);
+    for e = 1:amount_of_nodes
+        node    = nodes(e,:);
+        pos     = [node(2),node(3)]; % position
+        Fe      = [node(4),node(5)]; % external forces
+        locks   = [node(6),node(7)]; % is direction locked?
+        node_nr = node(1);
+        for e = 1:FHG
+            i = node_nr*FHG-FHG + e;
+            F(i) = Fe(e);
+            node_pos(i) = pos(e);
+            % Randbedingungen
+            if locks(e) 
+                I = find(filter_list == i);
+                filter_list = filter_list([1:I-1,I+1:end]);
+            end
+        end
+    end
+
+    % create matrix per element
+    for e = 1:amount_of_beams
+
+        % get nodes
+        a = beams(e,2); % number of start node
+        b = beams(e,3); % number of end node
+        node_start = nodes(a,:);
+        node_end   = nodes(b,:);
+
+        % calc phi and length
+        delta_x = node_end(2) - node_start(2);
+        delta_y = node_end(3) - node_start(3);
+        L   = sqrt(delta_x^2 + delta_y^2); % beam length
+        phi = atan2(delta_y, delta_x);     % angle
+
+        % get constants
+        A   = beams(e,4); % area
+        Y   = beams(e,5); % Young's Module
+        rho = beams(e,6); % density
+
+        % calc sin and cos
+        c = cos(phi);
+        s = sin(phi);
+        D = Y*A/L;
+
+        % stiffness matrix
+        Ke = D * [ c^2   c*s  -c^2  -c*s  ;
+                   c*s   s^2  -c*s  -s^2  ;
+                  -c^2  -c*s   c^2   c*s  ;
+                  -c*s  -s^2   c*s   s^2  ];
+
+
+        % calc global node index
+        index_list = [a * 2 - 1, a * 2, b * 2 - 1, b * 2];
+        for i = 1:4
+            for j = 1:4
+                K(index_list(i),index_list(j)) = K(index_list(i),index_list(j)) + Ke(i,j);
+            end
+        end
+
+    end
+
+    %spy(abs(K) > 1e-10)
+
+    F_part = F(filter_list);
+    K_part = K(filter_list,filter_list);
+
+    u_part = K_part\F_part;
+    u_full = zeros(n,1);
+    for e = 1:length(filter_list)
+        % append calced shifts to node positions
+        i = filter_list(e);
+        u_full(filter_list(e)) = u_part(e);
+    end
+
+    u = u_full;
+    F = 
+end
