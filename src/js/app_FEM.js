@@ -77,195 +77,199 @@ module.exports = Backbone.View.extend({
 		self.$el.append(self.vRibbon.render('content_FEM').$el);
 
 		self.initDiagrams(function(){
-			self.hideLoading();
-		});
-		self.resize();
+			
+			self.resize();
 
-		var $footerBackground = $('<img src="imgs/cse_studenten.jpg">');
-		var $dummySimBack = $('<img src="imgs/bruecke.png">');
-		$dummySimBack.css({
-			width: 685,
-			height: 'auto',
-			position: 'absolute',
-			top: 70,
-			left: '50%',
-			marginLeft: -175
-		});
-
-		if (window.isMobile){
-			self.vRibbon.$el.find('.scroll-element').each(function(){
-				var $anchor = $(this);
-				var anchorId = $anchor.data('anchor');
-				var $content = $anchor.find('.scroll-element-content').first();
-				
-				if (anchorId == ''){
-					//
-				}
-
-
+			var $footerBackground = $('<img src="imgs/cse_studenten.jpg">');
+			var $dummySimBack = $('<img src="imgs/bruecke.png">');
+			$dummySimBack.css({
+				width: 685,
+				height: 'auto',
+				position: 'absolute',
+				top: 70,
+				left: '50%',
+				marginLeft: -175
 			});
-		}
-
-		// show content on anchor position
-		var anchorBefore = undef;
-		var onIntroScreen = false;
-		self.vRibbon.bind('onScrollAnchor', function($anchor, scrollPos){
-			var anchorId = $anchor.data('anchor');
-
-			console.log(anchorId);
 
 			if (window.isMobile){
+				self.vRibbon.$el.find('.scroll-element').each(function(){
+					var $anchor = $(this);
+					var anchorId = $anchor.data('anchor');
+					var $content = $anchor.find('.scroll-element-content').first();
+					
+					if (anchorId == ''){
+						//
+					}
 
-				var doRemoveBack = true;
 
-				if (anchorId == ''){
-					//
+				});
+			}
+
+			// show content on anchor position
+			var anchorBefore = undef;
+			var onIntroScreen = false;
+			self.vRibbon.bind('onScrollAnchor', function($anchor, scrollPos){
+				var anchorId = $anchor.data('anchor');
+
+				console.log(anchorId);
+
+				if (window.isMobile){
+
+
+					var doRemoveBack = true;
+
+					if (anchorId == 'intro'){
+						self.vBackHandler.appendDiagram('right', self.vSimValidation);
+
+					}else{
+						//
+					}
+
+					if (doRemoveBack){
+						self.vBackHandler.removeBackground(false);
+					}
+
+					return;
+				}
+
+				self.vRibbon.setNoMenuActive();
+
+				if (anchorId == 'home' || 
+					anchorId == 'intro' ||
+					anchorId == 'footer'){
+					//self.vBackHandler.showBackground(self.vHexMap.$el, false);
+
+					self.vBackHandler.appendDiagram('right', self.vSimValidation);
+
 				}else{
 					//
 				}
 
-				if (doRemoveBack){
+
+				if (anchorId == 'home' || 
+					anchorId == 'intro'){
+					if (!onIntroScreen){
+						onIntroScreen = true;
+						//self.vBackHandler.appendDiagram('right', );
+					}
+					self.vBackHandler.$el.find('.scroll-col.left').addClass('hidden');
+					self.vBackHandler.$el.find('.scroll-col.center').addClass('hidden');
+				}else{
+					onIntroScreen = false;
+					self.vBackHandler.$el.find('.scroll-col.left').removeClass('hidden');
+					self.vBackHandler.$el.find('.scroll-col.center').removeClass('hidden');
+				}
+
+				if (anchorId == 'footer'){
+
+				}else{
+					self.vBackHandler.$el.css({
+						top: 0
+					});
+				}
+
+
+
+				if (anchorId == 'mathematics' || 
+					anchorId == 'computer-science' || 
+					anchorId == 'engineering' ||
+					anchorId == 'intro-end'){
+					self.vBackHandler.appendContent('center', $(''));
+					self.vBackHandler.removeBackground(false);
+				}
+				
+
+				if (anchorId == 'mathematics' || 
+					anchorId == 'computer-science' ||
+					anchorId == 'intro-end'){
+					self.vRibbon.$el.find('.engineering-anchor.hanged').addClass('fixed');
+				}else{
+					self.vRibbon.$el.find('.engineering-anchor.hanged').removeClass('fixed');
+				}
+				if (anchorId == 'computer-science' ||
+					anchorId == 'intro-end'){
+					self.vRibbon.$el.find('.mathematics-anchor.hanged').addClass('fixed');
+				}else{
+					self.vRibbon.$el.find('.mathematics-anchor.hanged').removeClass('fixed');
+				}
+				if (anchorId == 'intro-end'){
+					self.vRibbon.$el.find('.computer-science-anchor.hanged').addClass('fixed');
+				}else{
+					self.vRibbon.$el.find('.computer-science-anchor.hanged').removeClass('fixed');
+				}
+
+				if (anchorId == 'simulation'){
+					self.vBackHandler.showBackground($dummySimBack, true);
+					self.vBackHandler.appendContent('center', $(''));
+					self.vBackHandler.appendDiagram('left', self.vSimBridge);
+					self.vRibbon.setMenuActive('engineering');
+				}else{
 					self.vBackHandler.removeBackground(false);
 				}
 
-				return;
-			}
-
-			self.vRibbon.setNoMenuActive();
-
-			if (anchorId == 'home' || 
-				anchorId == 'intro' ||
-				anchorId == 'footer'){
-				//self.vBackHandler.showBackground(self.vHexMap.$el, false);
-
-			}else{
-				//
-			}
-
-
-			if (anchorId == 'home' || 
-				anchorId == 'intro'){
-				if (!onIntroScreen){
-					onIntroScreen = true;
-					//self.vBackHandler.appendDiagram('right', );
+				if (anchorId == 'balance'){
+					self.vBackHandler.appendContent('center', $(''));
+					self.vRibbon.setMenuActive('engineering');
 				}
-				self.vBackHandler.$el.find('.scroll-col.left').addClass('hidden');
-				self.vBackHandler.$el.find('.scroll-col.center').addClass('hidden');
-			}else{
-				onIntroScreen = false;
-				self.vBackHandler.$el.find('.scroll-col.left').removeClass('hidden');
-				self.vBackHandler.$el.find('.scroll-col.center').removeClass('hidden');
-			}
 
-			if (anchorId == 'footer'){
+				if (anchorId == 'LGS'){
+					self.vBackHandler.appendContent('center', $(''));
+					self.vBackHandler.appendDiagram('left', self.vSimValidation);
+					self.vRibbon.setMenuActive('mathematics');
+				}
 
-			}else{
-				self.vBackHandler.$el.css({
-					top: 0
-				});
-			}
+				if (anchorId == 'implementation'){
+					self.vBackHandler.appendContent('center', $(''));
+					self.vRibbon.setMenuActive('computer-science');
+				}
+
+				anchorBefore = anchorId;
+
+			});
+
+			self.vRibbon.bind('onScroll', function($anchor, scrollPos){
+				var anchorId = $anchor.data('anchor');
+
+				if (window.isMobile){ return; }
+
+				if (anchorId == 'footer'){
+
+					self.vBackHandler.$el.css({
+						top: 'auto',
+						bottom: scrollPos
+					});
+				}
+
+				if (anchorId == 'intro-end'){
+					self.vRibbon.$el.find('.scroll-element.hanged.fixed').css({
+						top: -scrollPos
+					});
+					self.vRibbon.$el.find('.footer .headline').css({
+						top: -scrollPos
+					});
+				}else{
+					self.vRibbon.$el.find('.scroll-element.hanged.fixed').css({
+						top: 0
+					});
+				}
+
+			});
 
 
+			$(window).resize(function(){
+				clearTimeout(self.resizeTimeout);
+				self.resizeTimeout = setTimeout(function(){
+					self.resize();
+					self.render(false);
+				}, 1000);
+			});
 
-			if (anchorId == 'mathematics' || 
-				anchorId == 'computer-science' || 
-				anchorId == 'engineering' ||
-				anchorId == 'intro-end'){
-				self.vBackHandler.appendContent('center', $(''));
-				self.vBackHandler.removeBackground(false);
-			}
 			
+			self.render(true);
+			self.vRibbon.initScrollHandler();
 
-			if (anchorId == 'mathematics' || 
-				anchorId == 'computer-science' ||
-				anchorId == 'intro-end'){
-				self.vRibbon.$el.find('.engineering-anchor.hanged').addClass('fixed');
-			}else{
-				self.vRibbon.$el.find('.engineering-anchor.hanged').removeClass('fixed');
-			}
-			if (anchorId == 'computer-science' ||
-				anchorId == 'intro-end'){
-				self.vRibbon.$el.find('.mathematics-anchor.hanged').addClass('fixed');
-			}else{
-				self.vRibbon.$el.find('.mathematics-anchor.hanged').removeClass('fixed');
-			}
-			if (anchorId == 'intro-end'){
-				self.vRibbon.$el.find('.computer-science-anchor.hanged').addClass('fixed');
-			}else{
-				self.vRibbon.$el.find('.computer-science-anchor.hanged').removeClass('fixed');
-			}
-
-			if (anchorId == 'simulation'){
-				self.vBackHandler.showBackground($dummySimBack, true);
-				self.vBackHandler.appendContent('center', $(''));
-				self.vBackHandler.appendDiagram('left', self.vSimBridge);
-				self.vRibbon.setMenuActive('engineering');
-			}else{
-				self.vBackHandler.removeBackground(false);
-			}
-
-			if (anchorId == 'balance'){
-				self.vBackHandler.appendContent('center', $(''));
-				self.vRibbon.setMenuActive('engineering');
-			}
-
-			if (anchorId == 'LGS'){
-				self.vBackHandler.appendContent('center', $(''));
-				self.vBackHandler.appendDiagram('left', self.vSimValidation);
-				self.vRibbon.setMenuActive('mathematics');
-			}
-
-			if (anchorId == 'implementation'){
-				self.vBackHandler.appendContent('center', $(''));
-				self.vRibbon.setMenuActive('computer-science');
-			}
-
-			anchorBefore = anchorId;
-
+			self.hideLoading();
 		});
-
-		self.vRibbon.bind('onScroll', function($anchor, scrollPos){
-			var anchorId = $anchor.data('anchor');
-
-			if (window.isMobile){ return; }
-
-			if (anchorId == 'footer'){
-
-				self.vBackHandler.$el.css({
-					top: 'auto',
-					bottom: scrollPos
-				});
-			}
-
-			if (anchorId == 'intro-end'){
-				self.vRibbon.$el.find('.scroll-element.hanged.fixed').css({
-					top: -scrollPos
-				});
-				self.vRibbon.$el.find('.footer .headline').css({
-					top: -scrollPos
-				});
-			}else{
-				self.vRibbon.$el.find('.scroll-element.hanged.fixed').css({
-					top: 0
-				});
-			}
-
-		});
-
-
-		$(window).resize(function(){
-			clearTimeout(self.resizeTimeout);
-			self.resizeTimeout = setTimeout(function(){
-				self.resize();
-				self.render(false);
-			}, 1000);
-		});
-
-		
-		self.render(true);
-		self.vRibbon.initScrollHandler();
-
-		//self.hideLoading();
 
 	},
 
@@ -296,7 +300,7 @@ module.exports = Backbone.View.extend({
 			ticks: 5,
 			tocks: 10,
 			minValue: 0,
-			maxValue: 10000,
+			maxValue: 1000,
 			plotColors: [window.BLACK],
 			plotStrokes: [1],
 			plotAlphas:  [1],
