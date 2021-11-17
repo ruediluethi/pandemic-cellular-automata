@@ -16,6 +16,7 @@ var VBackgroundHandler = require('./views/backgroundhandler');
 var MSim = require('./models/sim.js');
 var MFem = require('./models/fem.js');
 var VSimPlot = require('./views/graphics/simplot');
+var VTrussMap = require('./views/graphics/trussmap');
 
 module.exports = Backbone.View.extend({
 
@@ -28,6 +29,7 @@ module.exports = Backbone.View.extend({
 
 	vSimValidation: undef,
 	vSimBridge: undef,
+	vTrussMap: undef,
 
 	resizeTimeout: undef,
 
@@ -137,8 +139,8 @@ module.exports = Backbone.View.extend({
 				if (anchorId == 'home' || 
 					anchorId == 'intro' ||
 					anchorId == 'footer'){
-					//self.vBackHandler.showBackground(self.vHexMap.$el, false);
-
+					
+					self.vBackHandler.showBackground(self.vTrussMap.render(), false);
 					self.vBackHandler.appendDiagram('right', self.vSimValidation);
 
 				}else{
@@ -203,8 +205,6 @@ module.exports = Backbone.View.extend({
 					self.vBackHandler.appendContent('center', $(''));
 					self.vBackHandler.appendDiagram('left', self.vSimBridge);
 					self.vRibbon.setMenuActive('engineering');
-				}else{
-					self.vBackHandler.removeBackground(false);
 				}
 
 				if (anchorId == 'balance'){
@@ -286,8 +286,9 @@ module.exports = Backbone.View.extend({
 			{ value: 100*100, minValue: 1, maxValue: 100*100, label: 'Querschnittsfläche mm<sup>2</sup>', color: window.BLACK },
 		]);
 
-		d3.csv('data/validation_beams.csv', function(error, beamData){
-			d3.csv('data/validation_nodes.csv', function(error, nodeData){
+
+		d3.csv('data/bruecke_beams.csv', function(error, beamData){
+			d3.csv('data/bruecke_nodes.csv', function(error, nodeData){
 				femValidation.set('beams', beamData);
 				femValidation.set('nodes', nodeData);
 				callback.call();
@@ -300,7 +301,7 @@ module.exports = Backbone.View.extend({
 			ticks: 5,
 			tocks: 10,
 			minValue: 0,
-			maxValue: 1000,
+			maxValue: 100,
 			plotColors: [window.BLACK],
 			plotStrokes: [1],
 			plotAlphas:  [1],
@@ -308,6 +309,11 @@ module.exports = Backbone.View.extend({
 			legendColors: [window.BLACK],
 			showControls: false,
 			resetAt: 1
+		});
+
+		self.vTrussMap = new VTrussMap();
+		self.vTrussMap.listenTo(femValidation, 'simulationend', function(simulation){
+			self.vTrussMap.update(simulation.get('nodes'), simulation.get('beams'));
 		});
 		
 		var simDummy = new MSim();
@@ -359,6 +365,11 @@ module.exports = Backbone.View.extend({
 		self.vRibbon.resize(height);
 		self.vBackHandler.resize(width, height);
 		
+		if (window.isMobile){
+			self.vTrussMap.resize(width,height);
+		}else{
+			self.vTrussMap.resize(685,height);
+		}
 	},
 
 	render: function(inital){

@@ -65,9 +65,11 @@ window.BLACK = '#555555';
 window.GRAY = '#999999';
 
 window.ORANGE = '#c15510';
-window.BLUE = '#653fa7';
+window.BLUE = '#19ddd3';
+window.PURPLE = '#653fa7';
 
 window.WATER = '#46a5ce';
+
 
 // THU colors
 /*

@@ -13,25 +13,31 @@ module.exports = MSim.extend({
 
     simulate: function(){
 
-        this.preprocessor();
-        this.solver();
-
-        var beams = this.get('beams');
-        var displacements = this.get('displacements');
-
         var time = [];
         var values = [[]];
-        for (var i = 0; i < displacements.length; i++){
-            time.push(i);
-            values[0].push(Math.abs(displacements[i][0]));
+        for (var it = 100; it < 300; it = it + 2){
+            this.preprocessor();
+            this.solver(it);
+            this.postprocessor();
+
+            var beams = this.get('beams');
+            var maxStress = 0;
+            beams.forEach((beam) => {
+                if (Math.abs(beam.stress) > maxStress) maxStress = Math.abs(beam.stress);
+            });
+
+            time.push(time.length);
+            values[0].push(maxStress);
+            //console.log(maxStress);
+
         }
 
-        // console.log(time);
+        console.log(time);
         console.log(values);
 
         this.set('time', time);
 		this.set('values', values);
-		this.trigger('simulationend');
+		this.trigger('simulationend', this);
     },
 
     preprocessor: function(){
@@ -55,13 +61,13 @@ module.exports = MSim.extend({
         // calc length and angle for every beam
         for (var i = 0; i < beams.length; i++){
             beams[i].start = parseInt(beams[i].start);
-            var startNode = nodes[beams[i].start-1];
+            beams[i].startNode = nodes[beams[i].start-1];
             beams[i].end = parseInt(beams[i].end);
-            var endNode = nodes[beams[i].end-1];
+            beams[i].endNode = nodes[beams[i].end-1];
 
             // calc phi and length
-            var delta_x = endNode.x - startNode.x;
-            var delta_y = endNode.y - startNode.y;
+            var delta_x = beams[i].endNode.x - beams[i].startNode.x;
+            var delta_y = beams[i].endNode.y - beams[i].startNode.y;
             beams[i].length = Math.sqrt(delta_x*delta_x + delta_y*delta_y); // beam length
             beams[i].phi = Math.atan2(delta_y, delta_x); // angle
             beams[i].A = parseFloat(beams[i].A);
@@ -70,7 +76,7 @@ module.exports = MSim.extend({
         this.set('beams', beams);
     },
 
-    solver: function(){
+    solver: function(iterations){
 
         var nodes = this.get('nodes');
         var beams = this.get('beams');
@@ -78,14 +84,14 @@ module.exports = MSim.extend({
         var variance = 2; // number of degrees of freedom
         var n = nodes.length * variance;
         var K = matrixHelpers.create(n,n);
-        var F_nodes = [];
+        var F = [];
         var looseFs = [];
 
         for (var k = 0; k < nodes.length; k++){
-            if (!nodes[k].xLock) looseFs.push(F_nodes.length);
-            F_nodes.push([nodes[k].Fx]);
-            if (!nodes[k].yLock) looseFs.push(F_nodes.length);
-            F_nodes.push([nodes[k].Fy]);
+            if (!nodes[k].xLock) looseFs.push(F.length);
+            F.push([nodes[k].Fx]);
+            if (!nodes[k].yLock) looseFs.push(F.length);
+            F.push([nodes[k].Fy]);
         }
 
         for (var k = 0; k < beams.length; k++){
@@ -120,14 +126,14 @@ module.exports = MSim.extend({
         var F_part = [];
         var K_part = [];
         for (var i = 0; i < looseFs.length; i++){
-            F_part.push(F_nodes[looseFs[i]]);
+            F_part.push(F[looseFs[i]]);
             K_part.push([]);
             for (var j = 0; j < looseFs.length; j++){
                 K_part[K_part.length-1].push(K[looseFs[i]][looseFs[j]]);
             }
         }
         // solve the system of linear equations
-        var u_part = matrixHelpers.gaussSeidel(K_part, F_part);
+        var u_part = matrixHelpers.gaussSeidel(K_part, F_part, iterations);
 
         const u = [];
         for (var i = 0; i < looseFs.length; i++){
@@ -136,17 +142,46 @@ module.exports = MSim.extend({
             }
             u.push(u_part[i]);
         }
-        for (var k = u.length; k < F_nodes.length; k++){
+        for (var k = u.length; k < F.length; k++){
             u.push([0]);
         }
-        this.set('displacements', u);
+        //this.set('displacements', u);
         
-        var F_beams = matrixHelpers.multiply(K,u);
-        this.set('forceInBeams', F_beams);
+        F = matrixHelpers.multiply(K,u);
+
+        for (var k = 0; k < nodes.length; k++){
+            nodes[k].loadedFx = F[k*2][0];
+            nodes[k].loadedFy = F[k*2+1][0];
+            nodes[k].ux = u[k*2][0];
+            nodes[k].uy = u[k*2+1][0];
+        }
+
+        this.set('nodes', nodes);
     },
 
     postprocessor: function(){
 
+        var nodes = this.get('nodes');
+        var beams = this.get('beams');
+
+        for (var k = 0; k < beams.length; k++){
+            var beam = beams[k];
+            beam.startNode = nodes[beam.start-1];
+            beam.endNode = nodes[beam.end-1];
+
+            // displacements along beam direction
+            ua = beam.startNode.ux*Math.cos(beam.phi) + beam.startNode.uy*Math.sin(beam.phi);
+            ub = beam.endNode.ux*Math.cos(beam.phi) + beam.endNode.uy*Math.sin(beam.phi);
+            beam.u = ub - ua;
+
+            beam.strain = beam.u / beam.length;
+            beam.stress = beam.youngsModule * beam.strain;
+            beam.F      = beam.stress * beam.A;
+
+            beams[k] = beam;
+        }
+
+        this.set('beams', beams);
     }
 
 });

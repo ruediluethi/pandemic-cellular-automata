@@ -37,6 +37,39 @@ module.exports = {
 	    };
 
 	    return this.rgbToHex(rgbCalced.r, rgbCalced.g, rgbCalced.b);
+	},
+
+	gradient: function(z, colors) {
+		if (isNaN(z)) return '#000000';
+	
+		if (z < 0){
+			z = 0;
+		}
+		if (z > 1){
+			z = 1;
+		}
+	
+		const colGradient = colors.map((hex) => {
+			var c = this.hexToRgb(hex);
+			return [c.r, c.g, c.b]
+		});
+	
+		const amountOfColors = colGradient.length;
+	
+		const ai    = Math.floor(z*(amountOfColors-1));
+		const bi    = Math.ceil(z*(amountOfColors-1));
+		const value = z*(amountOfColors-1) - ai;
+	
+		const a = colGradient[ai];
+		const b = colGradient[bi];
+
+		var c = {
+			r: Math.round(a[0] + (b[0]-a[0])*value),
+			g: Math.round(a[1] + (b[1]-a[1])*value),
+			b: Math.round(a[2] + (b[2]-a[2])*value)
+		};
+
+		return this.rgbToHex(c.r, c.g, c.b);
 	}
 
 };
