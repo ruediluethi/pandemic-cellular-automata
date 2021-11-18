@@ -27,9 +27,14 @@ module.exports = Backbone.View.extend({
 	vRibbon: undef,
 	vBackHandler: undef,
 
-	vSimValidation: undef,
+	vSimExample: undef,
+	vMapExample: undef,
+
 	vSimBridge: undef,
-	vTrussMap: undef,
+	vMapBridge: undef,
+
+	vSimTriangle: undef,
+	vMapTriangle: undef,
 
 	resizeTimeout: undef,
 
@@ -121,7 +126,6 @@ module.exports = Backbone.View.extend({
 					var doRemoveBack = true;
 
 					if (anchorId == 'intro'){
-						self.vBackHandler.appendDiagram('right', self.vSimValidation);
 
 					}else{
 						//
@@ -140,8 +144,9 @@ module.exports = Backbone.View.extend({
 					anchorId == 'intro' ||
 					anchorId == 'footer'){
 					
-					self.vBackHandler.showBackground(self.vTrussMap.render(), false);
-					self.vBackHandler.appendDiagram('right', self.vSimValidation);
+					self.vBackHandler.showBackground(self.vMapExample.render(), false);
+					// self.vBackHandler.showBackground(self.vMapTriangle.render(), false);
+					
 
 				}else{
 					//
@@ -152,7 +157,8 @@ module.exports = Backbone.View.extend({
 					anchorId == 'intro'){
 					if (!onIntroScreen){
 						onIntroScreen = true;
-						//self.vBackHandler.appendDiagram('right', );
+						self.vBackHandler.appendDiagram('right', self.vSimExample);
+						// self.vBackHandler.appendDiagram('right', self.vSimTriangle);
 					}
 					self.vBackHandler.$el.find('.scroll-col.left').addClass('hidden');
 					self.vBackHandler.$el.find('.scroll-col.center').addClass('hidden');
@@ -163,7 +169,7 @@ module.exports = Backbone.View.extend({
 				}
 
 				if (anchorId == 'footer'){
-
+					self.vBackHandler.appendContent('center', $(''));
 				}else{
 					self.vBackHandler.$el.css({
 						top: 0
@@ -201,20 +207,20 @@ module.exports = Backbone.View.extend({
 				}
 
 				if (anchorId == 'simulation'){
-					self.vBackHandler.showBackground($dummySimBack, true);
-					self.vBackHandler.appendContent('center', $(''));
+					self.vBackHandler.showBackground(self.vMapBridge.render(), false);
 					self.vBackHandler.appendDiagram('left', self.vSimBridge);
 					self.vRibbon.setMenuActive('engineering');
 				}
 
 				if (anchorId == 'balance'){
-					self.vBackHandler.appendContent('center', $(''));
+					self.vBackHandler.showBackground(self.vMapTriangle.render(), false);
+					self.vBackHandler.appendDiagram('left', self.vSimTriangle);
 					self.vRibbon.setMenuActive('engineering');
 				}
 
 				if (anchorId == 'LGS'){
+					self.vBackHandler.removeBackground(false);
 					self.vBackHandler.appendContent('center', $(''));
-					self.vBackHandler.appendDiagram('left', self.vSimValidation);
 					self.vRibbon.setMenuActive('mathematics');
 				}
 
@@ -277,81 +283,203 @@ module.exports = Backbone.View.extend({
 		var self = this;
 
 		
-		var femValidation = new MFem();
-		femValidation.set('simulationDuration', 10);
-		femValidation.set('initValues', [0, 0]);
-		femValidation.set('params', [
-			{ value: 7.86, minValue: 1, maxValue: 10, label: 'Dichte Stahl in 10<sup>-6</sup>kg/mm<sup>2</sup>', color: window.BLACK },
-			{ value: 210, minValue: 1, maxValue: 300, label: 'E-Modul in kN/mm<sup>2</sup>', color: window.BLACK },
-			{ value: 100*100, minValue: 1, maxValue: 100*100, label: 'Querschnittsfläche mm<sup>2</sup>', color: window.BLACK },
+		var femExample = new MFem();
+		femExample.beforeSimulate = function(){
+			var params = this.get('params');
+			var nodes = this.get('nodes');
+			var beams = this.get('beams');
+			
+			nodes[4].Fx = Math.cos(params[1].value/360*Math.PI*2)*params[0].value;
+			nodes[4].Fy = Math.sin(params[1].value/360*Math.PI*2)*params[0].value;
+
+			var A = (params[2].value*params[2].value)/4*Math.PI;
+			var B = (params[3].value*params[2].value)/4*Math.PI;
+
+			beams[0].A = A;
+			beams[1].A = A;
+			beams[2].A = B;
+			beams[3].A = A;
+			beams[4].A = B;
+			beams[5].A = A;
+			beams[6].A = B;
+			beams[7].A = A;
+			beams[8].A = B;
+			beams[9].A = A;
+			beams[10].A = B;
+			beams[11].A = A;
+			beams[12].A = B;
+			beams[13].A = A;
+			beams[14].A = A;
+
+			this.set('nodes', nodes);
+			this.set('beams', beams);
+		};
+		femExample.set('params', [
+			{ value: 100, minValue: 0, maxValue: 1000, label: 'Kraft in kN', color: window.BLACK },
+			{ value: 270, minValue: 0, maxValue: 360, label: 'Winkel der Kraft', color: window.BLACK },
+			{ value: 10, minValue: 1, maxValue: 30, label: 'Stabdurchmesser a in mm', color: window.BLACK },
+			{ value: 20, minValue: 1, maxValue: 30, label: 'Stabdurchmesser b in mm', color: window.BLACK }
 		]);
 
+		var femTriangle = new MFem();
+		femTriangle.beforeSimulate = function(){
+			var nodes = this.get('nodes');
+			var beams = this.get('beams');
+			var params = this.get('params');
 
-		d3.csv('data/bruecke_beams.csv', function(error, beamData){
-			d3.csv('data/bruecke_nodes.csv', function(error, nodeData){
-				femValidation.set('beams', beamData);
-				femValidation.set('nodes', nodeData);
-				callback.call();
+			nodes[1].Fx = Math.cos(params[1].value/360*Math.PI*2)*params[0].value;
+			nodes[1].Fy = Math.sin(params[1].value/360*Math.PI*2)*params[0].value;
+
+			var A = (params[2].value*params[2].value)/4*Math.PI;
+			var B = (params[3].value*params[2].value)/4*Math.PI;
+			var C = (params[4].value*params[2].value)/4*Math.PI;
+
+			beams[0].A = A;
+			beams[1].A = B;
+			beams[2].A = C;
+
+			this.set('nodes', nodes);
+			this.set('beams', beams);
+		};
+		femTriangle.set('params', [
+			{ value: 100, minValue: 0, maxValue: 2000, label: 'Kraft in kN', color: window.BLACK },
+			{ value: 270, minValue: 0, maxValue: 360, label: 'Winkel der Kraft', color: window.BLACK },
+			{ value: 10, minValue: 1, maxValue: 40, label: 'Stabdurchmesser a in mm', color: window.BLACK },
+			{ value: 20, minValue: 1, maxValue: 40, label: 'Stabdurchmesser b in mm', color: window.BLACK },
+			{ value: 30, minValue: 1, maxValue: 40, label: 'Stabdurchmesser c in mm', color: window.BLACK }
+		]);
+
+		var femBridge = new MFem();
+		femBridge.beforeSimulate = function(){
+			this.preprocessor();
+
+			var params = this.get('params');
+
+			var density = params[0].value * 1e-6;
+			var beams = this.get('beams');
+			var nodes = this.get('nodes');
+
+			for (var i = 0; i < nodes.length; i++){
+				nodes[i].Fy = 0;
+			}
+
+			for (var i = 0; i < beams.length; i++){
+				var a = parseInt(beams[i].start)-1;
+				var b = parseInt(beams[i].start)-1;
+				beams[i].youngsModule = params[1].value;
+				// add beam weight
+				beams[i].A = (params[2].value*params[2].value)/4*Math.PI; // in mm2
+				var L = parseFloat(beams[i].length);
+				var Fg = L*beams[i].A*density*9.81/1000; // force in kN
+				nodes[a].Fy = parseFloat(nodes[a].Fy) - Fg/2;
+				nodes[b].Fy = parseFloat(nodes[b].Fy) - Fg/2;
+				if (isNaN(nodes[a].Fy)) nodes[a].Fy = 0;
+				if (isNaN(nodes[b].Fy)) nodes[b].Fy = 0;
+			}
+			this.set('beams', beams);
+			this.set('nodes', nodes);
+		};
+		femBridge.set('params', [
+			{ value: 7.86, minValue: 1, maxValue: 100, label: 'Dichte Stahl in 10<sup>-6</sup>kg/mm<sup>2</sup>', color: window.BLACK },
+			{ value: 210, minValue: 1, maxValue: 300, label: 'E-Modul in kN/mm<sup>2</sup>', color: window.BLACK },
+			{ value: 100, minValue: 1, maxValue: 1000, label: 'Durchmesser in mm<sup>2</sup>', color: window.BLACK },
+		]);
+
+		d3.csv('data/validation_beams.csv', function(error, exampleBeams){
+			d3.csv('data/validation_nodes.csv', function(error, exampleNodes){
+				femExample.set('beams', exampleBeams);
+				femExample.set('nodes', exampleNodes);
+
+				d3.csv('data/lecture_beams.csv', function(error, triangleBeams){
+					d3.csv('data/lecture_nodes.csv', function(error, triangleNodes){
+						femTriangle.set('beams', triangleBeams);
+						femTriangle.set('nodes', triangleNodes);
+
+						d3.csv('data/bruecke_beams.csv', function(error, bridgeBeams){
+							d3.csv('data/bruecke_nodes.csv', function(error, bridgeNodes){
+								femBridge.set('beams', bridgeBeams);
+								femBridge.set('nodes', bridgeNodes);
+
+								callback.call();
+							});
+						});
+
+					});
+				});
+
 			});
 		});
 
-		self.vSimValidation = new VSimPlot({
-			title: 'Validierung',
-			simulation: femValidation,
+		self.vSimExample = new VSimPlot({
+			title: 'Fachwerk',
+			simulation: femExample,
+			showControls: false,
+			reactionTime: 1,
+
 			ticks: 5,
 			tocks: 10,
 			minValue: 0,
-			maxValue: 100,
+			maxValue: 1,
 			plotColors: [window.BLACK],
 			plotStrokes: [1],
 			plotAlphas:  [1],
-			legend: ['Stablänge'],
+			legend: ['Residuum'],
 			legendColors: [window.BLACK],
-			showControls: false,
 			resetAt: 1
 		});
 
-		self.vTrussMap = new VTrussMap();
-		self.vTrussMap.listenTo(femValidation, 'simulationend', function(simulation){
-			self.vTrussMap.update(simulation.get('nodes'), simulation.get('beams'));
+		self.vMapExample = new VTrussMap();
+		self.vMapExample.listenTo(femExample, 'simulationend', function(simulation){
+			self.vMapExample.update(simulation.get('nodes'), simulation.get('beams'));
 		});
-		
-		var simDummy = new MSim();
-		simDummy.set('simulationDuration', 1);
-		simDummy.set('initValues', [0, 0]);
-		simDummy.set('params', [
-			{ value: 787, minValue: 1, maxValue: 1000, label: 'Gesamtgewicht in t', color: window.BLACK },
-			{ value: 12, minValue: 1, maxValue: 20, label: 'Anzahl Wagen', color: window.BLACK },
-			{ value: 7.86, minValue: 1, maxValue: 10, label: 'Dichte Stahl in 10<sup>-6</sup>kg/mm<sup>2</sup>', color: window.BLACK },
-			{ value: 210, minValue: 1, maxValue: 300, label: 'E-Modul in kN/mm<sup>2</sup>', color: window.BLACK },
-			{ value: 100*100, minValue: 1, maxValue: 100*100, label: 'Querschnittsfläche mm<sup>2</sup>', color: window.BLACK },
-		]);
-		simDummy.set('diffeqs', [
-			function(crntValues, params, t){
-				//return Math.random() + Math.sin(t/100*Math.PI*2)+1;
-				return 0;
 
-			}, function(crntValues, params, t){
-				//return Math.random() + Math.cos(t/100*Math.PI*2)+1;
-				return 0;
-			}
-		]);
 
 		self.vSimBridge = new VSimPlot({
-			title: 'Simulation',
-			simulation: simDummy,
+			title: 'Müngstener Brücke',
+			simulation: femBridge,
+			showControls: false,
+			// reactionTime: 1
+
 			ticks: 5,
 			tocks: 10,
 			minValue: 0,
-			maxValue: 3,
-			plotColors: [window.ORANGE, window.BLUE],
-			plotStrokes: [1,1],
-			plotAlphas:  [1,1],
-			resetAt: 1,
-			legend: ['Maximale Spannung', 'Maximale Dehnung'],
-			legendColors: [window.ORANGE, window.BLUE],
-			showControls: false
+			maxValue: 1,
+			plotColors: [window.BLACK],
+			plotStrokes: [1],
+			plotAlphas:  [1],
+			legend: ['Residuum'],
+			legendColors: [window.BLACK],
+			resetAt: 1
 		});
+
+		self.vMapBridge = new VTrussMap();
+		self.vMapBridge.listenTo(femBridge, 'simulationend', function(simulation){
+			self.vMapBridge.update(simulation.get('nodes'), simulation.get('beams'));
+		});
+		
+		self.vSimTriangle = new VSimPlot({
+			title: 'Kräftegleichgewicht',
+			simulation: femTriangle,
+			showControls: false,
+			reactionTime: 1,
+
+			ticks: 5,
+			tocks: 10,
+			minValue: 0,
+			maxValue: 1,
+			plotColors: [window.BLACK],
+			plotStrokes: [1],
+			plotAlphas:  [1],
+			legend: ['Residuum'],
+			legendColors: [window.BLACK],
+			resetAt: 1
+		});
+
+		self.vMapTriangle = new VTrussMap();
+		self.vMapTriangle.listenTo(femTriangle, 'simulationend', function(simulation){
+			self.vMapTriangle.update(simulation.get('nodes'), simulation.get('beams'));
+		});
+
 	},
 
 	resize: function(){
@@ -364,11 +492,18 @@ module.exports = Backbone.View.extend({
 
 		self.vRibbon.resize(height);
 		self.vBackHandler.resize(width, height);
+		self.vMapExample.resize(width,height);
 		
 		if (window.isMobile){
-			self.vTrussMap.resize(width,height);
+			self.vMapBridge.resize(width,height);
+			self.vMapBridge.$el.removeClass('gamemap');
+			self.vMapTriangle.resize(width,height);
+			self.vMapTriangle.$el.removeClass('gamemap');
 		}else{
-			self.vTrussMap.resize(685,height);
+			self.vMapBridge.resize(685,height);
+			self.vMapBridge.$el.addClass('gamemap');
+			self.vMapTriangle.resize(685,height);
+			self.vMapTriangle.$el.addClass('gamemap');
 		}
 	},
 

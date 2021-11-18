@@ -749,8 +749,7 @@ body.mobile .scroll-element.footer.above .scroll-element-content:hover {
 	width: auto;
 }
 
-.background .fullscreen .gamemap,
-.background .fullscreen .trussmap {
+.background .fullscreen .gamemap {
 	position: absolute;
     left: 50%;
     margin-left: -175px;

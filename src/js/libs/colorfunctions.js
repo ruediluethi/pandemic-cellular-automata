@@ -40,7 +40,7 @@ module.exports = {
 	},
 
 	gradient: function(z, colors) {
-		if (isNaN(z)) return '#000000';
+		if (isNaN(z)) return colors[0];
 	
 		if (z < 0){
 			z = 0;

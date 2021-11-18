@@ -78,6 +78,9 @@ module.exports = Backbone.View.extend({
 		if (options.resetAt != undef){
 			self.plotResetAt = options.resetAt;
 		}
+		if (options.reactionTime != undef){
+			self.reactionTime = options.reactionTime;
+		}
 
 		// init param sliders
 		self.vSliders = [];
@@ -113,8 +116,12 @@ module.exports = Backbone.View.extend({
 			resetAt: self.plotResetAt
 		});
 		self.listenTo(self.simulation, 'simulationend', function(){
-			self.vPlot.update(self.simulation.get('values'), self.simulation.get('time'));
-			self.vPlot.$el.show();
+			if(self.simulation.get('time').length > 0){
+				self.vPlot.update(self.simulation.get('values'), self.simulation.get('time'));
+				self.vPlot.$el.show();
+			}else{
+				self.vPlot.$el.hide();
+			}
 		});
 
 		self.listenTo(self.simulation, 'simulationstart', function(){

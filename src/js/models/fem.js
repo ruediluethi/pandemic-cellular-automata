@@ -11,29 +11,43 @@ module.exports = MSim.extend({
     beams: [],
     nodes: [],
 
+    beforeSimulate: undef,
+
     simulate: function(){
+        if (this.beforeSimulate !== undef) this.beforeSimulate();
+
+        var nodes = this.get('nodes');
 
         var time = [];
         var values = [[]];
-        for (var it = 100; it < 300; it = it + 2){
+        for (var it = 100; it < Math.max(1000,nodes.length*20); it = it + 100){
             this.preprocessor();
             this.solver(it);
             this.postprocessor();
 
             var beams = this.get('beams');
             var maxStress = 0;
+            var sumStress = 0;
+            var sumU = 0;
             beams.forEach((beam) => {
+                sumStress += Math.abs(beam.stress);
+                sumU += Math.abs(beam.u);
                 if (Math.abs(beam.stress) > maxStress) maxStress = Math.abs(beam.stress);
             });
 
             time.push(time.length);
-            values[0].push(maxStress);
-            //console.log(maxStress);
+            values[0].push(sumU);
+        }
+        
+        var first = values[0][0];
+        var last = values[0][values[0].length-1];
 
+        for (var i = 0; i < values[0].length; i++){
+            values[0][i] = (values[0][i]-first)/(last-first);
         }
 
-        console.log(time);
-        console.log(values);
+        // console.log(time);
+        // console.log(values);
 
         this.set('time', time);
 		this.set('values', values);
@@ -43,19 +57,15 @@ module.exports = MSim.extend({
     preprocessor: function(){
 
         var nodes = this.get('nodes');
-        var nodePositions = [];
         for (var i = 0; i < nodes.length; i++){
             nodes[i].x = parseFloat(nodes[i].x);
-            nodePositions.push(nodes[i].x);
             nodes[i].y = parseFloat(nodes[i].y);
-            nodePositions.push(nodes[i].y);
             nodes[i].Fx = parseFloat(nodes[i].Fx);
             nodes[i].Fy = parseFloat(nodes[i].Fy);
             nodes[i].xLock = parseInt(nodes[i].xLock);
             nodes[i].yLock = parseInt(nodes[i].yLock);
         }
         this.set('nodes', nodes);
-        this.set('nodePositions', nodePositions);
 
         var beams = this.get('beams');
         // calc length and angle for every beam
@@ -152,6 +162,10 @@ module.exports = MSim.extend({
         for (var k = 0; k < nodes.length; k++){
             nodes[k].loadedFx = F[k*2][0];
             nodes[k].loadedFy = F[k*2+1][0];
+            nodes[k].loadedF = Math.sqrt(
+                nodes[k].loadedFx*nodes[k].loadedFx + 
+                nodes[k].loadedFy*nodes[k].loadedFy
+            );
             nodes[k].ux = u[k*2][0];
             nodes[k].uy = u[k*2+1][0];
         }
