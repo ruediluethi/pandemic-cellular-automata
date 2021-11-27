@@ -20,7 +20,8 @@ module.exports = MSim.extend({
 
         var time = [];
         var values = [[]];
-        for (var it = 100; it < Math.max(1000,nodes.length*20); it = it + 100){
+        //for (var it = 100; it < Math.max(1000,nodes.length*20); it = it + 100){
+        var it = Math.max(1000,nodes.length*20);
             this.preprocessor();
             this.solver(it);
             this.postprocessor();
@@ -37,7 +38,7 @@ module.exports = MSim.extend({
 
             time.push(time.length);
             values[0].push(sumU);
-        }
+        //}
         
         var first = values[0][0];
         var last = values[0][values[0].length-1];

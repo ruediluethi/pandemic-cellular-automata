@@ -15,6 +15,7 @@ var VBackgroundHandler = require('./views/backgroundhandler');
 
 var MSim = require('./models/sim.js');
 var MFem = require('./models/fem.js');
+var MRailroad = require('./models/railroad.js');
 var VSimPlot = require('./views/graphics/simplot');
 var VTrussMap = require('./views/graphics/trussmap');
 
@@ -349,40 +350,12 @@ module.exports = Backbone.View.extend({
 			{ value: 30, minValue: 1, maxValue: 40, label: 'Stabdurchmesser c in mm', color: window.BLACK }
 		]);
 
-		var femBridge = new MFem();
-		femBridge.beforeSimulate = function(){
-			this.preprocessor();
-
-			var params = this.get('params');
-
-			var density = params[0].value * 1e-6;
-			var beams = this.get('beams');
-			var nodes = this.get('nodes');
-
-			for (var i = 0; i < nodes.length; i++){
-				nodes[i].Fy = 0;
-			}
-
-			for (var i = 0; i < beams.length; i++){
-				var a = parseInt(beams[i].start)-1;
-				var b = parseInt(beams[i].start)-1;
-				beams[i].youngsModule = params[1].value;
-				// add beam weight
-				beams[i].A = (params[2].value*params[2].value)/4*Math.PI; // in mm2
-				var L = parseFloat(beams[i].length);
-				var Fg = L*beams[i].A*density*9.81/1000; // force in kN
-				nodes[a].Fy = parseFloat(nodes[a].Fy) - Fg/2;
-				nodes[b].Fy = parseFloat(nodes[b].Fy) - Fg/2;
-				if (isNaN(nodes[a].Fy)) nodes[a].Fy = 0;
-				if (isNaN(nodes[b].Fy)) nodes[b].Fy = 0;
-			}
-			this.set('beams', beams);
-			this.set('nodes', nodes);
-		};
+		var femBridge = new MRailroad();
 		femBridge.set('params', [
-			{ value: 7.86, minValue: 1, maxValue: 100, label: 'Dichte Stahl in 10<sup>-6</sup>kg/mm<sup>2</sup>', color: window.BLACK },
-			{ value: 210, minValue: 1, maxValue: 300, label: 'E-Modul in kN/mm<sup>2</sup>', color: window.BLACK },
-			{ value: 100, minValue: 1, maxValue: 1000, label: 'Durchmesser in mm<sup>2</sup>', color: window.BLACK },
+			// { value: 7.86, minValue: 1, maxValue: 100, label: 'Dichte Stahl in 10<sup>-6</sup>kg/mm<sup>2</sup>', color: window.BLACK },
+			// { value: 210, minValue: 1, maxValue: 300, label: 'E-Modul in kN/mm<sup>2</sup>', color: window.BLACK },
+			{ value: 100, minValue: 10, maxValue: 500, label: 'Durchmesser in mm', color: window.BLACK },
+			{ value: 1000, minValue: 1, maxValue: 10000, label: 'Gewicht in kg', color: window.BLACK },
 		]);
 
 		d3.csv('data/validation_beams.csv', function(error, exampleBeams){
@@ -399,6 +372,7 @@ module.exports = Backbone.View.extend({
 							d3.csv('data/bruecke_nodes.csv', function(error, bridgeNodes){
 								femBridge.set('beams', bridgeBeams);
 								femBridge.set('nodes', bridgeNodes);
+								femBridge.setup();
 
 								callback.call();
 							});
@@ -437,7 +411,7 @@ module.exports = Backbone.View.extend({
 		self.vSimBridge = new VSimPlot({
 			title: 'Müngstener Brücke',
 			simulation: femBridge,
-			showControls: false,
+			showControls: true,
 			// reactionTime: 1
 
 			ticks: 5,

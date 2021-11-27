@@ -36,7 +36,7 @@ module.exports = Backbone.View.extend({
 		var $summary = $('<div class="summary">'+
 			'<div style="float: left;" class="statistics">'+
 				'Anzahl Zyklen: '+self.t+', '+
-				'Maximum Infizierte: '+Math.round(self.max)+'%'+
+				'Maximum: '+Math.round(self.max)+'%'+
 			'</div>'+
 			'<div style="float: right;">'+
 				'<a class="show">anzeigen</a>'+

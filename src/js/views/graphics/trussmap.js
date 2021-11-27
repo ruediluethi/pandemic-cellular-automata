@@ -51,10 +51,18 @@ module.exports = Backbone.View.extend({
 			.attr('width', self.screenWidth)
 			.attr('height', self.screenHeight);
 
-		self.gBeamsOrig = svg.append('g');
-		self.gNodesOrig = svg.append('g');
-		self.gBeams = svg.append('g');
-		self.gNodes = svg.append('g');
+		var g = svg.append('g');
+		svg.call(d3.behavior.zoom().on("zoom", function () {
+			//g.attr("transform", "translate(" + d3.event.translate + ")");
+			//g.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+		}))
+
+		
+
+		self.gBeamsOrig = g.append('g');
+		self.gNodesOrig = g.append('g');
+		self.gBeams = g.append('g');
+		self.gNodes = g.append('g');
 
         return self.$el;
     },
@@ -83,19 +91,19 @@ module.exports = Backbone.View.extend({
 		beams.forEach((beam) => {
 			if (Math.abs(beam.stress) > maxStress) maxStress = Math.abs(beam.stress);
 		});
-		console.log('max stress: '+maxStress);
+		// console.log('max stress: '+maxStress);
 
 		var maxF = 0;
 		nodes.forEach((node) => {
 			if (Math.abs(node.loadedF) > maxF) maxF = node.loadedF;
 		});
-		console.log('max force: '+maxF);
+		// console.log('max force: '+maxF);
 
 		var maxA = 0;
 		beams.forEach((beam) => {
 			if (beam.A > maxA) maxA = beam.A;
 		});
-		console.log('max A: '+maxA);
+		// console.log('max A: '+maxA);
 
 		
 
@@ -141,13 +149,14 @@ module.exports = Backbone.View.extend({
 			.append('line');
 
 		lines.attr('stroke', (beam) => {
-				if (beam.stress < 0){
-					// pull
-					return colors.gradient(-beam.stress/maxStress, [window.GREEN, window.YELLOW, window.RED]);
-				}else{
+				return colors.gradient(Math.abs(beam.stress)/maxStress, [window.GREEN, window.YELLOW, window.RED]);
+				/*if (beam.stress > 0){
 					// push
-					return colors.gradient(beam.stress/maxStress, [window.GREEN, window.BLUE, window.PURPLE]);
-				}
+					return colors.gradient(beam.stress/maxStress, [window.GREEN, window.YELLOW, window.RED]);
+				}else{
+					// pull
+					return colors.gradient(-beam.stress/maxStress, [window.GREEN, window.BLUE, window.PURPLE]);
+				}*/
 			})
 			.attr('stroke-width', (beam) => scaleStroke(beam.A))
 			.attr('x1', (beam) => scaleX(beam.startNode.x + beam.startNode.ux))
