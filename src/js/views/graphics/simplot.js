@@ -8,6 +8,7 @@ var d3 = require('d3-browserify');
 var VValueSlider = require('../valueslider');
 var VPlot = require('../plot');
 var VArchivedPlot = require('../archivedplot');
+const { eachOfLimit } = require('async');
 
 module.exports = Backbone.View.extend({
 
@@ -39,7 +40,8 @@ module.exports = Backbone.View.extend({
 		'click .button.play': 'playClick',
 		'click .button.stop': 'stopClick',
 		'click .button.forward': 'forwardClick',
-		'click .button.restart': 'restartClick'
+		'click .button.restart': 'restartClick',
+		'click .button.edit': 'editClick'
 	},
 
 	initialize: function(options) {
@@ -103,26 +105,30 @@ module.exports = Backbone.View.extend({
 		}
 
 		// init plot
-		self.vPlot = new VPlot({
-			title: self.title,
-			colors: self.plotColors,
-			alpha: self.plotAlphas,
-			stroke: self.plotStrokes,
-			minValue: self.plotMin,
-			maxValue: self.plotMax,
-			heightScale: self.heightScale,
-			ticks: options.ticks,
-			tocks: options.tocks,
-			resetAt: self.plotResetAt
-		});
-		self.listenTo(self.simulation, 'simulationend', function(){
-			if(self.simulation.get('time').length > 0){
-				self.vPlot.update(self.simulation.get('values'), self.simulation.get('time'));
-				self.vPlot.$el.show();
-			}else{
-				self.vPlot.$el.hide();
-			}
-		});
+		if (self.plotColors.length > 0){
+			self.vPlot = new VPlot({
+				title: self.title,
+				colors: self.plotColors,
+				alpha: self.plotAlphas,
+				stroke: self.plotStrokes,
+				minValue: self.plotMin,
+				maxValue: self.plotMax,
+				heightScale: self.heightScale,
+				ticks: options.ticks,
+				tocks: options.tocks,
+				resetAt: self.plotResetAt,
+				autoScale: options.autoScale,
+				percentOnly: options.percentOnly
+			});
+			self.listenTo(self.simulation, 'simulationend', function(){
+				if(self.simulation.get('time').length > 0){
+					self.vPlot.update(self.simulation.get('values'), self.simulation.get('time'));
+					self.vPlot.$el.show();
+				}else{
+					self.vPlot.$el.hide();
+				}
+			});
+		}
 
 		self.listenTo(self.simulation, 'simulationstart', function(){
 			self.crntSliderValues = [];
@@ -192,8 +198,10 @@ module.exports = Backbone.View.extend({
 		}
 
 		// render plot
-		self.$el.find('.plot-container').append(self.vPlot.$el);
-		self.vPlot.render();
+		if (self.vPlot != undef){
+			self.$el.find('.plot-container').append(self.vPlot.$el);
+			self.vPlot.render();
+		}
 
 		self.delegateEvents();
 
@@ -249,7 +257,7 @@ module.exports = Backbone.View.extend({
 			vSimPlot: self,
 			sliderValues: self.crntSliderValues,
 			t: self.vPlot.t-1,
-			max: self.vPlot.max[0]/self.vPlot.maxValue*100
+			max: self.vPlot.autoScale < 0 ? Math.round(self.vPlot.max[0]/self.vPlot.maxValue*100) : Math.round(self.vPlot.maxValue*1000)/10
 		});
 
 		newArchive.setElement(self.vPlot.$el.clone());
@@ -267,6 +275,15 @@ module.exports = Backbone.View.extend({
 
 		self.archivedPlots.push(newArchive);
 
+	},
+
+	editClick: function(e){
+		var self = this;
+
+		var $button = $(e.currentTarget);
+
+		self.togglePlayButton(true);
+		self.simulation.edit();
 	},
 
 	closeAllArchives: function(){

@@ -65,16 +65,20 @@ module.exports = MSim.extend({
             nodes[i].Fy = parseFloat(nodes[i].Fy);
             nodes[i].xLock = parseInt(nodes[i].xLock);
             nodes[i].yLock = parseInt(nodes[i].yLock);
+            nodes[i].beamCount = 0;
         }
-        this.set('nodes', nodes);
+        
 
         var beams = this.get('beams');
         // calc length and angle for every beam
         for (var i = 0; i < beams.length; i++){
             beams[i].start = parseInt(beams[i].start);
             beams[i].startNode = nodes[beams[i].start-1];
+            if (!beams[i].disabled) nodes[beams[i].start-1].beamCount++;
+
             beams[i].end = parseInt(beams[i].end);
             beams[i].endNode = nodes[beams[i].end-1];
+            if (!beams[i].disabled) nodes[beams[i].end-1].beamCount++;
 
             // calc phi and length
             var delta_x = beams[i].endNode.x - beams[i].startNode.x;
@@ -84,10 +88,12 @@ module.exports = MSim.extend({
             beams[i].A = parseFloat(beams[i].A);
             beams[i].youngsModule = parseFloat(beams[i].youngsModule);
         }
+
+        this.set('nodes', nodes);
         this.set('beams', beams);
     },
 
-    solver: function(iterations){
+    solver: function(iterations, x0){
 
         var nodes = this.get('nodes');
         var beams = this.get('beams');
@@ -99,13 +105,15 @@ module.exports = MSim.extend({
         var looseFs = [];
 
         for (var k = 0; k < nodes.length; k++){
-            if (!nodes[k].xLock) looseFs.push(F.length);
+            if (!nodes[k].xLock && nodes[k].beamCount > 0) looseFs.push(F.length);
             F.push([nodes[k].Fx]);
-            if (!nodes[k].yLock) looseFs.push(F.length);
+            if (!nodes[k].yLock && nodes[k].beamCount > 0) looseFs.push(F.length);
             F.push([nodes[k].Fy]);
         }
 
         for (var k = 0; k < beams.length; k++){
+            if (beams[k].disabled) continue;
+
             var a = beams[k].start-1;
             var b = beams[k].end-1;
 
@@ -144,7 +152,8 @@ module.exports = MSim.extend({
             }
         }
         // solve the system of linear equations
-        var u_part = matrixHelpers.gaussSeidel(K_part, F_part, iterations);
+        var u_part = matrixHelpers.gaussSeidel(K_part, F_part, iterations, x0);
+        if (u_part == undef) return undef;
 
         const u = [];
         for (var i = 0; i < looseFs.length; i++){
@@ -172,6 +181,8 @@ module.exports = MSim.extend({
         }
 
         this.set('nodes', nodes);
+
+        return u_part;
     },
 
     postprocessor: function(){
@@ -180,6 +191,8 @@ module.exports = MSim.extend({
         var beams = this.get('beams');
 
         for (var k = 0; k < beams.length; k++){
+            if (beams[k].disabled) continue;
+
             var beam = beams[k];
             beam.startNode = nodes[beam.start-1];
             beam.endNode = nodes[beam.end-1];

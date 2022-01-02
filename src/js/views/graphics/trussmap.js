@@ -15,17 +15,28 @@ var pathDrawFunction = d3.svg.line()
 module.exports = Backbone.View.extend({
 	className: 'trussmap',
 
+	simulation: undef,
+
     screenHeight: 0,
 	screenWidth: 0,
 
+	gCanvas: undef,
 	gNodesOrig: undef,
 	gBeamsOrig: undef,
 	gNodes: undef,
 	gBeams: undef,
 
+	editModeOn: false,
+
+	dragShift: {
+		x: 0,
+		y:0
+	},
+
     initialize: function(options) {
 		var self = this;
 
+		//if (options.simulation != undef) self.simulation = options.simulation;
 	},
 
 	resize: function(width, height){
@@ -51,24 +62,34 @@ module.exports = Backbone.View.extend({
 			.attr('width', self.screenWidth)
 			.attr('height', self.screenHeight);
 
-		var g = svg.append('g');
-		svg.call(d3.behavior.zoom().on("zoom", function () {
-			//g.attr("transform", "translate(" + d3.event.translate + ")");
-			//g.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
-		}))
+		self.gCanvas = svg.append('g');
+		svg.call(d3.behavior.drag().on("drag", function (d,i) {
+			if (!self.editModeOn) return;
 
-		
+			self.dragShift.x += d3.event.dx;
+			self.dragShift.y += d3.event.dy;
 
-		self.gBeamsOrig = g.append('g');
-		self.gNodesOrig = g.append('g');
-		self.gBeams = g.append('g');
-		self.gNodes = g.append('g');
+			self.gCanvas.attr("transform", "translate(" + self.dragShift.x + " " + self.dragShift.y + ")");
+		}));
+
+
+		self.gBeamsOrig = self.gCanvas.append('g');
+		self.gNodesOrig = self.gCanvas.append('g');
+		self.gBeams = self.gCanvas.append('g');
+		self.gNodes = self.gCanvas.append('g');
 
         return self.$el;
     },
 
-	update: function(nodes, beams){
+	update: function(nodes, beams, editMode, simulation){
 		var self = this;
+		self.editModeOn = editMode;
+
+		self.dragShift = {
+			x: 0,
+			y: 0
+		};
+		self.gCanvas.attr('transform', 'translate(0 0)');
 
 		// console.log(nodes);
 		// console.log(beams);
@@ -111,6 +132,7 @@ module.exports = Backbone.View.extend({
 			.domain([0, maxF])
 			.range([0, self.screenWidth*0.1]);
 		var padding = self.screenWidth*0.1+20;
+
 		var scaleX = d3.scale.linear()
 			.domain([minX, maxX])
 			.range([padding, self.screenWidth-padding]);
@@ -120,6 +142,18 @@ module.exports = Backbone.View.extend({
 				self.screenHeight/2 + (scaleX(maxY - minY + minX)-padding)/2,
 				self.screenHeight/2 - (scaleX(maxY - minY + minX)-padding)/2
 			]);
+		
+		if (editMode){
+			var scaleY = d3.scale.linear()
+				.domain([minY, maxY])
+				.range([self.screenHeight-padding, padding]);
+			var scaleX = d3.scale.linear()
+				.domain([minX, maxX])
+				.range([
+					self.screenWidth/2 + (scaleY(maxX - minX + minY)-padding)/2,
+					self.screenWidth/2 - (scaleY(maxX - minX + minY)-padding)/2
+				]);
+		}
 
 		
 		var scaleStroke = d3.scale.linear()
@@ -129,8 +163,10 @@ module.exports = Backbone.View.extend({
 		const origLines = self.gBeamsOrig.selectAll('line').data(beams);
 		origLines.enter()
 			.append('line')
-			.attr('stroke-width', 4)
-			.attr('stroke', '#FFFFFF')
+			.attr('stroke', '#FFFFFF');
+		
+		origLines
+			.attr('stroke-width', (beam) => scaleStroke(beam.A))
 			.attr('x1', (beam) => scaleX(beam.startNode.x))
 			.attr('y1', (beam) => scaleY(beam.startNode.y))
 			.attr('x2', (beam) => scaleX(beam.endNode.x))
@@ -139,16 +175,19 @@ module.exports = Backbone.View.extend({
 		const origCircles = self.gNodesOrig.selectAll('circle').data(nodes);
 		origCircles.enter()
 			.append('circle')
-			.attr('cx', (node) => scaleX(node.x))
-			.attr('cy', (node) => scaleY(node.y))
 			.attr('r', 3)
 			.attr('fill', '#FFFFFF');
+		origCircles
+			.attr('cx', (node) => scaleX(node.x))
+			.attr('cy', (node) => scaleY(node.y))
 
 		const lines = self.gBeams.selectAll('line').data(beams);
 		lines.enter()
 			.append('line');
 
-		lines.attr('stroke', (beam) => {
+		lines.attr('opacity', (beam) => beam.disabled && !editMode ? 0 : 1)
+			.attr('stroke', (beam) => {
+				if (editMode) return beam.disabled ? '#FFFFFF' : window.BLACK;
 				return colors.gradient(Math.abs(beam.stress)/maxStress, [window.GREEN, window.YELLOW, window.RED]);
 				/*if (beam.stress > 0){
 					// push
@@ -159,10 +198,31 @@ module.exports = Backbone.View.extend({
 				}*/
 			})
 			.attr('stroke-width', (beam) => scaleStroke(beam.A))
-			.attr('x1', (beam) => scaleX(beam.startNode.x + beam.startNode.ux))
-			.attr('y1', (beam) => scaleY(beam.startNode.y + beam.startNode.uy))
-			.attr('x2', (beam) => scaleX(beam.endNode.x + beam.endNode.ux))
-			.attr('y2', (beam) => scaleY(beam.endNode.y + beam.endNode.uy));
+			.attr('x1', (beam) => scaleX(beam.startNode.x + (editMode ? 0 : beam.startNode.ux)))
+			.attr('y1', (beam) => scaleY(beam.startNode.y + (editMode ? 0 : beam.startNode.uy)))
+			.attr('x2', (beam) => scaleX(beam.endNode.x + (editMode ? 0 : beam.endNode.ux)))
+			.attr('y2', (beam) => scaleY(beam.endNode.y + (editMode ? 0 : beam.endNode.uy)))
+			.on('mouseover', function(){
+				if (!editMode) return;
+				var line = d3.select(this);
+				line.attr('stroke-width', (beam) => scaleStroke(beam.A)*2);
+			})
+			.on('mouseout', function(){
+				if (!editMode) return;
+				var line = d3.select(this);
+				line.attr('stroke-width', (beam) => scaleStroke(beam.A));
+			})
+			.on('click', function(beam, i){
+				if (!editMode) return;
+
+				console.log(beam);
+
+				beams[i].disabled = beams[i].disabled ? false : true;
+				simulation.set('beams', beams);
+
+				var line = d3.select(this);
+				line.attr('stroke', beams[i].disabled ? '#FFFFFF' : window.BLACK);
+			});
 
 		const gNodes = self.gNodes.selectAll('g.node').data(nodes);
 		gNodes.enter()
@@ -175,25 +235,33 @@ module.exports = Backbone.View.extend({
 					.attr('cy', 0)
 					.attr('r', 3)
 					.attr('fill', window.BLACK);
-				g.append('line')
+
+				var gArrow = g.append('g').attr('class', 'arrow');
+				gArrow.append('line')
 					.attr('x1', 0)
 					.attr('y1', 0)
 					.attr('stroke-width', 2)
 					.attr('stroke', window.BLACK);
-				g.append('path')
+				gArrow.append('path')
 					.attr('fill', window.BLACK);
 			});
 
-		gNodes.attr('transform', (node) => 'translate('+scaleX(node.x + node.ux)+','+scaleY(node.y + node.uy)+')')
+		gNodes.attr('transform', (node) => 'translate('+
+			scaleX(node.x + (editMode ? 0 : node.ux))+','+
+			scaleY(node.y + (editMode ? 0 : node.uy))+')')
 			.each(function(node, i){
-				var g = d3.select(this);
+				var g = d3.select(this).select('g.arrow');
 
-				var visibility = scaleF(node.loadedF) > 1 ? 'visible' : 'hidden';
+				var visibility = scaleF(node.loadedF) > 5 ? 'visible' : 'hidden';
+				if (editMode) visibility = 'hidden';
+				g.attr('visibility', visibility);
+
+				g.attr('opacity', node.loaded ? 1 : 0.3);
 
 				g.select('line')
 					.attr('x2', scaleF(node.loadedFx))
-					.attr('y2', -scaleF(node.loadedFy))
-					.attr('visibility', visibility);
+					.attr('y2', -scaleF(node.loadedFy));
+					
 
 				var phi = Math.atan2(node.loadedFy, node.loadedFx);
 				var arrowLength = 10;
@@ -214,8 +282,7 @@ module.exports = Backbone.View.extend({
 					}
 				];
 				g.select('path')
-					.attr('d', pathDrawFunction(arrow))
-					.attr('visibility', visibility);
+					.attr('d', pathDrawFunction(arrow));
 			});
 
 	}

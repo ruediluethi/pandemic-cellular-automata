@@ -13,6 +13,8 @@ module.exports = Backbone.View.extend({
 	t: 0,
 	max: 0,
 
+	unit: '%',
+
 	events: {
 		'click .summary a.show': 'show',
 		'click .summary a.delete': 'delete',
@@ -26,6 +28,8 @@ module.exports = Backbone.View.extend({
 		self.sliderValues = options.sliderValues;
 		self.t = options.t;
 		self.max = options.max;
+
+		if (options.unit != undef) self.unit = options.unit; 
 	},
 
 	minimize: function(callback){
@@ -36,7 +40,7 @@ module.exports = Backbone.View.extend({
 		var $summary = $('<div class="summary">'+
 			'<div style="float: left;" class="statistics">'+
 				'Anzahl Zyklen: '+self.t+', '+
-				'Maximum: '+Math.round(self.max)+'%'+
+				'Maximum: '+self.max+self.unit+
 			'</div>'+
 			'<div style="float: right;">'+
 				'<a class="show">anzeigen</a>'+

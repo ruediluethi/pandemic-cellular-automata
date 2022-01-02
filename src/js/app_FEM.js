@@ -145,7 +145,7 @@ module.exports = Backbone.View.extend({
 					anchorId == 'intro' ||
 					anchorId == 'footer'){
 					
-					self.vBackHandler.showBackground(self.vMapExample.render(), false);
+					//self.vBackHandler.showBackground(self.vMapExample.render(), false);
 					// self.vBackHandler.showBackground(self.vMapTriangle.render(), false);
 					
 
@@ -158,6 +158,7 @@ module.exports = Backbone.View.extend({
 					anchorId == 'intro'){
 					if (!onIntroScreen){
 						onIntroScreen = true;
+						self.vBackHandler.showBackground(self.vMapExample.render(), false);
 						self.vBackHandler.appendDiagram('right', self.vSimExample);
 						// self.vBackHandler.appendDiagram('right', self.vSimTriangle);
 					}
@@ -290,6 +291,7 @@ module.exports = Backbone.View.extend({
 			var nodes = this.get('nodes');
 			var beams = this.get('beams');
 			
+			nodes[4].loaded = true;
 			nodes[4].Fx = Math.cos(params[1].value/360*Math.PI*2)*params[0].value;
 			nodes[4].Fy = Math.sin(params[1].value/360*Math.PI*2)*params[0].value;
 
@@ -328,6 +330,7 @@ module.exports = Backbone.View.extend({
 			var beams = this.get('beams');
 			var params = this.get('params');
 
+			nodes[1].loaded = true;
 			nodes[1].Fx = Math.cos(params[1].value/360*Math.PI*2)*params[0].value;
 			nodes[1].Fy = Math.sin(params[1].value/360*Math.PI*2)*params[0].value;
 
@@ -351,11 +354,15 @@ module.exports = Backbone.View.extend({
 		]);
 
 		var femBridge = new MRailroad();
+		femBridge.set('simulationDuration', 100);
 		femBridge.set('params', [
 			// { value: 7.86, minValue: 1, maxValue: 100, label: 'Dichte Stahl in 10<sup>-6</sup>kg/mm<sup>2</sup>', color: window.BLACK },
 			// { value: 210, minValue: 1, maxValue: 300, label: 'E-Modul in kN/mm<sup>2</sup>', color: window.BLACK },
-			{ value: 100, minValue: 10, maxValue: 500, label: 'Durchmesser in mm', color: window.BLACK },
-			{ value: 1000, minValue: 1, maxValue: 10000, label: 'Gewicht in kg', color: window.BLACK },
+			{ value: 10, minValue: 1, maxValue: 100, label: 'Durchmesser in mm', color: window.BLACK },
+			{ value: 65, minValue: 1, maxValue: 300, label: 'Wagengewicht in t', color: window.BLACK },
+			{ value: 12, minValue: 1, maxValue: 20, label: 'Anzahl Wagen', color: window.BLACK },
+			{ value: 500, minValue: 1, maxValue: 3000, label: 'Anzahl Iterationen', color: window.GRAY },
+			{ value: 0.8, minValue: 0, maxValue: 1, label: 'Dämpfung', color: window.GRAY },
 		]);
 
 		d3.csv('data/validation_beams.csv', function(error, exampleBeams){
@@ -390,16 +397,9 @@ module.exports = Backbone.View.extend({
 			showControls: false,
 			reactionTime: 1,
 
-			ticks: 5,
-			tocks: 10,
-			minValue: 0,
-			maxValue: 1,
-			plotColors: [window.BLACK],
-			plotStrokes: [1],
-			plotAlphas:  [1],
-			legend: ['Residuum'],
-			legendColors: [window.BLACK],
-			resetAt: 1
+			plotColors: [],
+			plotStrokes: [],
+			plotAlphas:  []
 		});
 
 		self.vMapExample = new VTrussMap();
@@ -421,14 +421,19 @@ module.exports = Backbone.View.extend({
 			plotColors: [window.BLACK],
 			plotStrokes: [1],
 			plotAlphas:  [1],
-			legend: ['Residuum'],
+			legend: ['Dehnung'],
 			legendColors: [window.BLACK],
-			resetAt: 1
+			resetAt: 1,
+			autoScale: 0,
+			percentOnly: false
 		});
 
 		self.vMapBridge = new VTrussMap();
 		self.vMapBridge.listenTo(femBridge, 'simulationend', function(simulation){
-			self.vMapBridge.update(simulation.get('nodes'), simulation.get('beams'));
+			self.vMapBridge.update(simulation.get('nodes'), simulation.get('beams'), false);
+		});
+		self.vMapBridge.listenTo(femBridge, 'simulationedit', function(simulation){
+			self.vMapBridge.update(simulation.get('nodes'), simulation.get('beams'), true, simulation);
 		});
 		
 		self.vSimTriangle = new VSimPlot({
@@ -437,16 +442,9 @@ module.exports = Backbone.View.extend({
 			showControls: false,
 			reactionTime: 1,
 
-			ticks: 5,
-			tocks: 10,
-			minValue: 0,
-			maxValue: 1,
-			plotColors: [window.BLACK],
-			plotStrokes: [1],
-			plotAlphas:  [1],
-			legend: ['Residuum'],
-			legendColors: [window.BLACK],
-			resetAt: 1
+			plotColors: [],
+			plotStrokes: [],
+			plotAlphas:  []
 		});
 
 		self.vMapTriangle = new VTrussMap();

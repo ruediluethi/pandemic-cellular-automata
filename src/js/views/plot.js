@@ -45,6 +45,8 @@ module.exports = Backbone.View.extend({
 
 	percentOnly: true,
 
+	autoScale: -1,
+
 	t: 0,
 	avg: [],
 	max: [],
@@ -83,6 +85,10 @@ module.exports = Backbone.View.extend({
 			if (options.resetAt != undef){
 				self.resetAt = options.resetAt;
 			}
+			if (options.autoScale != undef){
+				self.autoScale = options.autoScale;
+			}
+			if (options.percentOnly != undef) self.percentOnly = options.percentOnly;
 		}
 	},
 
@@ -207,7 +213,7 @@ module.exports = Backbone.View.extend({
 				.attr('stroke-width', 1)
 				.attr('stroke','#000000');			
 			self.gLabels.append('text')
-				.attr('class', 'small')
+				.attr('class', 'small id-'+i)
 				.attr('x', 2)
 				.attr('y', self.valueToY(value)+11)
 				// .attr('text-anchor', 'end')
@@ -216,7 +222,7 @@ module.exports = Backbone.View.extend({
 					(self.maxValue < 1 ? (
 						self.maxValue < 0.1 ? Math.round(value*100*100)/100 : Math.round(value*100)
 					) : Math.round(value/self.maxValue*100)) + '%'
-				) : Math.round(value*100) + '%') ;
+				) : '') ;
 		}
 
 		self.gAxis.append('line')
@@ -239,7 +245,7 @@ module.exports = Backbone.View.extend({
 		var minTime = Math.round(time[0]);
 		var maxTime = Math.round(time[time.length-1]);
 
-		var timeRange = Math.abs(minTime - maxTime);
+		var timeRange = minTime == maxTime ? 1 : Math.abs(minTime - maxTime);
 		var timeStep = self.diagramWidth/timeRange;
 
 		self.gAxis.selectAll('line.timeline').remove();
@@ -326,7 +332,7 @@ module.exports = Backbone.View.extend({
 		var minTime = Math.round(time[0]);
 		var maxTime = Math.round(time[time.length-1]);
 
-		var timeRange = Math.abs(minTime - maxTime);
+		var timeRange = minTime == maxTime ? 1 : Math.abs(minTime - maxTime);
 		var timeStep = self.diagramWidth/timeRange;
 		// END HACK --> same code in renderTimeline...
 
@@ -347,7 +353,11 @@ module.exports = Backbone.View.extend({
 			self.avg[i] = avg;
 			self.max[i] = max;
 		}
-
+		
+		if (self.autoScale >= 0){
+			self.maxValue = self.max[self.autoScale];
+			self.gLabels.select('text.id-4').text((Math.round(self.maxValue*1000)/10)+'%');
+		}
 
 		var pathPointsBefore = [];
 		for (var t = 0; t < data[0].length; t++){

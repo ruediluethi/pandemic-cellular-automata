@@ -1,3 +1,5 @@
+var undef;
+
 module.exports = {
 
     create: function(n, m, defaultValue){
@@ -67,12 +69,13 @@ module.exports = {
         const n = A.length; // A must be symetric
     
         if (x0 === undefined){
+            console.log('use zero vector as x0');
             x0 = [];
             for (let i = 0; i < n; i++){
                 x0[i] = [0];
             }
         }
-    
+
         if (maxIterations === undefined) maxIterations = 1000;
     
         let x = x0;
@@ -94,6 +97,10 @@ module.exports = {
     
                 x_i += b[i][0];
                 x_i /= A[i][i];
+
+                if (isNaN(x_i)) {
+                    return undef;
+                }
     
                 x_next[i] = [x_i];
             }
