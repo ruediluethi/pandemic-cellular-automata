@@ -80,6 +80,8 @@ module.exports = Backbone.View.extend({
 			html = html.replace(/while/g,'<span class="highlight">while</span>');
 			html = html.replace(/for/g,'<span class="highlight">for</span>');
 			html = html.replace(/end/g,'<span class="highlight">end</span>');
+			html = html.replace(/function/g,'<span class="highlight">function</span>');
+			html = html.replace(/return/g,'<span class="highlight">return</span>');
 			html = html.replace(/   /g,'<span class="quad"></span>');
 			$(this).html(html);
 		});

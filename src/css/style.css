@@ -332,6 +332,26 @@ table.formula {
 	margin-left: 20px;
 }
 
+table.matrix td {
+	text-align: center;
+	padding: 0px 2px;
+	vertical-align: middle;
+}
+
+table.matrix td.left,
+table.matrix td.right {
+	border-top: 1px solid #000000;
+	border-bottom: 1px solid #000000;
+	width: 4px;
+}
+
+table.matrix td.left {
+	border-left: 1px solid #000000;
+}
+table.matrix td.right {
+	border-right: 1px solid #000000;
+}
+
 ul li:before {
     content: '\2022';
     float: left;
@@ -378,7 +398,7 @@ td.code {
 
 span.quad {
     display: inline-block;
-    width: 15px;
+    width: 14px;
 }
 
 sub, sup {

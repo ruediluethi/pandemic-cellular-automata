@@ -190,40 +190,92 @@
 			<div class="scroll-col"></div>
 
 			<div class="scroll-col">
-				<h2>Statik: Alle Kräfte sind im Gleichgewicht</h2>
+				<h2>Alle Kräfte im Gleichgewicht</h2>
 				<div class="scroll-element-content">
 					<p>
-						Summe alle Kräfte in einem Knoten
-						<span class="formula">&sum;F<sub>i</sub> = 0</span>
+						Ist die Summe aller auf einen Körper einwirkenden Kräfte gleich Null, so befindet sich nach dem ersten newtonschen Gesetzt (siehe grauer Kasten rechts) dieser Körper in Ruhelage. Dieser spezielle Zustand des Gleichgewichts wird in der <strong>Statik</strong> einem Teilgebiet der Mechanik untersucht. 
 					</p>
 					<p>
-						Anhand eines einfachen Fachwerkes wird erklärt wie ein Gleichungsystem (eine Gleichung pro Knoten) hergeleitet werden kann...
+						Ein einfaches Rechenbeispiel soll das Prinzip der Statik illustrieren. Drei Punkte <span class="formula">A</span>, <span class="formula">B</span> und <span class="formula">C</span> sind durch die starren Stäbe <span class="formula">I</span> (von <span class="formula">A</span> nach <span class="formula">B</span>), <span class="formula">II</span> (von <span class="formula">B</span> nach <span class="formula">C</span>) und <span class="formula">III</span> (von <span class="formula">C</span> nach <span class="formula">A</span>) zu einem Fachwerk verbunden. Der Punkt <span class="formula">A</span> ist durch ein Festlager mit der Umgebung verbunden. Im Punkt <span class="formula">B</span> wirkt eine Kraft <span class="formula">F</span> im Winkel <span class="formula">&alpha;</span>. Der Punkt <span class="formula">C</span> wird durch ein Loslager festgehalten und kann sich in der X-Achse frei bewegen.
+					</p>
+					<p>
+						Alle drei Punkte sind in Ruhelage, also muss die Summe aller Kräfte in den jeweiligen Punkten Null betragen. Dies kann für jeden Punkt und jede Richtung als Gleichung formuliert werden. Dabei werden die Kräfte in den Stäben als <span class="formula">F<sub>I</sub></span>, <span class="formula">F<sub>II</sub></span> und <span class="formula">F<sub>III</sub></span> bezeichnet. Die dazugehörigen Winkel <span class="formula">&sigma;</span> und <span class="formula">&rho;</span> ergeben sich aus der Konstruktion.
+					</p>
+					<p>
+						Der Kraft <span class="formula">F</span> im Punkt <span class="formula">B</span> wirken die zwei Stabkräfte <span class="formula">F<sub>I</sub></span> und <span class="formula">F<sub>II</sub></span> entgegen.
+					</p>
+					<p class="formula">
+						&sum; F<sub>x</sub> = 0 = F &#8729; cos(&alpha;) + F<sub>I</sub> &#8729; cos(&sigma;) + F<sub>II</sub> &#8729; cos(&rho;)<br>
+						&sum; F<sub>y</sub> = 0 = F &#8729; sin(&alpha;) + F<sub>I</sub> &#8729; sin(&sigma;) + F<sub>II</sub> &#8729; sin(&rho;)
+					</p>
+					<p>
+						Im Punkt <span class="formula">A</span> befindet sich das Festlager. Die Kräfte im Lager werden als <span class="formula">F<sub>A<sub>x</sub></sub></span> und <span class="formula">F<sub>A<sub>y</sub></sub></span> bezeichnet. Der Stab <span class="formula">III</span> liegt horizontal, also wirken nur Kräfte in X-Richtung. 
+					</p>
+					<p class="formula">
+						&sum; F<sub>x</sub> = 0 = F<sub>A<sub>x</sub></sub> + F<sub>I</sub> &#8729; cos(&sigma;) &minus; F<sub>III</sub><br>
+						&sum; F<sub>y</sub> = 0 = F<sub>A<sub>y</sub></sub> + F<sub>I</sub> &#8729; sin(&sigma;)
+					</p>
+					<p>
+						Zum Schluss noch Punkt <span class="formula">C</span>. Dieser ist durch ein Loslager befestigt, also kann nur eine Kraft <span class="formula">F<sub>C<sub>y</sub></sub></span> in Y-Richtung aufgenommen werden.
+					</p>
+					<p class="formula">
+						&sum; F<sub>x</sub> = 0 = F<sub>II</sub> &#8729; cos(&rho;) &minus; F<sub>III</sub><br>
+						&sum; F<sub>y</sub> = 0 = F<sub>II</sub> &#8729; sin(&rho;) + F<sub>C<sub>y</sub></sub>
+					</p>
+					<p>
+						Gegeben sind die Größen
+						<span class="formula">F</span>, 
+						<span class="formula">&alpha;</span>,
+						<span class="formula">&sigma;</span> und 
+						<span class="formula">&rho;</span>.
+						Durch die oben aufgestellten sechs Gleichungen, können nun die sechs Unbekannten
+						<span class="formula">F<sub>A<sub>x</sub></sub></span>, 
+						<span class="formula">F<sub>A<sub>y</sub></sub></span>, 
+						<span class="formula">F<sub>C<sub>y</sub></sub></span>, 
+						<span class="formula">F<sub>I</sub></span>, 
+						<span class="formula">F<sub>II</sub></span> und 
+						<span class="formula">F<sub>III</sub></span> gefunden werden.
+						Wie dies elegant und schematisch mithilfe mathematischer Verfahren gelöst werden kann, wird im nächsten Abschnitt beschrieben.
 					</p>
 				</div>
 			</div>
 
 			<div class="scroll-col">
-				<h2 class="hidden">&nbsp;<br>&nbsp;<br>&nbsp;</h2>
+				<h2 class="hidden">&nbsp;<br>&nbsp;</h2>
 				<div class="scroll-element-content gray">
-					<h3>Kraft</h3>
+					<h3>Die drei newtonschen Gesetze</h3>
+					<ul>
+						<li>Wirkt keine Kraft auf einen Körper so verharrt dieser entweder in Ruhe oder bewegt sich mit gleichbleibender Geschwindigkeit geradlinig weiter.</li>
+						<li>
+							Die Kraft <span class="formula">F</span> ist das Produkt aus der Masse <span class="formula">m</span> und der Beschleunigung <span class="formula">a</span>:
+							<span class="formula">F = m &#8729; a</span>.
+						</li>
+						<li>
+							Kräfte treten immer paarweise auf. Übt ein Körper <span class="formula">A</span> auf einen anderen Körper <span class="formula">B</span> eine Kraft <span class="formula">F<sub>A&rarr;B</sub></span> aus (actio), so wirkt eine gleich große, aber entgegen gerichtete Kraft<span class="formula">F<sub>B&rarr;A</sub></span> von Körper <span class="formula">B</span> auf Körper <span class="formula">A</span> (reactio)
+							<span class="formula">F<sub>A&rarr;B</sub> = &minus;F<sub>B&rarr;A</sub></span>.
+						</li>
+					</ul>
+					<h3>Kräfteparallelogramm</h3>
 					<p>
-						<span class="formula">F = m &#8729; a</span><br>
-						<span class="formula">F<sub>x</sub> = cos(&alpha;) &#8729; F</span><br>
-						<span class="formula">F<sub>y</sub> = sin(&alpha;) &#8729; F</span><br>
+						Die Wirkung einer Kraft kann in zwei Teilkräfte mit gleichem Angriffspunkt unterteilt werden. So kann eine durch Betrag <span class="formula">F</span> und Winkel <span class="formula">&alpha;</span> definiert Kraft in eine X-Komponente <span class="formula">F<sub>x</sub></span> und eine Y-Komponente <span class="formula">F<sub>y</sub></span> geteilt werden.
+					</p>
+					<p class="formula">
+						F<sub>x</sub> = F &#8729; cos(&alpha;)<br>
+						F<sub>y</sub> = F &#8729; sin(&alpha;)
 					</p>
 
-					<h3>Festlager / Loslager</h3>
+					<h3>Festlager und Loslager</h3>
 					<p>
-						...
+						Ein Körper ist durch Lager mit seiner Umgebung verbunden. Durch ein Lager wird also die Bewegungsfreihet des gelagerten Körpers eingeschränkt. Das <strong>Festlager</strong> sperrt die Bewegung (nicht aber die Rotation) in alle Richtungen und das <strong>Loslager</strong> lässt die Bewegung in eine Richtung (wie bei einer Schublade) weiterhin zu.
 					</p>
 
-					<h3>Statische Bestimmtheit</h3>
+					<!--<h3>Statische Bestimmtheit</h3>
 					<p>
 						Anzahl der Stäbe <span class="formula">s</span><br>
 						Anzahl unabhängige Auflagerkomponenten <span class="formula">a</span><br>
 						Anzahl der Knoten <span class="formula">k</span><br>
 						<span class="formula">s + a = 2k</span>
-					</p>
+					</p>-->
 				</div>
 			</div>
 		</div>
@@ -234,14 +286,286 @@
 		<div class="inside-scroll-element">
 
 			<div class="scroll-col">
-				<h2>Lineare Gleichungssysteme</h2>
+				<h2>Lineare Gleichungs&shy;systeme</h2>
 				<div class="scroll-element-content">
 					<p>
-						Von den Gleichungen zur Matrix-Schreibweise...
+						Gleichungssysteme, in welchen die Unbekannten nur durch Addition und Subtraktion zusammenhängen, werden linear genannt und können in Matrixform umgeschrieben werden. So auch die sechs Gleichungen im Abschnitt zuvor.
+					</p>
+					<table class="formula matrix">
+						<tbody>
+							<tr>
+								<td rowspan="6" class="left"></td>
+								<td>cos(&sigma;)</td>
+								<td>cos(&rho;)</td>
+								<td>0</td>
+								<td>0</td>
+								<td>0</td>
+								<td>0</td>
+								<td rowspan="6" class="right"></td>
+								<td rowspan="6"> &#8729; </td>
+								<td rowspan="6" class="left"></td>
+								<td>F<sub>I</sub></td>
+								<td rowspan="6" class="right"></td>
+								<td rowspan="6"> = </td>
+								<td rowspan="6" class="left"></td>
+								<td>&minus;F &#8729; cos(&alpha;)</td>
+								<td rowspan="6" class="right"></td>
+							</tr>
+							<tr>
+								<td>sin(&sigma;)</td>
+								<td>sin(&rho;)</td>
+								<td>0</td>
+								<td>0</td>
+								<td>0</td>
+								<td>0</td>
+								<td>F<sub>II</sub></td>
+								<td>&minus;F &#8729; sin(&alpha;)</td>
+							</tr>
+							<tr>
+								<td>cos(&sigma;)</td>
+								<td>0</td>
+								<td>&minus;1</td>
+								<td>1</td>
+								<td>0</td>
+								<td>0</td>
+								<td>F<sub>III</sub></td>
+								<td>0</td>
+							</tr>
+							<tr>
+								<td>sin(&sigma;)</td>
+								<td>0</td>
+								<td>0</td>
+								<td>0</td>
+								<td>1</td>
+								<td>0</td>
+								<td>F<sub>A<sub>x</sub></sub></td>
+								<td>0</td>
+							</tr>
+							<tr>
+								<td>0</td>
+								<td>cos(&rho;)</td>
+								<td>&minus;1</td>
+								<td>0</td>
+								<td>0</td>
+								<td>0</td>
+								<td>F<sub>A<sub>y</sub></sub></td>
+								<td>0</td>
+							</tr>
+							<tr>
+								<td>0</td>
+								<td>sin(&rho;)</td>
+								<td>0</td>
+								<td>0</td>
+								<td>0</td>
+								<td>1</td>
+								<td>F<sub>C<sub>y</sub></sub></td>
+								<td>0</td>
+							</tr>
+						</tbody>
+					</table>
+					<p>
+						Nun kann das Gleichungssystem mittels der nachfolgenden Methode gelöst werden.
+					</p>
+				</div>
+
+				<div class="scroll-element-content">
+					<h3>Das gaußsche Eliminationsverfahren</h3>
+					<p>
+						Gleichungen können innerhalb des Systems miteinander addiert und mit einem Faktor multipliziert werden ohne dass dabei die Lösung verändert wird. Dadurch wird es möglich die Matrix in eine rechte obere (oder linke untere) Dreiecksform umzuwandeln, sofern die Anzahl der Spalten mit der Anzahl der Zeilen übereinstimmt. In dieser Form kann die Lösung direkt durch Rückwärtseinsetzen abgelesen werden.
 					</p>
 					<p>
-						Gaußsche Eliminationsverfahren durch 
-Matrizenmultiplikation...
+						Sei <span class="formula">A</span> eine <span class="formula">n &times; n</span> Matrix, <span class="formula">x</span> der gesuchte Vektor mit den <span class="formula">n</span> Unbekannten und <span class="formula">b</span> ein Vektor mit Konstanten. Damit ist das Gleichungsystem definiert durch
+					</p>
+					<p class="formula">
+						A &#8729; x = b
+					</p>
+					<p>
+						Für eine rechte obere Dreiecksform müssen die Elemente <span class="formula">a<sub>21</sub></span> bis <span class="formula">a<sub>n1</sub></span> der ersten Spalte auf Null gebracht werden. Um dies für <span class="formula">a<sub>21</sub></span> zu erreichen, wird die erste Zeile von der zweiten abgezogen und mit dem Faktor <span class="formula">&lambda; = &minus; a<sub>21</sub> / a<sub>11</sub></span> multipliziert. Diese Permutation kann als Multiplikation mit einer Permutationsmatrix <span class="formula">P<sub>1</sub></span> beschrieben werden.
+					</p>
+					<table class="formula matrix">
+						<tbody>
+							<tr>
+								<td rowspan="4" class="left"></td>
+								<td>1</td>
+								<td>0</td>
+								<td>...</td>
+								<td>0</td>
+								<td rowspan="4" class="right"></td>
+								<td rowspan="4"> &#8729; </td>
+								<td rowspan="4" class="left"></td>
+								<td>a<sub>11</sub></td>
+								<td>a<sub>12</sub></td>
+								<td>...</td>
+								<td>a<sub>1n</sub></td>
+								<td rowspan="4" class="right"></td>
+								<td rowspan="4"> = </td>
+								<td rowspan="4" class="left"></td>
+								<td>a<sub>11</sub></td>
+								<td>a<sub>12</sub></td>
+								<td>...</td>
+								<td>a<sub>1n</sub></td>
+								<td rowspan="4" class="right"></td>
+							</tr>
+							<tr>
+								<td>&lambda;</td>
+								<td>1</td>
+								<td></td>
+								<td>&#8285;</td>
+								<td>a<sub>21</sub></td>
+								<td>a<sub>22</sub></td>
+								<td></td>
+								<td>&#8285;</td>
+								<td>0</td>
+								<td>a<sub>22</sub></td>
+								<td></td>
+								<td>&#8285;</td>
+							</tr>
+							<tr>
+								<td>&#8285;</td>
+								<td></td>
+								<td></td>
+								<td>&#8285;</td>
+								<td>&#8285;</td>
+								<td></td>
+								<td></td>
+								<td>&#8285;</td>
+								<td>&#8285;</td>
+								<td></td>
+								<td></td>
+								<td>&#8285;</td>
+							</tr>
+							<tr>
+								<td>0</td>
+								<td>...</td>
+								<td>0</td>
+								<td>1</td>
+								<td>a<sub>n1</sub></td>
+								<td>a<sub>n2</sub></td>
+								<td>...</td>
+								<td>a<sub>nn</sub></td>
+								<td>a<sub>n1</sub></td>
+								<td>a<sub>n2</sub></td>
+								<td>...</td>
+								<td>a<sub>nn</sub></td>
+							</tr>
+						</tbody>
+					</table>
+					<p>
+						Damit die Lösung sich nicht verändert, muss die Permutation auch auf die rechte Seite der Gleichung, also auf den Vektor <span class="formula">b</span> angewendet werden.
+					</p>
+					<p class="formula">
+						&rArr; P<sub>1</sub> &#8729; A &#8729; x = P<sub>1</sub> &#8729; b
+					</p>
+					<p>
+						Dies wird solange wiederholt bis die besagte rechte obere Dreiecksform erreicht ist. Dabei können die Permutationsmatrizen durch Multiplikation zu einer zusammengefasst werden <span class="formula">P = P<sub>1</sub> &#8729; P<sub>2</sub> &#8729; ...  &#8729; P<sub>n(n-1)/2</sub></span>
+					</p>
+					<table class="formula matrix">
+						<tbody>
+							<tr>
+								<td rowspan="4">P &#8729; A &#8729; x = </td>
+								<td rowspan="4" class="left"></td>
+								<td>a<sub>11</sub></td>
+								<td>a<sub>12</sub></td>
+								<td>...</td>
+								<td>a<sub>1n</sub></td>
+								<td rowspan="4" class="right"></td>
+								<td rowspan="4"> &#8729; </td>
+								<td rowspan="4" class="left"></td>
+								<td>x<sub>1</sub></td>
+								<td rowspan="4" class="right"></td>
+								<td rowspan="4">
+									 = P &#8729; b = b
+									<sup style="left: -1em; top: -1em; margin-right: -0.5em;">~</sup>=
+								</td>
+								<td rowspan="4" class="left"></td>
+								<td>
+									b<sup style="left: -0.7em; top: -1em; margin-right: -0.7em;">~</sup><sub>1</sub>
+								</td>
+								<td rowspan="4" class="right"></td>
+							</tr>
+							<tr>
+								<td>0</td>
+								<td>
+									a<sup style="left: -0.6em; top: -0.7em; margin-right: -0.5em;">~</sup><sub>22</sub>
+								</td>
+								<td></td>
+								<td>&#8285;</td>
+								<td>x<sub>2</sub></td>
+								<td>
+									b<sup style="left: -0.7em; top: -1em; margin-right: -0.7em;">~</sup>
+									<sub>2</sub>
+								</td>
+							</tr>
+							<tr>
+								<td>&#8285;</td>
+								<td></td>
+								<td></td>
+								<td>&#8285;</td>
+								<td>&#8285;</td>
+								<td>&#8285;</td>
+							</tr>
+							<tr>
+								<td>0</td>
+								<td>...</td>
+								<td>0</td>
+								<td>a<sup style="left: -0.6em; top: -0.7em; margin-right: -0.5em;">~</sup><sub>nn</sub></td>
+								<td>x<sub>n</sub></td>
+								<td>
+									b<sup style="left: -0.7em; top: -1em; margin-right: -0.7em;">~</sup>
+									<sub>n</sub>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<p>
+						Die letzte Zeile (oder Gleichung) enthält nun nur noch eine einzige Unbekannte <span class="formula">x<sub>n</sub></span> und kann durch einfaches Umformen direkt bestimmt werden.
+					</p>
+					<table class="formula">
+						<tbody>
+							<tr>
+								<td></td>
+								<td>
+									a<sup style="left: -0.6em; top: -0.7em; margin-right: -0.5em;">~</sup><sub>nn</sub> &#8729; x<sub>n</sub>
+									=
+									b<sup style="left: -0.7em; top: -1em; margin-right: -0.7em;">~</sup>
+						<sub>n</sub>
+								</td>
+							</tr>
+							<tr>
+								<td width="30">&hArr; </td>
+								<td>
+									x<sub>n</sub>
+									=
+									b<sup style="left: -0.7em; top: -1em; margin-right: -0.5em;">~</sup><sub>n</sub> / a<sup style="left: -0.6em; top: -0.7em; margin-right: -0.5em;">~</sup><sub>nn</sub>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<p>
+						Die zweitletzte Zeile enthält zwei Unbekannte, wobei <span class="formula">x<sub>n</sub></span> ja gerade bestimmt wurde. Also kann nach <span class="formula">x<sub>n-1</sub></span> umgeformt und bestimmt werden.
+					</p>
+					<table class="formula">
+						<tbody>
+							<tr>
+								<td></td>
+								<td>
+									a<sup style="left: -0.6em; top: -0.7em; margin-right: -0.5em;">~</sup><sub>n-1,n-1</sub> &#8729; x<sub>n-1</sub> + a<sup style="left: -0.6em; top: -0.7em; margin-right: -0.5em;">~</sup><sub>n-1,n</sub> &#8729; x<sub>n</sub>
+									=
+									b<sup style="left: -0.7em; top: -1em; margin-right: -0.5em;">~</sup><sub>n-1</sub>
+								</td>
+							</tr>
+							<tr>
+								<td width="30">&hArr; </td>
+								<td>
+									x<sub>n-1</sub>
+									=
+									(b<sup style="left: -0.7em; top: -1em; margin-right: -0.5em;">~</sup><sub>n-1</sub> &minus; a<sup style="left: -0.6em; top: -0.7em; margin-right: -0.5em;">~</sup><sub>n-1,n</sub> &#8729; x<sub>n</sub>) / a<sup style="left: -0.6em; top: -0.7em; margin-right: -0.5em;">~</sup><sub>n-1,n-1</sub>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<p>
+						Alle weiteren Unbekannten folgen analog. Wie dies automatisiert mittels Computern geschehen kann, wird im nächsten Abschnitt erklärt.
 					</p>
 				</div>
 			</div>
@@ -251,15 +575,81 @@ Matrizenmultiplikation...
 			<div class="scroll-col">
 				<h2 class="hidden">&nbsp;</h2>
 				<div class="scroll-element-content gray">
-					<h3>Matrix Multiplikation</h3>
+					<h3>Matrizen und Vektoren</h3>
 					<p>
-						Matrix und Vektor: <span class="formula">A &#8729; x = y &rArr; y<sub>i</sub> = &sum; a<sub>ij</sub> &#8729; x<sub>j</sub></span><br>
-						Matrix und Matrix: <span class="formula">A &#8729; B = C &rArr; c<sub>i</sub> = &sum; a<sub>ij</sub> &#8729; b<sub>jk</sub></span><br>
+						Unter einer Matrix versteht man in der Mathematik eine bestimmte Anordnung von Elementen in Tabellenform. Damit lassen sich lineare Zusammenhänge kompakt beschreiben. Sei also <span class="formula">A</span> eine Matrix mit <span class="formula">m</span> Zeilen und <span class="formula">n</span> Spalten (kurz <span class="formula">m &times; n</span>), so ordnen sich die Elemente <span class="formula">a<sub>ij</sub></span> wie folgt an.
 					</p>
-
-					<h3>Verkettung</h3>
+					<table class="formula matrix">
+						<tbody>
+							<tr>
+								<td rowspan="4">A = </td>
+								<td rowspan="4" class="left"></td>
+								<td>a<sub>11</sub></td>
+								<td>a<sub>12</sub></td>
+								<td>...</td>
+								<td>a<sub>1n</sub></td>
+								<td rowspan="4" class="right"></td>
+							</tr>
+							<tr>
+								<td>a<sub>21</sub></td>
+								<td>a<sub>22</sub></td>
+								<td></td>
+								<td>&#8285;</td>
+							</tr>
+							<tr>
+								<td>&#8285;</td>
+								<td></td>
+								<td></td>
+								<td>&#8285;</td>
+							</tr>
+							<tr>
+								<td>a<sub>m1</sub></td>
+								<td>a<sub>m2</sub></td>
+								<td>...</td>
+								<td>a<sub>mn</sub></td>
+							</tr>
+						</tbody>
+					</table>
 					<p>
-						<span class="formula">A<sub>n</sub> &#8729; ... &#8729; A<sub>1</sub> = A
+						Dabei ist ein Vektor <span class="formula">v</span> eine spezielle Matrix mit bloß einer Spalte.
+					</p>
+					<table class="formula matrix">
+						<tbody>
+							<tr>
+								<td rowspan="4">v = </td>
+								<td rowspan="4" class="left"></td>
+								<td>v<sub>1</sub></td>
+								<td rowspan="4" class="right"></td>
+							</tr>
+							<tr>
+								<td>v<sub>2</sub></td>
+							</tr>
+							<tr>
+								<td>&#8285;</td>
+							</tr>
+							<tr>
+								<td>v<sub>m</sub></td>
+							</tr>
+						</tbody>
+					</table>
+					<h3>Multiplikation</h3>
+					<p>
+						Matrizen können untereinander multipliziert werden. Sei <span class="formula">A</span> eine <span class="formula">m &times; n</span> Matrix und <span class="formula">B</span> eine <span class="formula">n &times; l</span> Matrix. Die Multiplikation ist nur gültig, wenn die Spaltenanzahl <span class="formula">n</span> von <span class="formula">A</span> mit der Zeilenanzahl von <span class="formula">B</span> übereinstimmt. Dann gilt für die Elemente <span class="formula">c<sub>ij</sub></span> der resultierenden <span class="formula">m &times; l</span> Matrix <span class="formula">C</span>.
+					</p>
+					<p class="formula">
+						c<sub>ij</sub> = 
+						&sum;<sub style="margin-left: -1em; bottom: -1.25em;">k=1</sub>
+						<sup style="margin-left: -1.25em; top: -1.25em;">n</sup>
+						a<sub>ik</sub> &#8729; b<sub>kj</sub> = 
+						a<sub>i1</sub> &#8729; b<sub>1j</sub> +
+						a<sub>i2</sub> &#8729; b<sub>2j</sub> + ... +
+						a<sub>in</sub> &#8729; b<sub>nj</sub>
+					</p>
+					<p>
+						<strong>Vorsicht</strong>, die Matrixmultiplikation ist im Allgemeinen nicht kommutativ! Die Reihenfolge darf nicht getauscht werden.
+					</p>
+					<p class="formula">
+						A &#8729; B &ne; B &#8729; A
 					</p>
 				</div>
 			</div>
@@ -274,7 +664,56 @@ Matrizenmultiplikation...
 				<h2>Implementation</h2>
 				<div class="scroll-element-content">
 					<p>
-						Einfache Implementation der Gauß Elimination in Pseudocode...
+						Die Elemente einer Matrix werden in einem zweidimensionalen Array gespeichert. Der erste Index adressiert die Zeile, der zweite die Spalte. Als elementare Operation wird als erstes die Matrixmultiplikation als Funktion umgesetzt.
+					</p>
+					<p class="code">
+						function matrix_multiplication(A,B)<br>
+						   m = number of rows in A<br>
+						   n = number of columns in A<br>
+						   if n &ne; number of row in B<br>
+						      return<br>
+						   end<br>
+						   l = number of columns in B<br>
+						   C = zero m &times; l Array<br>
+						   for i = 1 to m<br>
+						      for j = 1 to l<br>
+						         for k = 1 to n<br>
+						            C[i][j] = C[i][j]+A[i][k]&#8729;B[k][j]<br>
+						         end<br>
+						      end<br>
+						   end<br>
+						   return C<br>
+						end
+					</p>
+					<p>
+						Nun folgt das eigentliche Gauß-Verfahren. Dabei enthält die Variable <span class="code">A</span> die Matrix <span class="formula">A</span> und die Variable <span class="code">b</span> den Vektor <span class="formula">b</span> des Gleichungssystems <span class="formula">A &#8729; x = b</span>. Der Algorithmus erzeugt spaltenweise Permutations&shy;matrizen, welche fortlaufend mit der Matrix <span class="formula">A</span> und dem Vektor <span class="formula">b</span> multipliziert werden.  
+					</p>
+					<p class="code">
+						n = number of rows or columns in A<br>
+						for i = 1 to n<br>
+						   P = identity matrix of dimension n<br>
+						   for j = i+1 to n<br>
+						      P[i][j] = &minus;A[j][i]/A[i][i]<br>
+						   end<br>
+						   A = matrix_multiplication(P,A)<br>
+						   b = matrix_multiplication(P,b)<br>
+						end
+					</p>
+					<p>
+						Zum Schluss folgt das Rückwärtseinsetzen.
+					</p>
+					<p class="code">
+						x = zero vector of dimension n<br>
+						for i = n backwards to 1<br>
+						   x[i] = b[i]<br>
+						   for j = i+1 to n<br>
+						      x[i] = x[i]&minus;A[i][j]*x[j]<br>
+						   end<br>
+						   x[i] = x[i]/A[i][i]<br>
+						end
+					</p>
+					<p>
+						Die Lösung des Gleichungssystem <span class="formula">A &#8729; x = b</span> ist nun in der Variable <span class="code">x</span> gespeichert.
 					</p>
 				</div>
 			</div>
@@ -320,10 +759,10 @@ Matrizenmultiplikation...
 						</tr>
 						<tr>
 							<td class="code">
-								%
+								function
 							</td>
 							<td>
-								Der Modulo-Operator beschreibt eine Division mit Rest. So ist z.B. das Ergebnis von <span class="code">17%6</span> die Fünf, da <span class="formula">6 &#8729; 2 + 5 = 17</span> ist.
+								Gleicher Code der mehrfach benutzt wird, kann in einer Funktion ausgelagert werden. Eine Funktion hat mehrere Eingangsparameter und meist nur einen Rückgabewert. 
 							</td>
 						</tr>
 					</table>

@@ -1,0 +1,22 @@
+close all;
+clear;
+clc;
+
+n = 5;
+
+A = rand(n);
+b = rand(n,1);
+
+x_ = A\b
+
+for i = 1:n
+    P_i = eye(n);
+    for j = i+1:n
+        P_i(j,i) = - A(j,i)/A(i,i);
+    end
+    A = P_i * A;
+    b = P_i * b;
+end
+
+x = back_substitution(A,b)
+
