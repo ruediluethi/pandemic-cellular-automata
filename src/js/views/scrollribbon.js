@@ -21,7 +21,8 @@ module.exports = Backbone.View.extend({
 		'mouseout .footer-anchor .scroll-element-content': 'hideMenu',
 		'click .footer-anchor .scroll-element-content': 'clickMenu',
 		'click .footer-anchor .scroll-element-content .more': 'clickMore',
-		'click a.show-hidden-content': 'showHiddenContent'
+		'click a.show-hidden-content': 'showHiddenContent',
+		'click .button': 'buttonClick'
 	},
 
 	initialize: function(options) {
@@ -295,5 +296,13 @@ module.exports = Backbone.View.extend({
         $a.parent().find('.hidden-content').slideDown(500);
         $a.hide();
 	},
+
+	buttonClick: function(e){
+		var self = this;
+
+		var $button = $(e.currentTarget);
+
+		self.trigger('onButtonClick', $button.data('trigger'));
+	}
 
 });

@@ -18,6 +18,7 @@ body.mobile #wrapper {
 	overflow: hidden;
 }
 
+#loading-overlay,
 .loading-overlay {
     position: fixed;
     top: 0px;
@@ -1046,7 +1047,19 @@ body.mobile .plot-container.tabs-content {
 
 	height: 27px;
 	overflow: hidden;
+
+	font-size: 14px;
+    line-height: 18px;
+    font-family: 'Roboto Condensed', sans-serif;
+
+	pointer-events: all;
 }
+
+.scroll-element-content .button {
+	float: none;
+	display: inline-block;
+}
+
 .button:hover {
 	opacity: 0.8;
 }

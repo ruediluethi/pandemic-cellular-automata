@@ -164,6 +164,8 @@ module.exports = Backbone.View.extend({
 		origLines.enter()
 			.append('line')
 			.attr('stroke', '#FFFFFF');
+		origLines.exit()
+			.remove();
 		
 		origLines
 			.attr('stroke-width', (beam) => scaleStroke(beam.A))
@@ -177,6 +179,8 @@ module.exports = Backbone.View.extend({
 			.append('circle')
 			.attr('r', 3)
 			.attr('fill', '#FFFFFF');
+		origCircles.exit()
+			.remove();
 		origCircles
 			.attr('cx', (node) => scaleX(node.x))
 			.attr('cy', (node) => scaleY(node.y))
@@ -184,6 +188,8 @@ module.exports = Backbone.View.extend({
 		const lines = self.gBeams.selectAll('line').data(beams);
 		lines.enter()
 			.append('line');
+		lines.exit()
+			.remove();
 
 		lines.attr('opacity', (beam) => beam.disabled && !editMode ? 0 : 1)
 			.attr('stroke', (beam) => {
@@ -245,6 +251,8 @@ module.exports = Backbone.View.extend({
 				gArrow.append('path')
 					.attr('fill', window.BLACK);
 			});
+		gNodes.exit()
+			.remove();
 
 		gNodes.attr('transform', (node) => 'translate('+
 			scaleX(node.x + (editMode ? 0 : node.ux))+','+
@@ -256,9 +264,10 @@ module.exports = Backbone.View.extend({
 				if (editMode) visibility = 'hidden';
 				g.attr('visibility', visibility);
 
-				g.attr('opacity', node.loaded ? 1 : 0.3);
+				//g.attr('opacity', node.loaded ? 1 : 0.3);
 
 				g.select('line')
+					.attr('stroke', node.loaded ? window.BLACK : window.WHITE)
 					.attr('x2', scaleF(node.loadedFx))
 					.attr('y2', -scaleF(node.loadedFy));
 					
@@ -282,6 +291,7 @@ module.exports = Backbone.View.extend({
 					}
 				];
 				g.select('path')
+					.attr('fill', node.loaded ? window.BLACK : window.WHITE)
 					.attr('d', pathDrawFunction(arrow));
 			});
 

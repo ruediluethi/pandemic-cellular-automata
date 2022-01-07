@@ -17,33 +17,36 @@ module.exports = MFem.extend({
 
     fastForward: false,
 
-    setup: function(){
+    setup: function(railLinks){
         var self = this;
         
         this.preprocessor();
 
         var nodes = this.get('nodes');
 
-        var maxY = 0;
-        nodes.forEach((node) => {
-            if (node.y > maxY) maxY = node.y;
-        });
-
-        self.railLinks = [];
-        nodes.forEach((node, i) => {
-            if (node.y >= maxY) self.railLinks.push({
-                i: i,
-                x: node.x,
-                y: node.y
+        if (railLinks == undef){
+            var maxY = 0;
+            nodes.forEach((node) => {
+                if (node.y > maxY) maxY = node.y;
             });
-        });
+
+            self.railLinks = [];
+            nodes.forEach((node, i) => {
+                if (node.y >= maxY) self.railLinks.push({
+                    i: i,
+                    x: node.x,
+                    y: node.y
+                });
+            });
+        }else{
+            self.railLinks = railLinks;
+        }
 
         self.railLinks.sort((a, b) => {
             if (a.x < b.x) return -1;
             if (a.x > b.x) return 1;
             return 0;
         });
-
     },
 
     beforeSimulate: function(t){
@@ -87,8 +90,6 @@ module.exports = MFem.extend({
                 }
             }
         }
-
-        //nodes[this.railLinks[crntTrainPos].i].Fy = -trainWeight*9.81;
 
         // calculate self weight
         for (var i = 0; i < beams.length; i++){

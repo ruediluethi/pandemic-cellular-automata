@@ -33,6 +33,7 @@ module.exports = Backbone.View.extend({
 
 	vSimBridge: undef,
 	vMapBridge: undef,
+	femBridge: undef,
 
 	vSimTriangle: undef,
 	vMapTriangle: undef,
@@ -112,6 +113,24 @@ module.exports = Backbone.View.extend({
 
 				});
 			}
+
+			// switch simulated bridge
+			self.vRibbon.bind('onButtonClick', function(trigger){
+				self.showLoading();
+
+				parseBridge('data/'+trigger+'.svg', function(nodes, beams, railLinks){
+
+					self.femBridge.set('beams', beams);
+					self.femBridge.set('nodes', nodes);
+					self.femBridge.setup(railLinks);
+
+					self.femBridge.simulate();
+
+					self.hideLoading();
+				});
+
+			});
+
 
 			// show content on anchor position
 			var anchorBefore = undef;
@@ -353,17 +372,19 @@ module.exports = Backbone.View.extend({
 			{ value: 30, minValue: 1, maxValue: 40, label: 'Stabdurchmesser c in mm', color: window.BLACK }
 		]);
 
-		var femBridge = new MRailroad();
-		femBridge.set('simulationDuration', 100);
-		femBridge.set('params', [
+		self.femBridge = new MRailroad();
+		self.femBridge.set('simulationDuration', 100);
+		self.femBridge.set('params', [
 			// { value: 7.86, minValue: 1, maxValue: 100, label: 'Dichte Stahl in 10<sup>-6</sup>kg/mm<sup>2</sup>', color: window.BLACK },
 			// { value: 210, minValue: 1, maxValue: 300, label: 'E-Modul in kN/mm<sup>2</sup>', color: window.BLACK },
-			{ value: 10, minValue: 1, maxValue: 100, label: 'Durchmesser in mm', color: window.BLACK },
+			{ value: 30, minValue: 1, maxValue: 100, label: 'Durchmesser in mm', color: window.BLACK },
 			{ value: 65, minValue: 1, maxValue: 300, label: 'Wagengewicht in t', color: window.BLACK },
 			{ value: 12, minValue: 1, maxValue: 20, label: 'Anzahl Wagen', color: window.BLACK },
-			{ value: 500, minValue: 1, maxValue: 3000, label: 'Anzahl Iterationen', color: window.GRAY },
+			{ value: 1000, minValue: 1, maxValue: 3000, label: 'Anzahl Iterationen', color: window.GRAY },
 			{ value: 0.8, minValue: 0, maxValue: 1, label: 'Dämpfung', color: window.GRAY },
 		]);
+
+		
 
 		d3.csv('data/validation_beams.csv', function(error, exampleBeams){
 			d3.csv('data/validation_nodes.csv', function(error, exampleNodes){
@@ -375,15 +396,24 @@ module.exports = Backbone.View.extend({
 						femTriangle.set('beams', triangleBeams);
 						femTriangle.set('nodes', triangleNodes);
 
-						d3.csv('data/bruecke_beams.csv', function(error, bridgeBeams){
-							d3.csv('data/bruecke_nodes.csv', function(error, bridgeNodes){
-								femBridge.set('beams', bridgeBeams);
-								femBridge.set('nodes', bridgeNodes);
-								femBridge.setup();
+						parseBridge('data/spandrel-braced-arch.svg', function(nodes, beams, railLinks){
 
-								callback.call();
-							});
+							self.femBridge.set('beams', beams);
+							self.femBridge.set('nodes', nodes);
+							self.femBridge.setup(railLinks);
+
+							callback.call();
 						});
+
+						// d3.csv('data/bruecke_beams.csv', function(error, bridgeBeams){
+						// 	d3.csv('data/bruecke_nodes.csv', function(error, bridgeNodes){
+						// 		femBridge.set('beams', bridgeBeams);
+						// 		femBridge.set('nodes', bridgeNodes);
+						// 		femBridge.setup();
+
+						// 		callback.call();
+						// 	});
+						// });
 
 					});
 				});
@@ -410,7 +440,7 @@ module.exports = Backbone.View.extend({
 
 		self.vSimBridge = new VSimPlot({
 			title: 'Müngstener Brücke',
-			simulation: femBridge,
+			simulation: self.femBridge,
 			showControls: true,
 			// reactionTime: 1
 
@@ -429,10 +459,10 @@ module.exports = Backbone.View.extend({
 		});
 
 		self.vMapBridge = new VTrussMap();
-		self.vMapBridge.listenTo(femBridge, 'simulationend', function(simulation){
+		self.vMapBridge.listenTo(self.femBridge, 'simulationend', function(simulation){
 			self.vMapBridge.update(simulation.get('nodes'), simulation.get('beams'), false);
 		});
-		self.vMapBridge.listenTo(femBridge, 'simulationedit', function(simulation){
+		self.vMapBridge.listenTo(self.femBridge, 'simulationedit', function(simulation){
 			self.vMapBridge.update(simulation.get('nodes'), simulation.get('beams'), true, simulation);
 		});
 		
@@ -517,3 +547,107 @@ module.exports = Backbone.View.extend({
 
 
 });
+
+
+
+function parseBridge(path, callback){
+	$.ajax({
+		url: path,
+		dataType: 'xml'
+	}).done(function(data) {
+
+		var svg = d3.select(data);
+
+		var nodes = [];
+		var beams = [];
+		var railLinks = [];
+
+		svg.selectAll('line').each(function(d){
+			var line = d3.select(this);
+
+			var startNode = addNode(
+				parseFloat(line.attr('x1')), 
+				parseFloat(line.attr('y1')), 
+				// line.attr('class') == 'railroad',
+				line.attr('class') == 'st1',
+				nodes
+			);
+			var endNode = addNode(
+				parseFloat(line.attr('x2')), 
+				parseFloat(line.attr('y2')), 
+				// line.attr('class') == 'railroad',
+				line.attr('class') == 'st1',
+				nodes
+			);
+
+			beams.push({
+				nr: (beams.length+1).toString(),
+				start: startNode.nr,
+				end: endNode.nr,
+			});
+
+		});
+
+
+		svg.selectAll('circle').each(function(d){
+			var circle = d3.select(this);
+			var x = parseFloat(circle.attr('cx'));
+			var y = parseFloat(circle.attr('cy'));
+
+			var i = nodes.findIndex((node) => node.x == x && node.y == y);
+			if (i >= 0){
+				nodes[i].yLock = 1;
+				// if (circle.attr('class') == 'hinged'){
+				if (circle.attr('class') == 'st2'){
+					nodes[i].xLock = 1;
+				}
+			}
+		});
+
+		var maxY = -Infinity;
+		nodes.forEach((node, i) => {
+			if (node.y > maxY) maxY = node.y;
+		});
+		for (var i = 0; i < nodes.length; i++){
+			nodes[i].y = maxY - nodes[i].y; // flip y-axis
+
+			// one foot = 30.48cm --> https://de.wikipedia.org/wiki/Angloamerikanisches_Ma%C3%9Fsystem
+			nodes[i].x = nodes[i].x * 30.48 * 10; 
+			nodes[i].y = nodes[i].y * 30.48 * 10;
+
+			// fill raillink array
+			if (nodes[i].railRoad) railLinks.push({
+				i: i,
+				x: nodes[i].x,
+				y: nodes[i].y
+			});
+		}
+
+		callback.call(undef, nodes, beams, railLinks);
+	});
+}
+
+function addNode(x, y, railRoad, nodes){
+	var i = nodes.findIndex((node) => node.x == x && node.y == y);
+
+	if (i < 0){
+		var newNode = {
+			nr: (nodes.length+1).toString(),
+			x: x,
+			y: y,
+			Fx: 0,
+			Fy: 0,
+			xLock: 0,
+			yLock: 0,
+			railRoad: railRoad
+		};
+		nodes.push(newNode);
+		return newNode;
+
+	}else{
+		nodes[i].railRoad = nodes[i].railRoad || railRoad;
+		return nodes[i];
+
+	}
+
+}

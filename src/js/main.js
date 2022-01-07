@@ -5,12 +5,6 @@ var $ = jQuery = require('jquery');
 window.isMobile = false;
 window.isTouch = 'ontouchstart' in document.documentElement; // TODO: use modernizer for that
 
-$.ajaxPrefilter( function(options, originalOptions, jqXHR){
-    if (options.url.indexOf('http://') < 0 && !options.loadFromAppHost){
-        options.url = window.dbinterface + options.url;
-    }
-});
-
 window.numberWithCommas = function(x) {
    if (x.toString().length > 4){
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
@@ -62,6 +56,7 @@ window.GREEN = '#55c48f';
 
 
 window.BLACK = '#555555';
+window.WHITE = '#FFFFFF';
 window.GRAY = '#999999';
 
 window.ORANGE = '#c15510';

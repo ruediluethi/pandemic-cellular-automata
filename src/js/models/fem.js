@@ -152,6 +152,12 @@ module.exports = MSim.extend({
             }
         }
         // solve the system of linear equations
+        // var u_part = [];
+        // for (var i = 0; i < F_part.length; i++){
+        //     u_part.push([Math.random()]);
+        //     u_part.push([F_part[i][0]*0.01]);
+        //     u_part.push([0]);
+        // }
         var u_part = matrixHelpers.gaussSeidel(K_part, F_part, iterations, x0);
         if (u_part == undef) return undef;
 
@@ -165,13 +171,13 @@ module.exports = MSim.extend({
         for (var k = u.length; k < F.length; k++){
             u.push([0]);
         }
-        //this.set('displacements', u);
         
         F = matrixHelpers.multiply(K,u);
 
         for (var k = 0; k < nodes.length; k++){
             nodes[k].loadedFx = F[k*2][0];
             nodes[k].loadedFy = F[k*2+1][0];
+
             nodes[k].loadedF = Math.sqrt(
                 nodes[k].loadedFx*nodes[k].loadedFx + 
                 nodes[k].loadedFy*nodes[k].loadedFy
