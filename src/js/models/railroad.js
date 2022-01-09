@@ -84,8 +84,10 @@ module.exports = MFem.extend({
                 // if the wagonCenter is inside the Link
                 if (startX <= wagonCenter && wagonCenter <= endX){
                     nodes[this.railLinks[j-1].i].Fy = -wagonForce * (endX-wagonCenter) / linkLength / 1000;
+                    // nodes[this.railLinks[j-1].i].Fx = nodes[this.railLinks[j-1].i].Fy*0.1;
                     nodes[this.railLinks[j-1].i].loaded = true;
                     nodes[this.railLinks[j].i].Fy   = -wagonForce * (wagonCenter-startX) / linkLength / 1000;
+                    // nodes[this.railLinks[j].i].Fx   = nodes[this.railLinks[j].i].Fy*0.1;
                     nodes[this.railLinks[j].i].loaded = true;
                 }
             }
@@ -211,7 +213,7 @@ module.exports = MFem.extend({
 
         
         time.push(time.length);
-        values[0].push(maxStrain);
+        values[0].push(maxStress);
 
         this.set('time', time);
 		this.set('values', values);

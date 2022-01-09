@@ -71,6 +71,7 @@ module.exports = MSim.extend({
 
         var beams = this.get('beams');
         // calc length and angle for every beam
+        var totalLength = 0;
         for (var i = 0; i < beams.length; i++){
             beams[i].start = parseInt(beams[i].start);
             beams[i].startNode = nodes[beams[i].start-1];
@@ -84,6 +85,7 @@ module.exports = MSim.extend({
             var delta_x = beams[i].endNode.x - beams[i].startNode.x;
             var delta_y = beams[i].endNode.y - beams[i].startNode.y;
             beams[i].length = Math.sqrt(delta_x*delta_x + delta_y*delta_y); // beam length
+            totalLength += beams[i].length;
             beams[i].phi = Math.atan2(delta_y, delta_x); // angle
             beams[i].A = parseFloat(beams[i].A);
             beams[i].youngsModule = parseFloat(beams[i].youngsModule);

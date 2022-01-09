@@ -212,6 +212,8 @@ body.mobile .hanged .scroll-col.with-content {
 	box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
 
 	margin-bottom: 8px;
+
+	position: relative;
 }
 body.mobile .scroll-element .scroll-col > .scroll-element-content {
 	-webkit-box-shadow: none;
@@ -309,6 +311,10 @@ h3 {
     font-weight: 700;
     text-decoration: underline;
     margin-bottom: 5px;
+}
+
+i {
+	font-style: italic;
 }
 
 p, ul, table {
@@ -1056,8 +1062,11 @@ body.mobile .plot-container.tabs-content {
 }
 
 .scroll-element-content .button {
-	float: none;
-	display: inline-block;
+	/* float: none;
+	display: inline-block; */
+	position: absolute;
+    bottom: 10px;
+    right: 0px;
 }
 
 .button:hover {

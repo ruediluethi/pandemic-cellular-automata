@@ -44,6 +44,7 @@ module.exports = Backbone.View.extend({
 	gLabels: undef,
 
 	percentOnly: true,
+	unit: '%',
 
 	autoScale: -1,
 
@@ -89,6 +90,7 @@ module.exports = Backbone.View.extend({
 				self.autoScale = options.autoScale;
 			}
 			if (options.percentOnly != undef) self.percentOnly = options.percentOnly;
+			if (options.unit != undef) self.unit = options.unit;
 		}
 	},
 
@@ -356,7 +358,7 @@ module.exports = Backbone.View.extend({
 		
 		if (self.autoScale >= 0){
 			self.maxValue = self.max[self.autoScale];
-			self.gLabels.select('text.id-4').text((Math.round(self.maxValue*1000)/10)+'%');
+			self.gLabels.select('text.id-4').text((Math.round(self.maxValue*1000)/10)+self.unit);
 		}
 
 		var pathPointsBefore = [];

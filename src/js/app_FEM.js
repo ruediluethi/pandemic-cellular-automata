@@ -118,13 +118,17 @@ module.exports = Backbone.View.extend({
 			self.vRibbon.bind('onButtonClick', function(trigger){
 				self.showLoading();
 
+				self.femBridge.stop();
+
 				parseBridge('data/'+trigger+'.svg', function(nodes, beams, railLinks){
 
 					self.femBridge.set('beams', beams);
 					self.femBridge.set('nodes', nodes);
 					self.femBridge.setup(railLinks);
 
-					self.femBridge.simulate();
+					self.vSimBridge.restartClick();
+
+					//self.femBridge.simulate();
 
 					self.hideLoading();
 				});
@@ -380,8 +384,8 @@ module.exports = Backbone.View.extend({
 			{ value: 30, minValue: 1, maxValue: 100, label: 'Durchmesser in mm', color: window.BLACK },
 			{ value: 65, minValue: 1, maxValue: 300, label: 'Wagengewicht in t', color: window.BLACK },
 			{ value: 12, minValue: 1, maxValue: 20, label: 'Anzahl Wagen', color: window.BLACK },
-			{ value: 1000, minValue: 1, maxValue: 3000, label: 'Anzahl Iterationen', color: window.GRAY },
-			{ value: 0.8, minValue: 0, maxValue: 1, label: 'Dämpfung', color: window.GRAY },
+			{ value: 700, minValue: 1, maxValue: 3000, label: 'Anzahl Iterationen', color: window.GRAY },
+			{ value: 1, minValue: 0, maxValue: 1, label: 'Dämpfung', color: window.GRAY },
 		]);
 
 		
@@ -439,7 +443,7 @@ module.exports = Backbone.View.extend({
 
 
 		self.vSimBridge = new VSimPlot({
-			title: 'Müngstener Brücke',
+			title: 'Hell Gate Bridge',
 			simulation: self.femBridge,
 			showControls: true,
 			// reactionTime: 1
@@ -451,11 +455,12 @@ module.exports = Backbone.View.extend({
 			plotColors: [window.BLACK],
 			plotStrokes: [1],
 			plotAlphas:  [1],
-			legend: ['Dehnung'],
+			legend: ['Spannung'],
 			legendColors: [window.BLACK],
 			resetAt: 1,
 			autoScale: 0,
-			percentOnly: false
+			percentOnly: false,
+			unit: ' N/mm²'
 		});
 
 		self.vMapBridge = new VTrussMap();

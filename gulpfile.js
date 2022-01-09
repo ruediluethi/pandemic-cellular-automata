@@ -15,6 +15,7 @@ var html2tpl = require('./src/html2tpl/index.js');
 var htmlToJs = require('gulp-html-to-js');
 
 var env = process.env.ENV || 'dev';
+var env = 'dist';
 
 var devBase = 'http://localhost:9000/';
 //var devBase = 'http://localhost:3000/'; // express server
@@ -22,7 +23,7 @@ var devBase = 'http://localhost:9000/';
 //var distBase = '/cellauto/';
 
 //var distBase = '/cellauto-ulm/';
-//var distBase = '/truss/';
+var distBase = '/truss/';
 
 gulp.task('html', function(){
 

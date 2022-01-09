@@ -23,6 +23,7 @@ module.exports = Backbone.View.extend({
 	plotResetAt: 5,
 	legend: [],
 	legendColors: [],
+	unit: '%',
 
 	vSliders: [],
 	vPlot: undef,
@@ -83,6 +84,7 @@ module.exports = Backbone.View.extend({
 		if (options.reactionTime != undef){
 			self.reactionTime = options.reactionTime;
 		}
+		if (options.unit != undef) self.unit = options.unit;
 
 		// init param sliders
 		self.vSliders = [];
@@ -118,7 +120,8 @@ module.exports = Backbone.View.extend({
 				tocks: options.tocks,
 				resetAt: self.plotResetAt,
 				autoScale: options.autoScale,
-				percentOnly: options.percentOnly
+				percentOnly: options.percentOnly,
+				unit: options.unit
 			});
 			self.listenTo(self.simulation, 'simulationend', function(){
 				if(self.simulation.get('time').length > 0){
@@ -257,7 +260,8 @@ module.exports = Backbone.View.extend({
 			vSimPlot: self,
 			sliderValues: self.crntSliderValues,
 			t: self.vPlot.t-1,
-			max: self.vPlot.autoScale < 0 ? Math.round(self.vPlot.max[0]/self.vPlot.maxValue*100) : Math.round(self.vPlot.maxValue*1000)/10
+			max: self.vPlot.autoScale < 0 ? Math.round(self.vPlot.max[0]/self.vPlot.maxValue*100) : Math.round(self.vPlot.maxValue*1000)/10,
+			unit: self.unit
 		});
 
 		newArchive.setElement(self.vPlot.$el.clone());
