@@ -13,7 +13,9 @@ module.exports = MFem.extend({
     x0: undef,
 
     railLinks: [],
+    train: [],
     crntTrainPos: 0,
+    silentPathLength: 5,
 
     fastForward: false,
 
@@ -55,10 +57,11 @@ module.exports = MFem.extend({
         // var density = params[0].value * 1e-6;
         var density = 7.86e-6;
         var youngsModule = 210;
-        var diameter = params[0].value;
-        var wagonWeight = params[1].value;
+        // var diameter = params[0].value;
+        var diameter = 30;
+        var wagonWeight = params[0].value;
         var wagonForce = wagonWeight*1000*9.81/2;
-        var numberOfWagons = Math.round(params[2].value); 
+        var numberOfWagons = Math.round(params[1].value); 
         var wagonLength = 27.9e3;
 
         var beams = this.get('beams');
@@ -69,11 +72,13 @@ module.exports = MFem.extend({
             nodes[i].Fy = 0;
         }
 
+        var silentPath = wagonLength*this.get('silentPathLength');
         var trainLength = (numberOfWagons+1) * wagonLength;
         var routeLength = this.railLinks[this.railLinks.length-1].x - this.railLinks[0].x;
-        var crntPos = this.railLinks[0].x - wagonLength + t * (routeLength+trainLength);
+        var crntPos = this.railLinks[0].x - wagonLength - silentPath + t * (routeLength+trainLength+2*silentPath);
 
         // check for every wagon in the train
+        var train = [];
         for (var i = 0; i < numberOfWagons; i++){
             var wagonCenter = crntPos - i*wagonLength;
             // and for every railLink element
@@ -89,9 +94,19 @@ module.exports = MFem.extend({
                     nodes[this.railLinks[j].i].Fy   = -wagonForce * (wagonCenter-startX) / linkLength / 1000;
                     // nodes[this.railLinks[j].i].Fx   = nodes[this.railLinks[j].i].Fy*0.1;
                     nodes[this.railLinks[j].i].loaded = true;
+
+                    // save wagon position
+                    train.push({
+                        start: wagonCenter - wagonLength/2 + 1e3,
+                        center: wagonCenter,
+                        end: wagonCenter + wagonLength/2 - 1e3,
+                        y: (nodes[this.railLinks[j-1].i].y + nodes[this.railLinks[j].i].y)/2,
+                        i: i
+                    });
                 }
             }
         }
+        this.set('train', train);
 
         // calculate self weight
         for (var i = 0; i < beams.length; i++){
@@ -171,7 +186,9 @@ module.exports = MFem.extend({
 
         var time = self.get('time');
         var values = self.get('values');
-        var params = self.get('params');
+        // var params = self.get('params');
+        var amountOfIterations = 700;
+        var damping = 1;
 
         var simDuration = self.get('simulationDuration');
 		if (time.length > simDuration){
@@ -190,10 +207,10 @@ module.exports = MFem.extend({
         //this.solver(Math.max(1000,nodes.length*20));
         if (this.x0 != undef){
             for (var i = 0; i < this.x0.length; i++){
-                this.x0[i] = [this.x0[i] * params[4].value];
+                this.x0[i] = [this.x0[i] * damping];
             }
         }
-        this.x0 = this.solver(params[3].value, this.x0);
+        this.x0 = this.solver(amountOfIterations, this.x0);
         if (this.x0 == undef){
             this.edit();
             return;

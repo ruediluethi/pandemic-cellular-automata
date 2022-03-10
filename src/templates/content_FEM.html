@@ -20,7 +20,7 @@
 		</div>
 	</div>
 
-	<div class="scroll-element full-screen" data-anchor="intro">
+	<div class="scroll-element full-screen double-height" data-anchor="intro">
 
 		<div class="inside-scroll-element">
 			<div class="scroll-col two-cols">
@@ -138,7 +138,7 @@
 	</div>
 
 
-	<div class="scroll-element push-next" data-anchor="simulation">
+	<div class="scroll-element push-before push-next" data-anchor="simulation">
 		<div class="inside-scroll-element">
 
 			<div class="scroll-col"></div>
@@ -172,7 +172,7 @@
 						3318 m Stahlträger
 					</p>
 				</div>
-				<div class="scroll-element-content">
+				<!--<div class="scroll-element-content">
 					<h3>Crescent Arch Design</h3>
 					<img width="100%" src="imgs/crescent-arch-design.jpg">
 					<div class="button edit" data-trigger="crescent-arch">
@@ -182,7 +182,7 @@
 						Spannweite 298 m <br>
 						2434 m Stahlträger
 					</p>
-				</div>
+				</div>-->
 				<div class="scroll-element-content">
 					<h3>Spandrel Braced Arch Design</h3>
 					<img width="100%" src="imgs/spandrel-braced-arch-design.jpg">
@@ -428,7 +428,7 @@
 						A &#8729; x = b
 					</p>
 					<p>
-						Für eine rechte obere Dreiecksform müssen die Elemente <span class="formula">a<sub>21</sub></span> bis <span class="formula">a<sub>n1</sub></span> der ersten Spalte auf Null gebracht werden. Um dies für <span class="formula">a<sub>21</sub></span> zu erreichen, wird die erste Zeile von der zweiten abgezogen und mit dem Faktor <span class="formula">&lambda; = &minus; a<sub>21</sub> / a<sub>11</sub></span> multipliziert. Diese Permutation kann als Multiplikation mit einer Permutationsmatrix <span class="formula">P<sub>1</sub></span> beschrieben werden.
+						Für eine rechte obere Dreiecksform müssen die Elemente <span class="formula">a<sub>21</sub></span> bis <span class="formula">a<sub>n1</sub></span> der ersten Spalte auf Null gebracht werden. Um dies für <span class="formula">a<sub>21</sub></span> zu erreichen, wird die erste Zeile von der zweiten abgezogen und mit dem Faktor <span class="formula">&lambda; = &minus; a<sub>21</sub> / a<sub>11</sub></span> multipliziert (ist <span class="formula">a<sub>11</sub> = 0</span> so müssen zusätzlich Spalten getauscht werden). Diese Permutation kann als Multiplikation mit einer Permutationsmatrix <span class="formula">P<sub>1</sub></span> beschrieben werden. 
 					</p>
 					<table class="formula matrix">
 						<tbody>
@@ -762,6 +762,9 @@
 					</p>
 					<p>
 						Die Lösung des Gleichungssystem <span class="formula">A &#8729; x = b</span> ist nun in der Variable <span class="code">x</span> gespeichert.
+					</p>
+					<p>
+						Die hier vorgestellte Implementation enthält viel Optimierungspotential und würde in einem realen Programm mit den unterschiedlichsten Verbesserungen versehen werden. Wenn du wissen möchtest wie lineare Gleichungssysteme effizienter gelöst werden können, bist du im CSE Studium genau richtig.
 					</p>
 				</div>
 			</div>

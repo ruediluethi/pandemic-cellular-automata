@@ -35,7 +35,7 @@ module.exports = Backbone.View.extend({
 			if (self.maxValue > 100){
 				self.accuracy = 1;
 			}else if (self.maxValue > 1){
-				self.accuracy = 10;
+				self.accuracy = 1;
 			}
 
 			if (options.color != undef){

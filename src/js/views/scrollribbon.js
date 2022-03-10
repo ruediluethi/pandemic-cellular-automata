@@ -60,6 +60,14 @@ module.exports = Backbone.View.extend({
 				height: self.screenHeight
 			});
 
+			self.$el.find('.scroll-element.double-height').css({
+				height: self.screenHeight*2
+			});
+
+			self.$el.find('.scroll-element.push-before').css({
+				paddingTop: self.screenHeight
+			});
+
 			self.$el.find('.scroll-element.push-next').css({
 				paddingBottom: self.screenHeight
 			});

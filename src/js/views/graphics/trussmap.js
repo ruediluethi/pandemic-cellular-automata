@@ -25,6 +25,7 @@ module.exports = Backbone.View.extend({
 	gBeamsOrig: undef,
 	gNodes: undef,
 	gBeams: undef,
+	gTrain: undef,
 
 	editModeOn: false,
 
@@ -75,6 +76,7 @@ module.exports = Backbone.View.extend({
 
 		self.gBeamsOrig = self.gCanvas.append('g');
 		self.gNodesOrig = self.gCanvas.append('g');
+		self.gTrain = self.gCanvas.append('g');
 		self.gBeams = self.gCanvas.append('g');
 		self.gNodes = self.gCanvas.append('g');
 
@@ -84,6 +86,7 @@ module.exports = Backbone.View.extend({
 	update: function(nodes, beams, editMode, simulation){
 		var self = this;
 		self.editModeOn = editMode;
+
 
 		self.dragShift = {
 			x: 0,
@@ -158,7 +161,7 @@ module.exports = Backbone.View.extend({
 		
 		var scaleStroke = d3.scale.linear()
 			.domain([0, maxA])
-			.range([1, 5]);
+			.range([1, 3]);
 
 		const origLines = self.gBeamsOrig.selectAll('line').data(beams);
 		origLines.enter()
@@ -221,8 +224,6 @@ module.exports = Backbone.View.extend({
 			.on('click', function(beam, i){
 				if (!editMode) return;
 
-				console.log(beam);
-
 				beams[i].disabled = beams[i].disabled ? false : true;
 				simulation.set('beams', beams);
 
@@ -236,10 +237,18 @@ module.exports = Backbone.View.extend({
 			.attr('class', 'node')
 			.each(function(node, i){
 				var g = d3.select(this);
+
+				var gSupport = g.append('g').attr('class', 'support');
+				gSupport.append('path')
+					.attr('fill', window.WHITE);
+				gSupport.append('line')
+					.attr('stroke-width', 2)
+					.attr('stroke', window.WHITE);
+
 				g.append('circle')
 					.attr('cx', 0)
 					.attr('cy', 0)
-					.attr('r', 3)
+					.attr('r', 2.5)
 					.attr('fill', window.BLACK);
 
 				var gArrow = g.append('g').attr('class', 'arrow');
@@ -250,6 +259,7 @@ module.exports = Backbone.View.extend({
 					.attr('stroke', window.BLACK);
 				gArrow.append('path')
 					.attr('fill', window.BLACK);
+				
 			});
 		gNodes.exit()
 			.remove();
@@ -293,7 +303,88 @@ module.exports = Backbone.View.extend({
 				g.select('path')
 					.attr('fill', node.loaded ? window.BLACK : window.WHITE)
 					.attr('d', pathDrawFunction(arrow));
+
+				var gSupport = d3.select(this).select('g.support');
+				if (node.yLock){
+					gSupport.attr('visibility', 'visible');
+
+					var a = 12;
+					var h = Math.sqrt(3)/2*a;
+
+					gSupport.select('path').attr('d', pathDrawFunction([{
+						x: 0,
+						y: 0
+					},{
+						x: a/2,
+						y: h
+					},{
+						x: -a/2,
+						y: h
+					},{
+						x: 0,
+						y: 0
+					}]));
+
+					if (node.xLock){
+						gSupport.select('line')
+							.attr('visibility', 'hidden');
+					}else{
+						gSupport.select('line')
+							.attr('visibility', 'visible')
+							.attr('x1', -a/2)
+							.attr('y1', h+3)
+							.attr('x2', a/2)
+							.attr('y2', h+3);
+					}
+					
+
+
+				}else{
+					gSupport.attr('visibility', 'hidden');
+					gSupport.select('path').attr('d', '');
+					gSupport.select('line').attr('visibility', 'hidden');
+				}
+				
 			});
+
+
+		
+		if (!editMode && simulation != undef){
+			var wagonPaths = self.gTrain.selectAll('path').data(simulation.get('train'));
+			wagonPaths.enter()
+				.append('path')
+				.attr('fill', window.WHITE);
+
+			wagonPaths.attr('d', (d, i) => {
+					return pathDrawFunction([
+						{
+							x: scaleX(d.start),
+							y: scaleY(d.y + 2e3)
+						},{
+							x: scaleX(d.start),
+							y: scaleY(d.y + 2e3 + 3890)-1
+						},{
+							x: scaleX(d.end - (d.i == 0 ? 4000 : 0)),
+							y: scaleY(d.y + 2e3 + 3890)-1
+						},{
+							x: scaleX(d.end),
+							y: scaleY(d.y + 2e3 + 2e3)
+						},{
+							x: scaleX(d.end),
+							y: scaleY(d.y + 2e3)
+						}
+					]);
+				});
+
+			wagonPaths.exit()
+				.remove();
+
+
+		}else{
+
+			self.gTrain.selectAll('path').remove();
+
+		}
 
 	}
 

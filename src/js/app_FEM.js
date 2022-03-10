@@ -35,6 +35,10 @@ module.exports = Backbone.View.extend({
 	vMapBridge: undef,
 	femBridge: undef,
 
+	vSimIntro: undef,
+	vMapIntro: undef,
+	femIntro: undef,
+
 	vSimTriangle: undef,
 	vMapTriangle: undef,
 
@@ -118,6 +122,8 @@ module.exports = Backbone.View.extend({
 			self.vRibbon.bind('onButtonClick', function(trigger){
 				self.showLoading();
 
+				self.vRibbon.scrollToKey('simulation', () => {});
+
 				self.femBridge.stop();
 
 				parseBridge('data/'+trigger+'.svg', function(nodes, beams, railLinks){
@@ -181,8 +187,13 @@ module.exports = Backbone.View.extend({
 					anchorId == 'intro'){
 					if (!onIntroScreen){
 						onIntroScreen = true;
-						self.vBackHandler.showBackground(self.vMapExample.render(), false);
-						self.vBackHandler.appendDiagram('right', self.vSimExample);
+
+						// self.vBackHandler.showBackground(self.vMapExample.render(), false);
+						// self.vBackHandler.appendDiagram('right', self.vSimExample);
+						self.vBackHandler.showBackground(self.vMapIntro.render(), false);
+						self.vBackHandler.appendDiagram('right', self.vSimIntro);
+						// self.femIntro.simulate();
+
 						// self.vBackHandler.appendDiagram('right', self.vSimTriangle);
 					}
 					self.vBackHandler.$el.find('.scroll-col.left').addClass('hidden');
@@ -192,6 +203,8 @@ module.exports = Backbone.View.extend({
 					self.vBackHandler.$el.find('.scroll-col.left').removeClass('hidden');
 					self.vBackHandler.$el.find('.scroll-col.center').removeClass('hidden');
 				}
+
+				if (!onIntroScreen) self.femIntro.stop();
 
 				if (anchorId == 'footer'){
 					self.vBackHandler.appendContent('center', $(''));
@@ -378,16 +391,27 @@ module.exports = Backbone.View.extend({
 
 		self.femBridge = new MRailroad();
 		self.femBridge.set('simulationDuration', 100);
+		self.femBridge.set('silentPathLength', 5);
 		self.femBridge.set('params', [
 			// { value: 7.86, minValue: 1, maxValue: 100, label: 'Dichte Stahl in 10<sup>-6</sup>kg/mm<sup>2</sup>', color: window.BLACK },
 			// { value: 210, minValue: 1, maxValue: 300, label: 'E-Modul in kN/mm<sup>2</sup>', color: window.BLACK },
-			{ value: 30, minValue: 1, maxValue: 100, label: 'Durchmesser in mm', color: window.BLACK },
+			// { value: 30, minValue: 1, maxValue: 100, label: 'Durchmesser in mm', color: window.BLACK },
 			{ value: 65, minValue: 1, maxValue: 300, label: 'Wagengewicht in t', color: window.BLACK },
 			{ value: 12, minValue: 1, maxValue: 20, label: 'Anzahl Wagen', color: window.BLACK },
-			{ value: 700, minValue: 1, maxValue: 3000, label: 'Anzahl Iterationen', color: window.GRAY },
-			{ value: 1, minValue: 0, maxValue: 1, label: 'Dämpfung', color: window.GRAY },
+			// { value: 700, minValue: 1, maxValue: 3000, label: 'Anzahl Iterationen', color: window.GRAY },
+			// { value: 1, minValue: 0, maxValue: 1, label: 'Dämpfung', color: window.GRAY },
 		]);
 
+		self.femIntro = new MRailroad();
+		self.femIntro.set('simulationDuration', 100);
+		self.femIntro.set('silentPathLength', 0);
+		self.femIntro.set('params', [
+			// { value: 30, minValue: 1, maxValue: 100, label: 'Durchmesser in mm', color: window.BLACK },
+			{ value: 65, minValue: 1, maxValue: 300, label: 'Wagengewicht in t', color: window.BLACK },
+			{ value: 12, minValue: 1, maxValue: 20, label: 'Anzahl Wagen', color: window.BLACK },
+			// { value: 700, minValue: 1, maxValue: 3000, label: 'Anzahl Iterationen', color: window.GRAY },
+			// { value: 1, minValue: 0, maxValue: 1, label: 'Dämpfung', color: window.GRAY },
+		]);
 		
 
 		d3.csv('data/validation_beams.csv', function(error, exampleBeams){
@@ -405,6 +429,10 @@ module.exports = Backbone.View.extend({
 							self.femBridge.set('beams', beams);
 							self.femBridge.set('nodes', nodes);
 							self.femBridge.setup(railLinks);
+
+							self.femIntro.set('beams', beams);
+							self.femIntro.set('nodes', nodes);
+							self.femIntro.setup(railLinks);
 
 							callback.call();
 						});
@@ -441,6 +469,25 @@ module.exports = Backbone.View.extend({
 			self.vMapExample.update(simulation.get('nodes'), simulation.get('beams'));
 		});
 
+		self.vSimIntro = new VSimPlot({
+			title: 'Hell Gate Bridge',
+			simulation: self.femIntro,
+			showControls: false,
+			reactionTime: 1,
+
+			plotColors: [],
+			plotStrokes: [],
+			plotAlphas:  []
+		});
+
+		self.vMapIntro = new VTrussMap();
+		self.vMapIntro.listenTo(self.femIntro, 'simulationend', function(simulation){
+			self.vMapIntro.update(simulation.get('nodes'), simulation.get('beams'), false, simulation);
+		});
+		self.vMapIntro.listenTo(self.femIntro, 'simulationdone', function(simulation){
+			simulation.simulate();
+		});
+
 
 		self.vSimBridge = new VSimPlot({
 			title: 'Hell Gate Bridge',
@@ -465,7 +512,7 @@ module.exports = Backbone.View.extend({
 
 		self.vMapBridge = new VTrussMap();
 		self.vMapBridge.listenTo(self.femBridge, 'simulationend', function(simulation){
-			self.vMapBridge.update(simulation.get('nodes'), simulation.get('beams'), false);
+			self.vMapBridge.update(simulation.get('nodes'), simulation.get('beams'), false, simulation);
 		});
 		self.vMapBridge.listenTo(self.femBridge, 'simulationedit', function(simulation){
 			self.vMapBridge.update(simulation.get('nodes'), simulation.get('beams'), true, simulation);
@@ -500,6 +547,7 @@ module.exports = Backbone.View.extend({
 		self.vRibbon.resize(height);
 		self.vBackHandler.resize(width, height);
 		self.vMapExample.resize(width,height);
+		self.vMapIntro.resize(width,height);
 		
 		if (window.isMobile){
 			self.vMapBridge.resize(width,height);
