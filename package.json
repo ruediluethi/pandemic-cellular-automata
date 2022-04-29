@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "async": "^1.0.0",
+    "async": "^2.6.4",
     "backbone": "^1.4.0",
     "browserify": "^16.5.1",
     "browsernizr": "^2.0.0",
