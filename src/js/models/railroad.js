@@ -18,6 +18,7 @@ module.exports = MFem.extend({
     silentPathLength: 5,
 
     fastForward: false,
+    isStopped: false,
 
     setup: function(railLinks){
         var self = this;
@@ -134,6 +135,7 @@ module.exports = MFem.extend({
 		this.set('values', [[]]);
 
         this.fastForward = false;
+        this.isStopped = false;
 
         this.trigger('simulationstart', this);
 
@@ -152,6 +154,8 @@ module.exports = MFem.extend({
 
     stop: function(){
 		var self = this;
+
+        this.isStopped = true;
 
 		if (self.movement != undef){
 			clearTimeout(self.movement);
@@ -187,8 +191,13 @@ module.exports = MFem.extend({
         var time = self.get('time');
         var values = self.get('values');
         // var params = self.get('params');
-        var amountOfIterations = 700;
+        var useSimple = window.location.href.includes('simple');
+        var amountOfIterations = useSimple ? 500 : 700;
         var damping = 1;
+
+        // used for video export
+        // var amountOfIterations = 5000;
+        // var damping = 0.5;
 
         var simDuration = self.get('simulationDuration');
 		if (time.length > simDuration){
@@ -227,7 +236,6 @@ module.exports = MFem.extend({
             if (Math.abs(beam.stress) > maxStress) maxStress = Math.abs(beam.stress);
             if (Math.abs(beam.strain) > maxStrain) maxStrain = Math.abs(beam.strain);
         });
-
         
         time.push(time.length);
         values[0].push(maxStress);
@@ -238,11 +246,15 @@ module.exports = MFem.extend({
 		if (!self.fastForward) this.trigger('simulationend', this);
 
 
+        if (self.isStopped) return;
         self.movement = setTimeout(function(){
 
             self.tchooTchoo();
 
         }, self.fastForward ? 1 : Math.max(self.moveDelay-calcDuration, 1) );
+
+        // used for image export
+        // }, 1000);
 
     }
 

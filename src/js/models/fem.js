@@ -21,11 +21,12 @@ module.exports = MSim.extend({
         var time = [];
         var values = [[]];
         //for (var it = 100; it < Math.max(1000,nodes.length*20); it = it + 100){
-        var it = Math.max(1000,nodes.length*20);
+            var it = Math.max(1000,nodes.length*20);
             this.preprocessor();
             this.solver(it);
             this.postprocessor();
 
+        /*
             var beams = this.get('beams');
             var maxStress = 0;
             var sumStress = 0;
@@ -37,7 +38,7 @@ module.exports = MSim.extend({
             });
 
             time.push(time.length);
-            values[0].push(sumU);
+            values[0].push(sumStress);
         //}
         
         var first = values[0][0];
@@ -46,6 +47,7 @@ module.exports = MSim.extend({
         for (var i = 0; i < values[0].length; i++){
             values[0][i] = (values[0][i]-first)/(last-first);
         }
+        */
 
         // console.log(time);
         // console.log(values);
@@ -205,10 +207,25 @@ module.exports = MSim.extend({
             beam.startNode = nodes[beam.start-1];
             beam.endNode = nodes[beam.end-1];
 
+            var startPos = {
+                x: beam.startNode.x + beam.startNode.ux,
+                y: beam.startNode.y + beam.startNode.uy,
+            };
+
+            var endPos = {
+                x: beam.endNode.x + beam.endNode.ux,
+                y: beam.endNode.y + beam.endNode.uy,
+            };
+
+            var dx = startPos.x - endPos.x;
+            var dy = startPos.y - endPos.y;
+            var distortedLength = Math.sqrt(dx*dx + dy*dy);
+
             // displacements along beam direction
-            ua = beam.startNode.ux*Math.cos(beam.phi) + beam.startNode.uy*Math.sin(beam.phi);
-            ub = beam.endNode.ux*Math.cos(beam.phi) + beam.endNode.uy*Math.sin(beam.phi);
-            beam.u = ub - ua;
+            // ua = beam.startNode.ux*Math.cos(beam.phi) + beam.startNode.uy*Math.sin(beam.phi);
+            // ub = beam.endNode.ux*Math.cos(beam.phi) + beam.endNode.uy*Math.sin(beam.phi);
+            // beam.u = ub - ua;
+            beam.u = distortedLength - beam.length;
 
             beam.strain = beam.u / beam.length;
             beam.stress = beam.youngsModule * beam.strain;

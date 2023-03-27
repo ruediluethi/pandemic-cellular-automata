@@ -124,8 +124,18 @@ module.exports = Backbone.View.extend({
 				unit: options.unit
 			});
 			self.listenTo(self.simulation, 'simulationend', function(){
+
 				if(self.simulation.get('time').length > 0){
-					self.vPlot.update(self.simulation.get('values'), self.simulation.get('time'));
+
+					var values = self.simulation.get('values');
+					var lastValue = values[0][values[0].length-1];
+
+					if (lastValue > 5){
+						self.simulation.stop();
+						self.vPlot.maxReached('Maximale Spannung erreicht!<br>Stahl droht zu brechen.');
+					}
+
+					self.vPlot.update(values, self.simulation.get('time'));
 					self.vPlot.$el.show();
 				}else{
 					self.vPlot.$el.hide();
@@ -244,6 +254,10 @@ module.exports = Backbone.View.extend({
 			return;
 		}
 
+		
+		self.$el.find('.edit-caption').hide();
+
+		self.vPlot.resetMessage();
 		self.simulation.start();
 	},
 
@@ -256,11 +270,14 @@ module.exports = Backbone.View.extend({
 	restartClick: function(e){
 		var self = this;
 
+		self.vPlot.resetMessage();
+
 		var newArchive = new VArchivedPlot({
 			vSimPlot: self,
 			sliderValues: self.crntSliderValues,
 			t: self.vPlot.t-1,
-			max: self.vPlot.autoScale < 0 ? Math.round(self.vPlot.max[0]/self.vPlot.maxValue*100) : Math.round(self.vPlot.maxValue*1000)/10,
+			// max: self.vPlot.autoScale < 0 ? Math.round(self.vPlot.max[0]/self.vPlot.maxValue*100) : Math.round(self.vPlot.maxValue*1000)/10,
+			max: Math.round(self.vPlot.max[0]*1000)/10,
 			unit: self.unit
 		});
 
@@ -271,6 +288,8 @@ module.exports = Backbone.View.extend({
 
 
 		self.vPlot.$el.hide();
+
+		self.$el.find('.edit-caption').hide();
 
 
 		newArchive.minimize(function(){
@@ -288,6 +307,7 @@ module.exports = Backbone.View.extend({
 
 		self.togglePlayButton(true);
 		self.simulation.edit();
+		self.$el.find('.edit-caption').show();
 	},
 
 	closeAllArchives: function(){

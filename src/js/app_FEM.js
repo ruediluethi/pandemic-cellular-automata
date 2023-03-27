@@ -19,6 +19,20 @@ var MRailroad = require('./models/railroad.js');
 var VSimPlot = require('./views/graphics/simplot');
 var VTrussMap = require('./views/graphics/trussmap');
 
+var exampleBeams = require('./data/exampleBeams.js');
+var exampleNodes = require('./data/exampleNodes.js');
+
+var triangleBeams = [{"nr":"1","start":"1","end":"2","A":"200","youngsModule":"210","density":"0","label":"I"},{"nr":"2","start":"2","end":"3","A":"200","youngsModule":"210","density":"0","label":"II"},{"nr":"3","start":"1","end":"3","A":"100","youngsModule":"210","density":"0","label":"III"}];
+var triangleNodes = [{"nr":"1","x":"0","y":"0","Fx":"0","Fy":"0","xLock":"1","yLock":"1","label":"A"},{"nr":"2","x":"1000","y":"1000","Fx":"0","Fy":"-1000","xLock":"0","yLock":"0","label":"B","Flabel":"F"},{"nr":"3","x":"2000","y":"0","Fx":"0","Fy":"0","xLock":"0","yLock":"1","label":"C"}];
+
+var bridgeSimpleBeams = require('./data/bridgeSimpleBeams.js');
+var bridgeSimpleNodes = require('./data/bridgeSimpleNodes.js');
+var railLinksSimple = require('./data/bridgeSimpleRailLinks.js');
+
+var bridgeBeams = require('./data/bridgeBeams');
+var bridgeNodes = require('./data/bridgeNodes');
+var bridgeRailLinks = require('./data/bridgeRailLinks');
+
 module.exports = Backbone.View.extend({
 
 	className: 'app',
@@ -122,11 +136,14 @@ module.exports = Backbone.View.extend({
 			self.vRibbon.bind('onButtonClick', function(trigger){
 				self.showLoading();
 
+				console.log('####');
+
 				self.vRibbon.scrollToKey('simulation', () => {});
 
 				self.femBridge.stop();
 
-				parseBridge('data/'+trigger+'.svg', function(nodes, beams, railLinks){
+				var useSimple = window.location.href.includes('simple');
+				parseBridge('data/'+trigger+(useSimple ? '_simple' : '')+'.svg', function(nodes, beams, railLinks){
 
 					self.femBridge.set('beams', beams);
 					self.femBridge.set('nodes', nodes);
@@ -313,6 +330,7 @@ module.exports = Backbone.View.extend({
 			self.vRibbon.initScrollHandler();
 
 			self.hideLoading();
+
 		});
 
 	},
@@ -384,9 +402,9 @@ module.exports = Backbone.View.extend({
 		femTriangle.set('params', [
 			{ value: 100, minValue: 0, maxValue: 2000, label: 'Kraft in kN', color: window.BLACK },
 			{ value: 270, minValue: 0, maxValue: 360, label: 'Winkel der Kraft', color: window.BLACK },
-			{ value: 10, minValue: 1, maxValue: 40, label: 'Stabdurchmesser a in mm', color: window.BLACK },
-			{ value: 20, minValue: 1, maxValue: 40, label: 'Stabdurchmesser b in mm', color: window.BLACK },
-			{ value: 30, minValue: 1, maxValue: 40, label: 'Stabdurchmesser c in mm', color: window.BLACK }
+			{ value: 10, minValue: 1, maxValue: 40, label: 'Stabdurchmesser I in mm', color: window.BLACK },
+			{ value: 20, minValue: 1, maxValue: 40, label: 'Stabdurchmesser II in mm', color: window.BLACK },
+			{ value: 30, minValue: 1, maxValue: 40, label: 'Stabdurchmesser III in mm', color: window.BLACK }
 		]);
 
 		self.femBridge = new MRailroad();
@@ -413,18 +431,34 @@ module.exports = Backbone.View.extend({
 			// { value: 1, minValue: 0, maxValue: 1, label: 'Dämpfung', color: window.GRAY },
 		]);
 		
+		var useSimple = window.location.href.includes('simple');
+		// d3.csv('data/validation_beams.csv', function(error, exampleBeams){
+		// 	console.log(JSON.stringify(exampleBeams));
 
-		d3.csv('data/validation_beams.csv', function(error, exampleBeams){
-			d3.csv('data/validation_nodes.csv', function(error, exampleNodes){
+			// d3.csv('data/validation_nodes.csv', function(error, exampleNodes){
+			// 	console.log(JSON.stringify(exampleNodes));
+
 				femExample.set('beams', exampleBeams);
 				femExample.set('nodes', exampleNodes);
 
-				d3.csv('data/lecture_beams.csv', function(error, triangleBeams){
-					d3.csv('data/lecture_nodes.csv', function(error, triangleNodes){
+				// d3.csv('data/lecture_beams.csv', function(error, triangleBeams){
+				// 	d3.csv('data/lecture_nodes.csv', function(error, triangleNodes){
+						
 						femTriangle.set('beams', triangleBeams);
 						femTriangle.set('nodes', triangleNodes);
 
-						parseBridge('data/spandrel-braced-arch.svg', function(nodes, beams, railLinks){
+						// parseBridge('data/spandrel-braced-arch'+(useSimple ? '_simple' : '')+'.svg', function(nodes, beams, railLinks){
+						// parseBridge('data/cantilever-design.svg', function(nodes, beams, railLinks){
+						//parseBridge('data/crescent-arch.svg', function(nodes, beams, railLinks){
+						// parseBridge('data/suspension-bridge-design.svg', function(nodes, beams, railLinks){	
+
+						// 	console.log(JSON.stringify(beams));
+						// 	console.log(JSON.stringify(nodes));
+						// 	console.log(JSON.stringify(railLinks));
+
+							var beams = bridgeBeams;
+							var nodes = bridgeNodes;
+							var railLinks = bridgeRailLinks;
 
 							self.femBridge.set('beams', beams);
 							self.femBridge.set('nodes', nodes);
@@ -434,8 +468,12 @@ module.exports = Backbone.View.extend({
 							self.femIntro.set('nodes', nodes);
 							self.femIntro.setup(railLinks);
 
-							callback.call();
-						});
+							setTimeout(() => {
+								callback.call();
+							}, 1000);
+
+							// callback.call();
+						// });
 
 						// d3.csv('data/bruecke_beams.csv', function(error, bridgeBeams){
 						// 	d3.csv('data/bruecke_nodes.csv', function(error, bridgeNodes){
@@ -447,11 +485,11 @@ module.exports = Backbone.View.extend({
 						// 	});
 						// });
 
-					});
-				});
+					// });
+				// });
 
-			});
-		});
+			// });
+		// });
 
 		self.vSimExample = new VSimPlot({
 			title: 'Fachwerk',
@@ -498,14 +536,15 @@ module.exports = Backbone.View.extend({
 			ticks: 5,
 			tocks: 10,
 			minValue: 0,
-			maxValue: 1,
+			// maxValue: 1,
+			maxValue: 5,
 			plotColors: [window.BLACK],
 			plotStrokes: [1],
 			plotAlphas:  [1],
 			legend: ['Spannung'],
 			legendColors: [window.BLACK],
 			resetAt: 1,
-			autoScale: 0,
+			autoScale: -1,
 			percentOnly: false,
 			unit: ' N/mm²'
 		});
@@ -513,6 +552,60 @@ module.exports = Backbone.View.extend({
 		self.vMapBridge = new VTrussMap();
 		self.vMapBridge.listenTo(self.femBridge, 'simulationend', function(simulation){
 			self.vMapBridge.update(simulation.get('nodes'), simulation.get('beams'), false, simulation);
+			
+			return;
+
+			// this code is used to save the svg as image
+			var $svg = self.vMapBridge.$el.find('svg');
+
+			var serializer = new XMLSerializer();
+			var source = serializer.serializeToString($svg[0]);
+
+			//add name spaces.
+			if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+				source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+			}
+			if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
+				source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+			}
+
+			//add xml declaration
+			source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+
+			var imgSrc = 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(source);
+
+			var canvas = document.createElement("canvas");
+			var context = canvas.getContext("2d");
+
+			var size = 1024;
+			canvas.width = size;
+			canvas.height = size;
+
+			self.$el.append(canvas);
+
+			var time = simulation.get('time');
+
+			var image = new Image();
+			image.onload = function() {
+				context.clearRect ( 0, 0, size, size );
+				context.drawImage(image, 0, 0, size, size);
+
+				$.ajax({
+					type: 'POST',
+					url: 'http://localhost:8080/save',
+					data: {
+						count: time.length,
+						image: canvas.toDataURL()
+					},
+					success: function( data, textStatus, jqXHR ){
+						
+					}
+				});
+			};
+
+			image.src = imgSrc;
+
+
 		});
 		self.vMapBridge.listenTo(self.femBridge, 'simulationedit', function(simulation){
 			self.vMapBridge.update(simulation.get('nodes'), simulation.get('beams'), true, simulation);
@@ -556,6 +649,7 @@ module.exports = Backbone.View.extend({
 			self.vMapTriangle.$el.removeClass('gamemap');
 		}else{
 			self.vMapBridge.resize(685,height);
+			//self.vMapBridge.resize(1024,1024);
 			self.vMapBridge.$el.addClass('gamemap');
 			self.vMapTriangle.resize(685,height);
 			self.vMapTriangle.$el.addClass('gamemap');

@@ -25,6 +25,7 @@ module.exports = Backbone.View.extend({
 	gBeamsOrig: undef,
 	gNodes: undef,
 	gBeams: undef,
+	gBeamsLabel: undef,
 	gTrain: undef,
 
 	editModeOn: false,
@@ -78,6 +79,7 @@ module.exports = Backbone.View.extend({
 		self.gNodesOrig = self.gCanvas.append('g');
 		self.gTrain = self.gCanvas.append('g');
 		self.gBeams = self.gCanvas.append('g');
+		self.gBeamsLabel = self.gCanvas.append('g');
 		self.gNodes = self.gCanvas.append('g');
 
         return self.$el;
@@ -111,10 +113,10 @@ module.exports = Backbone.View.extend({
 		// console.log('x range: '+minX+' - '+maxX);
 		// console.log('y range: '+minY+' - '+maxY);
 
-		var maxStress = 0;
-		beams.forEach((beam) => {
-			if (Math.abs(beam.stress) > maxStress) maxStress = Math.abs(beam.stress);
-		});
+		var maxStress = 4;
+		// beams.forEach((beam) => {
+		// 	if (Math.abs(beam.stress) > maxStress) maxStress = Math.abs(beam.stress);
+		// });
 		// console.log('max stress: '+maxStress);
 
 		var maxF = 0;
@@ -194,6 +196,26 @@ module.exports = Backbone.View.extend({
 		lines.exit()
 			.remove();
 
+		var lineLabels = self.gBeamsLabel.selectAll('text').data(beams.slice());
+		lineLabels.enter().append('text');
+		lineLabels.exit().remove();
+
+		lineLabels.each(function(beam, i){
+			var textLabel = d3.select(this);
+
+			if (beam.label == undef) return;
+
+			textLabel.text(beam.label);
+
+			var x1 = scaleX(beam.startNode.x + beam.startNode.ux);
+			var y1 = scaleY(beam.startNode.y + beam.startNode.uy);
+			var x2 = scaleX(beam.endNode.x + beam.endNode.ux);
+			var y2 = scaleY(beam.endNode.y + beam.endNode.uy);
+
+			textLabel.attr('x', (x1+x2)/2);
+			textLabel.attr('y', (y1+y2)/2-5);
+		});
+
 		lines.attr('opacity', (beam) => beam.disabled && !editMode ? 0 : 1)
 			.attr('stroke', (beam) => {
 				if (editMode) return beam.disabled ? '#FFFFFF' : window.BLACK;
@@ -206,20 +228,22 @@ module.exports = Backbone.View.extend({
 					return colors.gradient(-beam.stress/maxStress, [window.GREEN, window.BLUE, window.PURPLE]);
 				}*/
 			})
-			.attr('stroke-width', (beam) => scaleStroke(beam.A))
+			.attr('stroke-width', (beam) => editMode ? 10 : scaleStroke(beam.A))
 			.attr('x1', (beam) => scaleX(beam.startNode.x + (editMode ? 0 : beam.startNode.ux)))
 			.attr('y1', (beam) => scaleY(beam.startNode.y + (editMode ? 0 : beam.startNode.uy)))
 			.attr('x2', (beam) => scaleX(beam.endNode.x + (editMode ? 0 : beam.endNode.ux)))
 			.attr('y2', (beam) => scaleY(beam.endNode.y + (editMode ? 0 : beam.endNode.uy)))
-			.on('mouseover', function(){
+			.on('mouseover', function(beam, i){
 				if (!editMode) return;
 				var line = d3.select(this);
-				line.attr('stroke-width', (beam) => scaleStroke(beam.A)*2);
+				// line.attr('stroke-width', (beam) => scaleStroke(beam.A)*2);
+				line.attr('stroke', beams[i].disabled ? '#EEEEEE' : '#777777');
 			})
-			.on('mouseout', function(){
+			.on('mouseout', function(beam, i){
 				if (!editMode) return;
 				var line = d3.select(this);
-				line.attr('stroke-width', (beam) => scaleStroke(beam.A));
+				// line.attr('stroke-width', (beam) => scaleStroke(beam.A));
+				line.attr('stroke', beams[i].disabled ? '#FFFFFF' : window.BLACK);
 			})
 			.on('click', function(beam, i){
 				if (!editMode) return;
@@ -238,6 +262,7 @@ module.exports = Backbone.View.extend({
 			.each(function(node, i){
 				var g = d3.select(this);
 
+
 				var gSupport = g.append('g').attr('class', 'support');
 				gSupport.append('path')
 					.attr('fill', window.WHITE);
@@ -251,6 +276,13 @@ module.exports = Backbone.View.extend({
 					.attr('r', 2.5)
 					.attr('fill', window.BLACK);
 
+				if (node.label != undef){
+					g.append('text')
+						.attr('x', 5)
+						.attr('y', -5)
+						.text(node.label);
+				}
+
 				var gArrow = g.append('g').attr('class', 'arrow');
 				gArrow.append('line')
 					.attr('x1', 0)
@@ -259,6 +291,10 @@ module.exports = Backbone.View.extend({
 					.attr('stroke', window.BLACK);
 				gArrow.append('path')
 					.attr('fill', window.BLACK);
+				if (node.Flabel != undef){
+					gArrow.append('text')
+						.text(node.Flabel);
+				}
 				
 			});
 		gNodes.exit()
@@ -303,6 +339,10 @@ module.exports = Backbone.View.extend({
 				g.select('path')
 					.attr('fill', node.loaded ? window.BLACK : window.WHITE)
 					.attr('d', pathDrawFunction(arrow));
+
+				g.select('g.arrow text')
+					.attr('x', (scaleF(node.loadedF)+arrowLength+5)*Math.cos(phi))
+					.attr('y', -((scaleF(node.loadedF)+arrowLength+5)*Math.sin(phi)));
 
 				var gSupport = d3.select(this).select('g.support');
 				if (node.yLock){

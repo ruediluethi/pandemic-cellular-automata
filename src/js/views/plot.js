@@ -39,6 +39,7 @@ module.exports = Backbone.View.extend({
 	ticks: 10,
 	tocks: 25,
 
+	gBack: undef,
 	gAxis: undef,
 	gGraphs: undef,
 	gLabels: undef,
@@ -113,6 +114,13 @@ module.exports = Backbone.View.extend({
 
 		self.diagramWidth = self.width - 2*self.padding;
 		self.diagramHeight = self.height - self.paddingTop - self.paddingBottom;
+
+		self.gBack = svg.append('g')
+			.attr('visibility', 'hidden');
+		self.gBack.append('rect')
+			.attr('width', self.width)
+			.attr('height', self.height-self.paddingBottom)
+			.attr('fill', window.RED);
 
 		self.gGraphs = svg.append('g');
 		self.gGraphs.attr('transform', 'translate('+self.padding+','+self.paddingTop+')');
@@ -325,6 +333,7 @@ module.exports = Backbone.View.extend({
 	update: function(data,time){
 		var self = this;
 
+		
 		self.gGraphs.selectAll('line.h-line').remove();
 		self.gGraphs.selectAll('line.v-line').remove();
 
@@ -358,8 +367,9 @@ module.exports = Backbone.View.extend({
 		
 		if (self.autoScale >= 0){
 			self.maxValue = self.max[self.autoScale];
-			self.gLabels.select('text.id-4').text((Math.round(self.maxValue*1000)/10)+self.unit);
+			
 		}
+		self.gLabels.select('text.id-4').text((Math.round(self.maxValue*1000)/10)+self.unit);
 
 		var pathPointsBefore = [];
 		for (var t = 0; t < data[0].length; t++){
@@ -420,6 +430,24 @@ module.exports = Backbone.View.extend({
 	valueToY: function(value){
 		var self = this;
 		return self.diagramHeight-((value-self.minValue)/Math.abs(self.maxValue-self.minValue) * self.diagramHeight);
+	},
+
+	resetMessage: function(){
+		var self = this;
+
+		self.gBack.attr('visibility', 'hidden');
+		self.gGraphs.selectAll('path').data(self.colors).attr('stroke', (d,i) => d);
+		self.$el.find('.plot-inside-message').html('');
+
+	},
+
+	maxReached: function(message){
+		var self = this;
+
+		self.gBack.attr('visibility', 'visible');
+		self.gGraphs.selectAll('path').attr('stroke', '#FFFFFF');
+		self.$el.find('.plot-inside-message').html(message);
+
 	}
 
 });
